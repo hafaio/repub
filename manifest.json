@@ -1,0 +1,32 @@
+{
+  "name": "rePub",
+  "description": "reMarkable ePub",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage",
+    "notifications",
+    "pageCapture"
+  ],
+  "host_permissions": [
+    "https://webapp-production-dot-remarkable-production.appspot.com/",
+    "https://rm-blob-storage-prod.appspot.com/",
+    "https://storage.googleapis.com/"
+  ],
+  "options_page": "out/index.html",
+  "action": {
+    "default_title": "convert page to epub"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "images/repub_16.png",
+    "32": "images/repub_32.png",
+    "48": "images/repub_48.png",
+    "128": "images/repub_128.png"
+  }
+}
