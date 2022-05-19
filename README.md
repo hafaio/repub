@@ -1,7 +1,7 @@
 rePub
 =====
 
-[![tests](https://github.com/brinkbotlabs/repub/actions/workflows/node.js.yml/badge.svg)](https://github.com/brinkbotlabs/repub/actions/workflows/node.js.yml)
+[![build](https://github.com/hafaio/repub/actions/workflows/node.js.yml/badge.svg)](https://github.com/hafaio/repub/actions/workflows/node.js.yml)
 [![chrome](https://img.shields.io/badge/chrome-extension-orange)](https://chrome.google.com/webstore/detail/repub/blkjpagbjaekkpojgcgdapmikoaolpbl)
 [![license](https://img.shields.io/github/license/hafaio/repub)](LICENSE)
 
