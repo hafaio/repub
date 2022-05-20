@@ -1,3 +1,5 @@
+// FIXME we should fix how this works, but ideally clicking again should cancel
+// the conversion process.
 export interface Progress {
   start(): Promise<void>;
 

@@ -34,21 +34,6 @@ const config = {
   minify: true,
 };
 
-// NOTE these must be built in order
-// content script
-await wrapper({
-  ...config,
-  entryPoints: ["src/content-readability.ts"],
-  globalName: "bundled",
-  banner: {
-    js: "export function readabilityScript(...args) {",
-  },
-  footer: {
-    js: "return bundled.readabilityScript(...args); }",
-  },
-  outfile: "content/content-readability.js",
-});
-
 // background script
 await wrapper({
   ...config,

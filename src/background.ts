@@ -4,9 +4,8 @@ import { convert } from "./convert";
 import { createConverter } from "./converter";
 import { epub } from "./epub";
 import { getOptions, ImageHandling } from "./options";
-import { parseMhtmlStream } from "./parse";
+import { Asset, parseMhtmlStream } from "./parse";
 import { Progress, progress } from "./progress";
-import { readability } from "./readability";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
 
@@ -32,33 +31,43 @@ async function fetchEpub({
   await prog.progress(0.1);
 
   // capture page
-  // NOTE due to a bug in chromium we use a content script to extract the
-  // summarized html, and saveAsMHTML to extract all the resources. This
-  // isn't too bad since we need to run readability in a content script
-  // anyway, but its still not ideal. This does present a race condition
-  // though, which isn't great...
+  // NOTE due to a bug in chromium this is less than ideal:
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1323522
-  const [blob, { content, title: parsedTitle, byline }] = await Promise.all([
-    new Promise<Blob>((resolve) =>
-      // @ts-expect-error typing says ArrayBuffer, but actually blob
-      chrome.pageCapture.saveAsMHTML({ tabId }, resolve)
-    ),
-    readability(tabId, { charThreshold: summarizeCharThreshold }),
-  ]);
+  const blob = await new Promise<Blob>((resolve) =>
+    // @ts-expect-error typing says ArrayBuffer, but actually blob
+    chrome.pageCapture.saveAsMHTML({ tabId }, resolve)
+  );
   await prog.progress(0.2);
 
   // parse components out of mhtml
   // @ts-expect-error typescript is confused because of leaked node types, and there's no way around it
   const stream: ReadableStream<ArrayBuffer> = blob.stream();
-  const { href, title, assets } = await parseMhtmlStream(stream);
+  const { content, href, title, assets } = await parseMhtmlStream(stream);
   await prog.progress(0.3);
 
+  // get all images
+  const imageMap = new Map<string, Asset>();
+  for await (const asset of assets) {
+    const { href, contentType } = asset;
+    if (contentType.startsWith("image/")) {
+      imageMap.set(href, asset);
+    }
+  }
+  await prog.progress(0.4);
+
   // alter page by parsing out images
-  const { altered, images } = await alter(content, assets, {
+  const {
+    altered,
+    title: parsedTitle,
+    byline,
+    seen,
+  } = await alter(content, imageMap, {
     imageHandling,
     filterLinks,
+    summarizeCharThreshold,
   });
-  await prog.progress(0.4);
+  const images = [...seen].map((href) => imageMap.get(href)!);
+  await prog.progress(0.5);
 
   // convert epub unfriendly images
   const converted = await convert(
@@ -151,7 +160,6 @@ async function rePub(tabId: number) {
     // NOTE leave progress around to see
     await sleep(200);
   } catch (ex) {
-    console.error(ex);
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",
@@ -164,10 +172,8 @@ async function rePub(tabId: number) {
 }
 
 // watch for clicks
-chrome.action.onClicked.addListener(async (tab) => {
-  if (tab.id === undefined) {
-    console.error("tab had no id");
-  } else {
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.id !== undefined) {
     void rePub(tab.id);
   }
 });

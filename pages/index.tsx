@@ -141,7 +141,6 @@ function SignIn({
           message: "linked reMarkable account successfully",
         });
       } catch (ex) {
-        console.warn("problem linking account", ex);
         showSnack({
           key: "login error",
           severity: "error",
@@ -168,7 +167,6 @@ function SignIn({
         message: "linked reMarkable account successfully",
       });
     } catch (ex) {
-      console.warn("problem linking account", ex);
       showSnack({
         key: "login error",
         severity: "error",
@@ -721,13 +719,12 @@ export default function OptionsPage(): ReactElement {
 
   useEffect(() => {
     if (opts === unknownOpts) {
-      getOptions().then(setOpts, (err) => {
+      getOptions().then(setOpts, () => {
         showSnack({
           key: "reset options",
           severity: "warning",
           message: "problem reading options; resetting to default",
         });
-        console.warn(err);
         setOpts(defaultOptions);
       });
     }
