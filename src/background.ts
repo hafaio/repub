@@ -4,7 +4,7 @@ import { alter } from "./alter";
 import { convert } from "./convert";
 import { createConverter } from "./converter";
 import { epub } from "./epub";
-import { getOptions, ImageFormat, ImageHandling } from "./options";
+import { getOptions, ImageHandling } from "./options";
 import { parseMhtmlStream } from "./parse";
 import { Progress, progress } from "./progress";
 import { readability } from "./readability";
@@ -26,8 +26,6 @@ async function fetchEpub({
   tabId,
   summarizeCharThreshold,
   imageHandling,
-  imageSize,
-  imageFormat,
   filterLinks,
   css,
   hrefHeader,
@@ -36,8 +34,6 @@ async function fetchEpub({
   tabId: number;
   summarizeCharThreshold: number;
   imageHandling: ImageHandling;
-  imageSize: [number, number] | null;
-  imageFormat: ImageFormat;
   filterLinks: boolean;
   css: string | undefined;
   hrefHeader: boolean;
@@ -74,10 +70,7 @@ async function fetchEpub({
   await prog.progress(0.4);
 
   // convert epub unfriendly images
-  const converted = await convert(
-    images,
-    createConverter({ size: imageSize, format: imageFormat })
-  );
+  const converted = await convert(images, createConverter());
   await prog.progress(0.6);
 
   // convert to an epub
@@ -94,14 +87,6 @@ async function fetchEpub({
 
   await prog.progress(0.8);
   return { buffer, title: finalTitle };
-}
-
-function assertImageSize(
-  opt: number[] | null
-): asserts opt is [number, number] | null {
-  if (opt !== null && opt.length !== 2) {
-    throw new Error("invalid image size from options");
-  }
 }
 
 const remarkableCss = `
@@ -135,23 +120,17 @@ async function rePub(tabId: number) {
       outputStyle,
       summarizeCharThreshold,
       imageHandling,
-      imageSize,
-      imageFormat,
       hrefHeader,
       rmCss,
       filterLinks,
       ...rmOptions
-    } = await getOptions({ fail: false });
-
-    assertImageSize(imageSize);
+    } = await getOptions();
 
     const epubPromise = fetchEpub({
       prog,
       tabId,
       summarizeCharThreshold,
       imageHandling,
-      imageSize,
-      imageFormat,
       hrefHeader,
       filterLinks,
       css: rmCss ? remarkableCss : undefined,

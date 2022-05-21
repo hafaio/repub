@@ -40,7 +40,6 @@ import {
   Cover,
   defaultOptions,
   getOptions,
-  ImageFormat,
   ImageHandling,
   Options,
   OutputStyle,
@@ -254,56 +253,6 @@ function SummarizeCharThreshold({
       title="Use threshold for summarized content"
       caption={`If set, the summarized content must have at least 500
       characters in it, otherwise the summarization will fail.`}
-    />
-  );
-}
-
-function ShrinkImages({
-  imageSize,
-  setOpts,
-}: {
-  imageSize: number[] | null | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ imageSize: imageSize === null ? [1404, 1872] : null }),
-    [setOpts, imageSize]
-  );
-  const value = imageSize === undefined ? undefined : imageSize !== null;
-  return (
-    <CheckboxSelection
-      value={value}
-      onToggle={onToggle}
-      title="Shrink Images"
-      caption={`If set, images will be shrunk so that their maximum resolution
-      is the same as reMarkables.`}
-    />
-  );
-}
-
-function CompressImages({
-  imageFormat,
-  setOpts,
-}: {
-  imageFormat: ImageFormat | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        imageFormat: imageFormat === "image/png" ? "image/jpeg" : "image/png",
-      }),
-    [setOpts, imageFormat]
-  );
-  const value =
-    imageFormat === undefined ? undefined : imageFormat === "image/jpeg";
-  return (
-    <CheckboxSelection
-      value={value}
-      onToggle={onToggle}
-      title="Compress Images"
-      caption={`If set, images will be be converted to jpegs instead of pngs.
-      This saves space at the cost of quality and potential artifacts.`}
     />
   );
 }
@@ -676,8 +625,6 @@ function EpubOptions({
         summarizeCharThreshold={opts.summarizeCharThreshold}
         setOpts={setOpts}
       />
-      <ShrinkImages imageSize={opts.imageSize} setOpts={setOpts} />
-      <CompressImages imageFormat={opts.imageFormat} setOpts={setOpts} />
       <HrefHeader hrefHeader={opts.hrefHeader} setOpts={setOpts} />
       <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
       <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
