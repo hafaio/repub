@@ -324,6 +324,29 @@ function ImageHandlingPicker({
   );
 }
 
+function ImageBrightness({
+  imageBrightness,
+  setOpts,
+}: {
+  imageBrightness: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ imageBrightness: imageBrightness === 1 ? 1.2 : 1 }),
+    [setOpts, imageBrightness]
+  );
+  return (
+    <CheckboxSelection
+      value={imageBrightness !== 1}
+      onToggle={onToggle}
+      title="Brighten Images"
+      caption={`Due to the fact that reMarkable isn't pure white, images can
+      appear darker. Check this to brighten every image so they're easier to
+      read on reMarkable.`}
+    />
+  );
+}
+
 function HrefHeader({
   hrefHeader,
   setOpts,
@@ -623,6 +646,10 @@ function EpubOptions({
     >
       <SummarizeCharThreshold
         summarizeCharThreshold={opts.summarizeCharThreshold}
+        setOpts={setOpts}
+      />
+      <ImageBrightness
+        imageBrightness={opts.imageBrightness}
         setOpts={setOpts}
       />
       <HrefHeader hrefHeader={opts.hrefHeader} setOpts={setOpts} />

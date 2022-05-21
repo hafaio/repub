@@ -26,6 +26,7 @@ async function fetchEpub({
   tabId,
   summarizeCharThreshold,
   imageHandling,
+  imageBrightness,
   filterLinks,
   css,
   hrefHeader,
@@ -34,6 +35,7 @@ async function fetchEpub({
   tabId: number;
   summarizeCharThreshold: number;
   imageHandling: ImageHandling;
+  imageBrightness: number;
   filterLinks: boolean;
   css: string | undefined;
   hrefHeader: boolean;
@@ -70,7 +72,10 @@ async function fetchEpub({
   await prog.progress(0.4);
 
   // convert epub unfriendly images
-  const converted = await convert(images, createConverter());
+  const converted = await convert(
+    images,
+    createConverter({ brightness: imageBrightness })
+  );
   await prog.progress(0.6);
 
   // convert to an epub
@@ -120,6 +125,7 @@ async function rePub(tabId: number) {
       outputStyle,
       summarizeCharThreshold,
       imageHandling,
+      imageBrightness,
       hrefHeader,
       rmCss,
       filterLinks,
@@ -131,6 +137,7 @@ async function rePub(tabId: number) {
       tabId,
       summarizeCharThreshold,
       imageHandling,
+      imageBrightness,
       hrefHeader,
       filterLinks,
       css: rmCss ? remarkableCss : undefined,

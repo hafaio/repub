@@ -49,6 +49,7 @@ export interface Options {
   // how we generate the epub
   summarizeCharThreshold: number;
   imageHandling: ImageHandling;
+  imageBrightness: number;
   hrefHeader: boolean;
   rmCss: boolean;
   filterLinks: boolean;
@@ -68,6 +69,7 @@ const optionsSchema: JtdSchema<Partial<Options>> = {
     // how we generate the epub
     summarizeCharThreshold: { type: "int32" },
     imageHandling: { enum: ["strip", "filter", "keep"] },
+    imageBrightness: { type: "float64" },
     hrefHeader: { type: "boolean" },
     rmCss: { type: "boolean" },
     filterLinks: { type: "boolean" },
@@ -88,6 +90,7 @@ export const defaultOptions: Options = {
   // how we generate the epub
   summarizeCharThreshold: 500,
   imageHandling: "filter",
+  imageBrightness: 1.2,
   hrefHeader: false,
   rmCss: true,
   filterLinks: true,

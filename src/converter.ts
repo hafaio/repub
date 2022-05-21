@@ -5,12 +5,14 @@ import { assert } from "./utils";
 export interface ConversionOptions {
   maxWidth?: number;
   maxHeight?: number;
+  brightness?: number;
   format?: "image/png" | "image/jpeg";
 }
 
 export function createConverter({
   maxWidth = 1404,
   maxHeight = 1872,
+  brightness = 1,
   format = "image/jpeg",
 }: ConversionOptions = {}): Converter {
   return async (
@@ -27,6 +29,7 @@ export function createConverter({
       const canvas = new OffscreenCanvas(width, height);
       const ctx = canvas.getContext("2d");
       assert(ctx, "couldn't get image context for browser conversion");
+      ctx.filter = `brightness(${brightness})`;
       ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0);
 
