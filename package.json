@@ -72,7 +72,7 @@
     "prettier-plugin-organize-imports": "^2.3.4",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "rmapi-js": "^0.0.1",
+    "rmapi-js": "^0.0.2",
     "sharp": "^0.30.4",
     "tar-to-zip": "^3.0.0",
     "teapub": "^0.0.2",

@@ -6954,7 +6954,7 @@ __metadata:
     prettier-plugin-organize-imports: ^2.3.4
     react: ^18.1.0
     react-dom: ^18.1.0
-    rmapi-js: ^0.0.1
+    rmapi-js: ^0.0.2
     sharp: ^0.30.4
     tar-to-zip: ^3.0.0
     teapub: ^0.0.2
@@ -7058,13 +7058,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rmapi-js@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "rmapi-js@npm:0.0.1"
+"rmapi-js@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "rmapi-js@npm:0.0.2"
   dependencies:
     ajv: ^8.11.0
     uuid: ^8.3.2
-  checksum: 8a8ccb39e9928d081a5c5b7c33dbd1d55c2a5cdb5efeb5d8368b119ca6829bdc3cd980ad189252ae3e3e7011a8e01832a305e4d97727a94b525a4f3ecac109ca
+  checksum: 3830609f07a7d2735a89926492a10e78d5b228954cc9251d978999225ce86ba989d1009a963732c1c826ee143bd6aa4a7c237ec6159375e444168d3d4b7d0309
   languageName: node
   linkType: hard
 

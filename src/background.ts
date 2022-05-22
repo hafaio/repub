@@ -1,5 +1,4 @@
 import { fromByteArray } from "base64-js";
-import { remarkable, RequestInitLike, ResponseLike } from "rmapi-js/dist";
 import { alter } from "./alter";
 import { convert } from "./convert";
 import { createConverter } from "./converter";
@@ -8,18 +7,8 @@ import { getOptions, ImageHandling } from "./options";
 import { parseMhtmlStream } from "./parse";
 import { Progress, progress } from "./progress";
 import { readability } from "./readability";
+import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
-
-/**
- * web workers don't like calling fetch bound to global scope, so we need to
- * wrap the call
- */
-async function wrapper(
-  url: string,
-  init?: RequestInitLike
-): Promise<ResponseLike> {
-  return await fetch(url, init);
-}
 
 async function fetchEpub({
   prog,
@@ -151,11 +140,7 @@ async function rePub(tabId: number) {
         url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
       });
     } else if (deviceToken) {
-      const [{ buffer, title }, api] = await Promise.all([
-        epubPromise,
-        remarkable(deviceToken, { fetch: wrapper }),
-      ]);
-      await api.putEpub(title, buffer, rmOptions);
+      await upload(epubPromise, deviceToken, rmOptions);
     } else {
       await chrome.runtime.openOptionsPage();
       throw new Error(
@@ -164,7 +149,7 @@ async function rePub(tabId: number) {
     }
     await prog.progress(1);
     // NOTE leave progress around to see
-    await sleep(100);
+    await sleep(200);
   } catch (ex) {
     console.error(ex);
     chrome.notifications.create({
