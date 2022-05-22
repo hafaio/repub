@@ -109,6 +109,7 @@ export async function upload(
       return;
     } catch (ex) {
       if (tryNum < retries && ex instanceof GenerationError) {
+        console.log("failed upload due to generation");
         // failed due to generation, resync with remote
         [rootHash, generation] = await api.getRootHash();
         entries = await api.getEntries(rootHash);

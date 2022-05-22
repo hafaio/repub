@@ -168,6 +168,7 @@ async function rePub(tabId: number) {
     // NOTE leave progress around to see
     await sleep(200);
   } catch (ex) {
+    console.error("problem creating epub", ex);
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",

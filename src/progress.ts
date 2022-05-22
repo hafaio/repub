@@ -1,5 +1,7 @@
-// FIXME we should fix how this works, but ideally clicking again should cancel
-// the conversion process.
+// TODO make this management better. Ideally we should be able to cancel if
+// it's taking too long. We could always just no disable the button thereby
+// allowing you to hit it twice, but that then might result in duplicate
+// uploads.
 export interface Progress {
   start(): Promise<void>;
 

@@ -5,7 +5,6 @@
  *
  * @packageDocumentation
  */
-/* eslint no-console: off */
 import { readFile } from "node:fs/promises";
 import { argv } from "node:process";
 import { ReadableStream } from "node:stream/web";

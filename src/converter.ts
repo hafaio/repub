@@ -37,6 +37,7 @@ export function createConverter({
       const array = await after.arrayBuffer();
       return { data: new Uint8Array(array), mime: format };
     } catch (ex) {
+      console.warn("problem converting image", ex);
       if (isImageMimeType(contentType)) {
         return { data: content, mime: contentType };
       } else {
