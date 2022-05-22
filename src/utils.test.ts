@@ -1,5 +1,5 @@
 import { performance } from "node:perf_hooks";
-import { assert, safeFilename, sleep } from "./utils";
+import { assert, levenshtein, safeFilename, sleep } from "./utils";
 
 test("sleep()", async () => {
   const first = performance.now();
@@ -21,4 +21,12 @@ test("assert()", () => {
   assert(true);
   expect(() => assert(false)).toThrow("internal error");
   expect(() => assert(false, "custom")).toThrow("custom");
+});
+
+test("levenshtein()", () => {
+  expect(levenshtein("", "")).toBe(0);
+  expect(levenshtein("a", "a")).toBe(0);
+  expect(levenshtein("a", "b")).toBe(1);
+  expect(levenshtein("aa", "b")).toBe(2);
+  expect(levenshtein("aacccdee", "aabcccee")).toBe(2);
 });

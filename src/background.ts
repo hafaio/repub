@@ -1,6 +1,5 @@
-// eslint no-console: off
 import { fromByteArray } from "base64-js";
-import { alter } from "./alter";
+import { alter, closeMatch, exactMatch } from "./alter";
 import { convert } from "./convert";
 import { createConverter } from "./converter";
 import { epub } from "./epub";
@@ -15,6 +14,7 @@ async function fetchEpub({
   tabId,
   summarizeCharThreshold,
   imageHandling,
+  imageHrefSimilarityThreshold,
   imageBrightness,
   filterLinks,
   css,
@@ -24,6 +24,7 @@ async function fetchEpub({
   tabId: number;
   summarizeCharThreshold: number;
   imageHandling: ImageHandling;
+  imageHrefSimilarityThreshold: number;
   imageBrightness: number;
   filterLinks: boolean;
   css: string | undefined;
@@ -57,12 +58,16 @@ async function fetchEpub({
   await prog.progress(0.4);
 
   // alter page by parsing out images
+  const matcher =
+    imageHrefSimilarityThreshold <= 0
+      ? exactMatch(imageMap)
+      : closeMatch(imageMap, imageHrefSimilarityThreshold);
   const {
     altered,
     title: parsedTitle,
     byline,
     seen,
-  } = await alter(content, imageMap, {
+  } = await alter(content, matcher, {
     imageHandling,
     filterLinks,
     summarizeCharThreshold,
@@ -124,6 +129,7 @@ async function rePub(tabId: number) {
       outputStyle,
       summarizeCharThreshold,
       imageHandling,
+      imageHrefSimilarityThreshold,
       imageBrightness,
       hrefHeader,
       rmCss,
@@ -136,6 +142,7 @@ async function rePub(tabId: number) {
       tabId,
       summarizeCharThreshold,
       imageHandling,
+      imageHrefSimilarityThreshold,
       imageBrightness,
       hrefHeader,
       filterLinks,

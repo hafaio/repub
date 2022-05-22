@@ -1,4 +1,23 @@
-import { alter } from "./alter";
+import { alter, closeMatch, exactMatch } from "./alter";
+
+test("exactMatch()", () => {
+  const matcher = exactMatch(new Set(["a", "b", "123"]));
+  expect(matcher([])).toBeUndefined();
+  expect(matcher(["c"])).toBeUndefined();
+  expect(matcher(["a"])).toBe("a");
+  expect(matcher(["a", "b"])).toBe("a");
+  expect(matcher(["c", "b"])).toBe("b");
+});
+
+test("closeMatch()", () => {
+  const matcher = closeMatch(new Set(["a", "b", "123", "refisoli"]), 0.5);
+  expect(matcher([])).toBeUndefined();
+  expect(matcher(["random"])).toBeUndefined();
+  expect(matcher(["a"])).toBe("a");
+  expect(matcher(["random", "a"])).toBe("a");
+  expect(matcher(["123", "a"])).toBe("123");
+  expect(matcher(["refis12"])).toBe("refisoli");
+});
 
 /** generate content that will pass through readability */
 function wrap(elements: string, title: string = "Title"): string {
@@ -27,7 +46,7 @@ test("noop", async () => {
   const content = `<img id="important" alt="noop" src="test.png"/>`;
   const { altered, seen } = await alter(
     wrap(content),
-    new Set(["test.png"]),
+    exactMatch(new Set(["test.png"])),
     opts
   );
   expect(altered).toContain(content);
@@ -37,20 +56,28 @@ test("noop", async () => {
 
 test("strips", async () => {
   const content = `<img alt="noop" src="test.png">`;
-  const { altered, seen } = await alter(wrap(content), new Set(["test.png"]), {
-    ...opts,
-    imageHandling: "strip",
-  });
+  const { altered, seen } = await alter(
+    wrap(content),
+    exactMatch(new Set(["test.png"])),
+    {
+      ...opts,
+      imageHandling: "strip",
+    }
+  );
   expect(altered).not.toContain("img");
   expect(seen.size).toBe(0);
 });
 
 test("filters", async () => {
   const content = `<img alt="noop" src="test.png"><img alt="filter" src="test.png">`;
-  const { altered, seen } = await alter(wrap(content), new Set(["test.png"]), {
-    ...opts,
-    imageHandling: "filter",
-  });
+  const { altered, seen } = await alter(
+    wrap(content),
+    exactMatch(new Set(["test.png"])),
+    {
+      ...opts,
+      imageHandling: "filter",
+    }
+  );
   expect(altered).toContain(`<img alt="noop"`);
   expect(altered).not.toContain(`<img alt="filter"`);
   const [image] = seen;
@@ -61,7 +88,7 @@ test("srcset remapping", async () => {
   const content = `<img src="missing.png" srcset="small.png 600w, medium.png 1024w, large.png 2048w">`;
   const { altered, seen } = await alter(
     wrap(content),
-    new Set(["medium.png"]),
+    exactMatch(new Set(["medium.png"])),
     opts
   );
   expect(altered).toContain(
@@ -75,7 +102,7 @@ test("srcset remapping no src", async () => {
   const content = `<img srcset="small.png 600w, medium.png 1024w, large.png 2048w">`;
   const { altered, seen } = await alter(
     wrap(content),
-    new Set(["large.png"]),
+    exactMatch(new Set(["large.png"])),
     opts
   );
   expect(altered).toContain(
@@ -86,14 +113,18 @@ test("srcset remapping no src", async () => {
 });
 
 test("invlaid srcset", async () => {
-  const { altered } = await alter(wrap(`<img srcset="">`), new Set(), opts);
+  const { altered } = await alter(
+    wrap(`<img srcset="">`),
+    exactMatch(new Set()),
+    opts
+  );
   expect(altered).not.toContain("img");
 });
 
 test("picture removing", async () => {
   const { altered } = await alter(
     wrap(`<picture><!--comment--><img src="missing.png"></picture>`),
-    new Set(),
+    exactMatch(new Set()),
     opts
   );
   expect(altered).not.toContain("picture");
@@ -104,7 +135,7 @@ test("picture removing", async () => {
 test("picture stripping", async () => {
   const { altered } = await alter(
     wrap(`<picture><img src="large.png"></picture>`),
-    new Set(["large.png"]),
+    exactMatch(new Set(["large.png"])),
     { ...opts, imageHandling: "strip" }
   );
   expect(altered).not.toContain("img");
@@ -116,7 +147,7 @@ test("picture filtering", async () => {
     wrap(
       `<img src="large.png"><picture><img alt="inner" src="large.png"></picture>`
     ),
-    new Set(["large.png"]),
+    exactMatch(new Set(["large.png"])),
     { ...opts, imageHandling: "filter" }
   );
   expect(altered).toContain(`<img src="large.png"/>`);
@@ -128,7 +159,7 @@ test("picture filtering", async () => {
 test("picture invalid", async () => {
   const { altered } = await alter(
     wrap(`<picture><source srcset="large.png 2048w"></picture>`),
-    new Set(["large.png"]),
+    exactMatch(new Set(["large.png"])),
     opts
   );
   expect(altered).not.toContain("picture");
@@ -141,7 +172,7 @@ test("picture remapping", async () => {
       <source srcset="small.png 600w, medium.png 1024w, large.png 2048w">
       <img src="missing.png">
     </picture>`),
-    new Set(["large.png"]),
+    exactMatch(new Set(["large.png"])),
     opts
   );
   expect(altered).toContain(`<img src="large.png"/>`);
@@ -154,7 +185,7 @@ test("picture remapping", async () => {
 test("link filtering", async () => {
   const { altered } = await alter(
     wrap(`<p>here is a <a href="#">link</a> for you</p>`),
-    new Set(),
+    exactMatch(new Set()),
     { ...opts, filterLinks: true }
   );
   expect(altered).toContain(`<p>here is a link for you</p>`);
@@ -162,6 +193,6 @@ test("link filtering", async () => {
 
 test("parse failure", async () => {
   await expect(
-    alter(`<!doctype html><html></html>`, new Set(), { ...opts })
+    alter(`<!doctype html><html></html>`, exactMatch(new Set()), { ...opts })
   ).rejects.toThrow("failed to summarize document");
 });

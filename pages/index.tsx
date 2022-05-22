@@ -322,6 +322,36 @@ function ImageHandlingPicker({
   );
 }
 
+function CloseImages({
+  imageHrefSimilarityThreshold,
+  setOpts,
+}: {
+  imageHrefSimilarityThreshold: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () =>
+      setOpts({
+        imageHrefSimilarityThreshold:
+          imageHrefSimilarityThreshold === 0 ? 0.2 : 0,
+      }),
+    [setOpts, imageHrefSimilarityThreshold]
+  );
+  return (
+    <CheckboxSelection
+      value={imageHrefSimilarityThreshold !== 0}
+      onToggle={onToggle}
+      title="Match Close Images"
+      caption={`Due to a bug in chrome, and potentially other factors,
+      capturing the page may get a different image than the ones that appear in
+      the captured html. Selecting this causes the extension to do a more
+      expensive search for close image urls it has, and uses those iamges
+      instead. If images you expect to be present are missing, this may help,
+      if images seem out of context, consider disabling this.`}
+    />
+  );
+}
+
 function ImageBrightness({
   imageBrightness,
   setOpts,
@@ -644,6 +674,10 @@ function EpubOptions({
     >
       <SummarizeCharThreshold
         summarizeCharThreshold={opts.summarizeCharThreshold}
+        setOpts={setOpts}
+      />
+      <CloseImages
+        imageHrefSimilarityThreshold={opts.imageHrefSimilarityThreshold}
         setOpts={setOpts}
       />
       <ImageBrightness

@@ -6,11 +6,74 @@ import {
   NodeType,
   treeAdapter,
 } from "read-tree";
-import { filter } from "./iters";
 import { ImageHandling } from "./options";
+import { levenshtein } from "./utils";
 
-interface HasAble<T> {
+/** something that has a `has` method */
+export interface HasAble<T> {
   has(val: T): boolean;
+}
+
+/** something that has keys */
+export interface Keys<T> {
+  keys(): Iterable<T>;
+}
+
+/** something that finds matches */
+export interface Matcher<T> {
+  (iter: Iterable<T>): T | undefined;
+}
+
+/** only valid if matches exactly, relatively efficient */
+export function exactMatch(images: HasAble<string>): Matcher<string> {
+  return (hrefs: Iterable<string>): string | undefined => {
+    for (const href of hrefs) {
+      if (images.has(href)) {
+        return href;
+      }
+    }
+  };
+}
+
+/**
+ * looks for close matches
+ *
+ * This currently scans all possible urls (slowly) and finds the one with the
+ * smallest normalized edit distance in all of the queries.
+ *
+ * @remarks This currently does raw url matching instead of doing matching
+ * based off of the semantics of the url, e.g. putting more emphesis on domain
+ * over the rest of the url, or ignoring ordering of parameters. It's not clear
+ * how much this advanced similarity is necessary.
+ *
+ * @param thresh - the normalized edit distance threshold. 0 indicates a
+ * complete match (for which this function will be inefficient). 1 indicates
+ * anything matches and so it will always select an image.
+ */
+// NOTE this seems only necessary due to this bug:
+// https://bugs.chromium.org/p/chromium/issues/detail?id=1323522
+export function closeMatch(
+  images: Keys<string>,
+  thresh: number
+): Matcher<string> {
+  // NOTE this could be better if we actually parsed the hrefs and looked at
+  // differences there so that ordering of query parameters wouldn't affect it,
+  // etc.
+  return (hrefs: Iterable<string>): string | undefined => {
+    let match: string | undefined = undefined;
+    let score = thresh;
+    for (const href of hrefs) {
+      for (const test of images.keys()) {
+        const dist =
+          levenshtein(href, test) / Math.max(href.length, test.length);
+        if (dist < score) {
+          score = dist;
+          match = test;
+        }
+      }
+    }
+    return match;
+  };
 }
 
 export interface Altered {
@@ -58,7 +121,7 @@ interface Options extends WalkOptions {
 
 function walk(
   node: RTChildNode,
-  valid: HasAble<string>,
+  match: Matcher<string>,
   seen: Set<string>,
   options: WalkOptions
 ): RTChildNode[] {
@@ -78,7 +141,7 @@ function walk(
   } else if (node.tagName === "IMG") {
     // img element, find best src
     const { imageHandling } = options;
-    const [href] = filter(getSrcs([node]), (href) => valid.has(href));
+    const href = match(getSrcs([node]));
     if (
       imageHandling === "strip" ||
       !href ||
@@ -93,7 +156,7 @@ function walk(
   } else if (node.tagName === "PICTURE") {
     // picture element, find best source and set pictures source
     const { imageHandling } = options;
-    const [href] = filter(getSrcs(node.childNodes), (href) => valid.has(href));
+    const href = match(getSrcs(node.childNodes));
     const [img] = node.childNodes.filter(isImg);
     if (
       imageHandling === "strip" ||
@@ -110,7 +173,7 @@ function walk(
   } else {
     // all others
     node.childNodes = node.childNodes.flatMap((child) =>
-      walk(child, valid, seen, options)
+      walk(child, match, seen, options)
     );
     return [node];
   }
@@ -119,7 +182,7 @@ function walk(
 /** update img src's with srcset information */
 export async function alter(
   raw: string,
-  images: HasAble<string>,
+  match: Matcher<string>,
   { summarizeCharThreshold, ...opts }: Options
 ): Promise<Altered> {
   // all seen hrefs
@@ -133,7 +196,7 @@ export async function alter(
   }
   const { content, title, byline } = res;
   const seen = new Set<string>();
-  walk(content, images, seen, opts);
+  walk(content, match, seen, opts);
 
   return {
     altered: content.innerHTML,

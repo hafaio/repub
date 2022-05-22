@@ -15,6 +15,14 @@ However this doesn't replicate the printer adapter, so if you want to upload
 PDFs it still recommended to keep the Read on reMarkable extension for those
 uploads.
 
+Developing
+----------
+
+This is built with yarn, all development options in scripts should be pretty
+self explanitory.  To help with debugging why images aren't included there's a
+script for debugging `yarn dbg` that takes as input an mhtml file (created with
+`save page as` in chrome) and prints out information abotu the found images.
+This script needs to be built first with `yarn build:bundle`.
 
 To Do
 -----
@@ -25,6 +33,3 @@ To Do
   2. support for alternate formats (like markdown)
 - [ ] **pin input** - the current pin field could be a little more visually
   similar to the way it's copied.
-- [ ] **remove scripting** - Ideally we can do everything with `pageCapture`
-  and so don't need to run scripts in the tab, potentially allowing us to
-  remove activeTab.
