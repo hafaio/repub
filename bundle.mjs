@@ -1,3 +1,4 @@
+/* eslint no-console: off */
 import { pnpPlugin } from "@yarnpkg/esbuild-plugin-pnp";
 import chalk from "chalk";
 import { build } from "esbuild";
@@ -34,12 +35,22 @@ const config = {
   minify: true,
 };
 
-// background script
-await wrapper({
-  ...config,
-  entryPoints: ["src/background.ts"],
-  outfile: "background.js",
-});
+await Promise.all([
+  // debug script
+  wrapper({
+    ...config,
+    format: "esm",
+    platform: "node",
+    entryPoints: ["src/debug.ts"],
+    outfile: "scripts/debug.mjs",
+  }),
+  // background script
+  wrapper({
+    ...config,
+    entryPoints: ["src/background.ts"],
+    outfile: "background.js",
+  }),
+]);
 
 const elapsed = Math.round(performance.now() - start);
 console.log("\n⚡", chalk.green(`Done in ${elapsed}ms`));

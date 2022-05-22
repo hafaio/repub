@@ -14,6 +14,7 @@
     "build:bundle": "node bundle.mjs",
     "build:options": "next build && next export",
     "build": "yarn build:images && yarn build:bundle && yarn build:options",
+    "dbg": "yarn node scripts/debug.mjs",
     "prepack": "yarn lint && yarn test && yarn build",
     "postpack": "[ -f package.tgz ] && < package.tgz tar2zip > repub.zip && rm package.tgz"
   },

@@ -22,5 +22,5 @@ coverage
 *.epub
 *.zip
 out
-content
+scripts
 favicon.ico

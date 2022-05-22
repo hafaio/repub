@@ -11,8 +11,6 @@ import { ImageHandling } from "./options";
 
 interface HasAble<T> {
   has(val: T): boolean;
-
-  keys(): Iterator<T>;
 }
 
 export interface Altered {

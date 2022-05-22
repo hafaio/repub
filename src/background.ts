@@ -1,3 +1,4 @@
+// eslint no-console: off
 import { fromByteArray } from "base64-js";
 import { alter } from "./alter";
 import { convert } from "./convert";
