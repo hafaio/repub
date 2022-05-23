@@ -63,7 +63,7 @@
     "jest": "^28.1.0",
     "jsdom": "^19.0.0",
     "jtd": "^0.1.1",
-    "mhtml-stream": "^0.0.2",
+    "mhtml-stream": "^0.0.3",
     "next": "^12.1.6",
     "node-html-parser": "^5.3.3",
     "parse5": "^7.0.0",

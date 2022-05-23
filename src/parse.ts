@@ -16,11 +16,26 @@ export interface ParsedWebpage {
   readonly assets: AsyncIterableIterator<Asset>;
 }
 
+async function* asIterable(
+  stream: ReadableStream<ArrayBuffer>
+): AsyncIterableIterator<ArrayBuffer> {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function parseMhtmlStream(
   stream: ReadableStream<ArrayBuffer>
 ): Promise<ParsedWebpage> {
   // init
-  const files = parseMhtml(stream)[Symbol.asyncIterator]();
+  const files = parseMhtml(asIterable(stream))[Symbol.asyncIterator]();
   let done, value;
 
   ({ done, value } = await files.next());

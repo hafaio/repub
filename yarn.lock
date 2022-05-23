@@ -6066,12 +6066,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mhtml-stream@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "mhtml-stream@npm:0.0.2"
+"mhtml-stream@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "mhtml-stream@npm:0.0.3"
   dependencies:
     base64-js: ^1.5.1
-  checksum: cbdf24cc74ef27917115704646f87d52319ceb20e8abbe12882d7b620638319c67a20d056ed28018c21c11c03fac49dd4bccd203fe8c98af737d0413f53c9238
+  checksum: 835ced251120840084cca892d8afe277a8d7356ed031aa4e901ddeab7dcb97b946ee1abed37d78bf155352a3984bd58b1c21f8fd6d19981b90f92bdb2cedfd1a
   languageName: node
   linkType: hard
 
@@ -7147,7 +7147,7 @@ __metadata:
     jest: ^28.1.0
     jsdom: ^19.0.0
     jtd: ^0.1.1
-    mhtml-stream: ^0.0.2
+    mhtml-stream: ^0.0.3
     next: ^12.1.6
     node-html-parser: ^5.3.3
     parse5: ^7.0.0
