@@ -24,6 +24,5 @@ jobs:
     - run: yarn install
     - run: yarn lint
     - run: yarn test
-    - run: yarn build:types
     - run: yarn build:bundle
     - run: yarn build:options
