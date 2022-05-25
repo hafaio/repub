@@ -3,12 +3,7 @@
   "description": "reMarkable ePub",
   "version": "0.2.0",
   "manifest_version": 3,
-  "permissions": [
-    "downloads",
-    "storage",
-    "notifications",
-    "pageCapture"
-  ],
+  "permissions": ["downloads", "storage", "notifications", "pageCapture"],
   "host_permissions": [
     "https://webapp-production-dot-remarkable-production.appspot.com/",
     "https://rm-blob-storage-prod.appspot.com/",

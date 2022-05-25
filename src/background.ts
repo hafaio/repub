@@ -1,5 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { alter, closeMatch, exactMatch } from "./alter";
+import { pageCapture } from "./capture";
 import { convert } from "./convert";
 import { createConverter } from "./converter";
 import { epub } from "./epub";
@@ -33,17 +34,10 @@ async function fetchEpub({
   await prog.progress(0.1);
 
   // capture page
-  // NOTE due to a bug in chromium this is less than ideal:
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1323522
-  const blob = await new Promise<Blob>((resolve) =>
-    // @ts-expect-error typing says ArrayBuffer, but actually blob
-    chrome.pageCapture.saveAsMHTML({ tabId }, resolve)
-  );
+  const stream = await pageCapture(tabId);
   await prog.progress(0.2);
 
   // parse components out of mhtml
-  // @ts-expect-error typescript is confused because of leaked node types, and there's no way around it
-  const stream: ReadableStream<ArrayBuffer> = blob.stream();
   const { content, href, title, assets } = await parseMhtmlStream(stream);
   await prog.progress(0.3);
 
