@@ -6,6 +6,22 @@ export function sleep(timeout: number): Promise<void> {
 }
 
 /**
+ * timeout after x milliseconds
+ */
+export async function timeout<T>(
+  prom: Promise<T>,
+  timeout: number,
+  msg: string = "timeout"
+): Promise<T> {
+  return await Promise.race([
+    prom,
+    sleep(timeout).then(() => {
+      throw new Error(msg);
+    }),
+  ]);
+}
+
+/**
  * assert val with optional error message
  */
 export function assert(

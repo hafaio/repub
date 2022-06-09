@@ -239,7 +239,12 @@ function SummarizeCharThreshold({
   setOpts: SetOptions;
 }): ReactElement {
   const onToggle = useCallback(
-    () => setOpts({ summarizeCharThreshold: 500 * +!summarizeCharThreshold }),
+    () =>
+      setOpts({
+        summarizeCharThreshold: summarizeCharThreshold
+          ? 0
+          : defaultOptions.summarizeCharThreshold,
+      }),
     [setOpts, summarizeCharThreshold]
   );
   const value =
@@ -249,8 +254,9 @@ function SummarizeCharThreshold({
       value={value}
       onToggle={onToggle}
       title="Use threshold for summarized content"
-      caption={`If set, the summarized content must have at least 500
-      characters in it, otherwise the summarization will fail.`}
+      caption={`If set, the summarized content must have at least
+      ${defaultOptions.summarizeCharThreshold} characters in it, otherwise the
+      summarization will fail.`}
     />
   );
 }
@@ -333,7 +339,9 @@ function CloseImages({
     () =>
       setOpts({
         imageHrefSimilarityThreshold:
-          imageHrefSimilarityThreshold === 0 ? 0.2 : 0,
+          imageHrefSimilarityThreshold === 0
+            ? defaultOptions.imageHrefSimilarityThreshold
+            : 0,
       }),
     [setOpts, imageHrefSimilarityThreshold]
   );
@@ -360,7 +368,11 @@ function ImageBrightness({
   setOpts: SetOptions;
 }): ReactElement {
   const onToggle = useCallback(
-    () => setOpts({ imageBrightness: imageBrightness === 1 ? 1.2 : 1 }),
+    () =>
+      setOpts({
+        imageBrightness:
+          imageBrightness === 1 ? defaultOptions.imageBrightness : 1,
+      }),
     [setOpts, imageBrightness]
   );
   return (

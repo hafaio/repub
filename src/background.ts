@@ -6,12 +6,11 @@ import { createConverter } from "./converter";
 import { epub } from "./epub";
 import { getOptions, ImageHandling } from "./options";
 import { Asset, parseMhtmlStream } from "./parse";
-import { Progress, progress } from "./progress";
+import { progress, stop } from "./progress";
 import { upload } from "./upload";
-import { safeFilename, sleep } from "./utils";
+import { safeFilename, sleep, timeout } from "./utils";
 
 async function fetchEpub({
-  prog,
   tabId,
   summarizeCharThreshold,
   imageHandling,
@@ -21,7 +20,6 @@ async function fetchEpub({
   css,
   hrefHeader,
 }: {
-  prog: Progress;
   tabId: number;
   summarizeCharThreshold: number;
   imageHandling: ImageHandling;
@@ -31,15 +29,13 @@ async function fetchEpub({
   css: string | undefined;
   hrefHeader: boolean;
 }): Promise<{ buffer: Uint8Array; title: string }> {
-  await prog.progress(0.1);
-
   // capture page
   const stream = await pageCapture(tabId);
-  await prog.progress(0.2);
+  await progress(tabId, 0.2);
 
   // parse components out of mhtml
   const { content, href, title, assets } = await parseMhtmlStream(stream);
-  await prog.progress(0.3);
+  await progress(tabId, 0.3);
 
   // get all images
   const imageMap = new Map<string, Asset>();
@@ -49,7 +45,7 @@ async function fetchEpub({
       imageMap.set(href, asset);
     }
   }
-  await prog.progress(0.4);
+  await progress(tabId, 0.4);
 
   // alter page by parsing out images
   const matcher =
@@ -67,28 +63,32 @@ async function fetchEpub({
     summarizeCharThreshold,
   });
   const images = [...seen].map((href) => imageMap.get(href)!);
-  await prog.progress(0.5);
+  await progress(tabId, 0.5);
 
   // convert epub unfriendly images
   const converted = await convert(
     images,
     createConverter({ brightness: imageBrightness })
   );
-  await prog.progress(0.6);
+  await progress(tabId, 0.6);
 
   // convert to an epub
   const finalTitle = parsedTitle ?? title;
-  const buffer = await epub({
-    title: finalTitle,
-    content: altered,
-    author: byline,
-    images: converted,
-    css,
-    href: hrefHeader ? href : undefined,
-    missingImage: imageHandling === "keep" ? "ignore" : "remove",
-  });
+  const buffer = await timeout(
+    epub({
+      title: finalTitle,
+      content: altered,
+      author: byline,
+      images: converted,
+      css,
+      href: hrefHeader ? href : undefined,
+      missingImage: imageHandling === "keep" ? "ignore" : "remove",
+    }),
+    10000,
+    "timeout uploading epub"
+  );
 
-  await prog.progress(0.8);
+  await progress(tabId, 0.8);
   return { buffer, title: finalTitle };
 }
 
@@ -114,10 +114,7 @@ figcaption {
 
 // workhorse
 async function rePub(tabId: number) {
-  const prog = progress(tabId);
   try {
-    await prog.start();
-
     const {
       deviceToken,
       outputStyle,
@@ -132,7 +129,6 @@ async function rePub(tabId: number) {
     } = await getOptions();
 
     const epubPromise = fetchEpub({
-      prog,
       tabId,
       summarizeCharThreshold,
       imageHandling,
@@ -158,9 +154,9 @@ async function rePub(tabId: number) {
         "must be authenticated to upload documents to reMarkable"
       );
     }
-    await prog.progress(1);
+    await progress(tabId, 1);
     // NOTE leave progress around to see
-    await sleep(200);
+    await sleep(500);
   } catch (ex) {
     console.error("problem creating epub", ex);
     chrome.notifications.create({
@@ -170,7 +166,7 @@ async function rePub(tabId: number) {
       message: `${ex}`,
     });
   } finally {
-    await prog.stop();
+    await stop(tabId);
   }
 }
 

@@ -1,50 +1,16 @@
-// TODO make this management better. Ideally we should be able to cancel if
-// it's taking too long. We could always just no disable the button thereby
-// allowing you to hit it twice, but that then might result in duplicate
-// uploads.
-export interface Progress {
-  start(): Promise<void>;
-
-  progress(prog: number): Promise<void>;
-
-  stop(): Promise<void>;
-}
-
-class ProgressBadge implements Progress {
-  #tabId: number;
-  #color: string;
-
-  constructor(tabId: number, color: string = "#000000") {
-    this.#tabId = tabId;
-    this.#color = color;
-  }
-
-  async start() {
-    await Promise.all([
-      chrome.action.disable(this.#tabId),
-      chrome.action.setBadgeBackgroundColor({
-        color: this.#color,
-        tabId: this.#tabId,
-      }),
-      chrome.action.setBadgeText({ text: "0%", tabId: this.#tabId }),
-    ]);
-  }
-
-  async progress(prog: number) {
-    await chrome.action.setBadgeText({
+export async function progress(tabId: number, prog: number): Promise<void> {
+  await Promise.all([
+    chrome.action.setBadgeBackgroundColor({
+      tabId,
+      color: "#000000",
+    }),
+    chrome.action.setBadgeText({
+      tabId,
       text: `${(prog * 100).toFixed(0)}%`,
-      tabId: this.#tabId,
-    });
-  }
-
-  async stop() {
-    await Promise.all([
-      chrome.action.setBadgeText({ text: "", tabId: this.#tabId }),
-      chrome.action.enable(this.#tabId),
-    ]);
-  }
+    }),
+  ]);
 }
 
-export function progress(tabId: number): Progress {
-  return new ProgressBadge(tabId);
+export async function stop(tabId: number) {
+  await chrome.action.setBadgeText({ tabId, text: "" });
 }

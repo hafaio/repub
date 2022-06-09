@@ -1,5 +1,5 @@
 import { performance } from "node:perf_hooks";
-import { assert, levenshtein, safeFilename, sleep } from "./utils";
+import { assert, levenshtein, safeFilename, sleep, timeout } from "./utils";
 
 test("sleep()", async () => {
   const first = performance.now();
@@ -10,6 +10,11 @@ test("sleep()", async () => {
   await Promise.all([sleep(10), sleep(10)]);
   const actual = performance.now() - second;
   expect(Math.abs(expected - actual)).toBeLessThan(Math.max(expected, actual));
+});
+
+test("timeout()", async () => {
+  expect(await timeout(sleep(1), 10)).toBeUndefined();
+  await expect(timeout(sleep(10), 1)).rejects.toThrow("timeout");
 });
 
 test("safeFilename()", () => {
