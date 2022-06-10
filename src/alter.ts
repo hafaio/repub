@@ -142,11 +142,12 @@ function walk(
     // img element, find best src
     const { imageHandling } = options;
     const href = match(getSrcs([node]));
-    if (
-      imageHandling === "strip" ||
-      !href ||
-      (imageHandling === "filter" && seen.has(href))
-    ) {
+    if (imageHandling === "strip") {
+      return [];
+    } else if (!href) {
+      console.warn("no src match found for", node);
+      return [];
+    } else if (imageHandling === "filter" && seen.has(href)) {
       return [];
     } else {
       node.src = href;
@@ -158,12 +159,15 @@ function walk(
     const { imageHandling } = options;
     const href = match(getSrcs(node.childNodes));
     const [img] = node.childNodes.filter(isImg);
-    if (
-      imageHandling === "strip" ||
-      !href ||
-      !img ||
-      (imageHandling === "filter" && seen.has(href))
-    ) {
+    if (imageHandling === "strip") {
+      return [];
+    } else if (!href) {
+      console.warn("no src match found for", node);
+      return [];
+    } else if (!img) {
+      console.warn("no img inside picture element", node);
+      return [];
+    } else if (imageHandling === "filter" && seen.has(href)) {
       return [];
     } else {
       img.src = encodeURI(href);

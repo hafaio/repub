@@ -10,7 +10,7 @@
     "dev": "next dev",
     "fmt": "prettier --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.json' bundle.mjs",
     "lint": "pnpify tsc && eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' bundle.mjs",
-    "test": "jest --coverage",
+    "test": "jest --silent --coverage",
     "build:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
     "build:bundle": "node bundle.mjs",
     "build:options": "pnpify next build && next export",
