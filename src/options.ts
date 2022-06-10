@@ -93,7 +93,7 @@ export const defaultOptions: Options = {
   summarizeCharThreshold: 500,
   imageHandling: "filter",
   imageHrefSimilarityThreshold: 0.2,
-  imageBrightness: 1.3,
+  imageBrightness: 1.25,
   hrefHeader: false,
   rmCss: true,
   filterLinks: true,
