@@ -85,7 +85,7 @@ async function fetchEpub({
       missingImage: imageHandling === "keep" ? "ignore" : "remove",
     }),
     10000,
-    "timeout uploading epub"
+    "timed out creating epub"
   );
 
   await progress(tabId, 0.8);
@@ -147,7 +147,11 @@ async function rePub(tabId: number) {
         url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
       });
     } else if (deviceToken) {
-      await upload(epubPromise, deviceToken, rmOptions);
+      await timeout(
+        upload(epubPromise, deviceToken, rmOptions),
+        30 * 1000,
+        "timed out uploading epub"
+      );
     } else {
       await chrome.runtime.openOptionsPage();
       throw new Error(
