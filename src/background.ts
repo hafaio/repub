@@ -6,10 +6,17 @@ import { createConverter } from "./converter";
 import { epub } from "./epub";
 import { getOptions, ImageHandling } from "./options";
 import { Asset, parseMhtmlStream } from "./parse";
-import { progress, stop } from "./progress";
 import { upload } from "./upload";
-import { safeFilename, sleep, timeout } from "./utils";
+import { safeFilename, sleep } from "./utils";
 
+/**
+ * fetch an epub from the current page
+ *
+ * Update status while progressing.
+ *
+ * NOTE this is a separate function because both the upload and download paths
+ * use it slightly differently.
+ */
 async function fetchEpub({
   tabId,
   summarizeCharThreshold,
@@ -29,13 +36,18 @@ async function fetchEpub({
   css: string | undefined;
   hrefHeader: boolean;
 }): Promise<{ buffer: Uint8Array; title: string }> {
-  // capture page
   const stream = await pageCapture(tabId);
-  await progress(tabId, 0.2);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "20%",
+  });
 
   // parse components out of mhtml
   const { content, href, title, assets } = await parseMhtmlStream(stream);
-  await progress(tabId, 0.3);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "30%",
+  });
 
   // get all images
   const imageMap = new Map<string, Asset>();
@@ -45,7 +57,10 @@ async function fetchEpub({
       imageMap.set(href, asset);
     }
   }
-  await progress(tabId, 0.4);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "40%",
+  });
 
   // alter page by parsing out images
   const matcher =
@@ -63,32 +78,37 @@ async function fetchEpub({
     summarizeCharThreshold,
   });
   const images = [...seen].map((href) => imageMap.get(href)!);
-  await progress(tabId, 0.5);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "50%",
+  });
 
   // convert epub unfriendly images
   const converted = await convert(
     images,
     createConverter({ brightness: imageBrightness })
   );
-  await progress(tabId, 0.6);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "60%",
+  });
 
   // convert to an epub
   const finalTitle = parsedTitle ?? title;
-  const buffer = await timeout(
-    epub({
-      title: finalTitle,
-      content: altered,
-      author: byline,
-      images: converted,
-      css,
-      href: hrefHeader ? href : undefined,
-      missingImage: imageHandling === "keep" ? "ignore" : "remove",
-    }),
-    10000,
-    "timed out creating epub"
-  );
+  const buffer = await epub({
+    title: finalTitle,
+    content: altered,
+    author: byline,
+    images: converted,
+    css,
+    href: hrefHeader ? href : undefined,
+    missingImage: imageHandling === "keep" ? "ignore" : "remove",
+  });
 
-  await progress(tabId, 0.8);
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "80%",
+  });
   return { buffer, title: finalTitle };
 }
 
@@ -112,9 +132,17 @@ figcaption {
   font-style: italic;
 }`;
 
-// workhorse
+/**
+ * create and upload epub
+ */
 async function rePub(tabId: number) {
   try {
+    await chrome.action.disable(tabId);
+    await chrome.action.setBadgeBackgroundColor({
+      tabId,
+      color: "#000000",
+    });
+
     const {
       deviceToken,
       outputStyle,
@@ -125,9 +153,11 @@ async function rePub(tabId: number) {
       hrefHeader,
       rmCss,
       filterLinks,
+      timeout,
       ...rmOptions
     } = await getOptions();
 
+    // NOTE we don't resolve the promise here so that it can be used elsewhere
     const epubPromise = fetchEpub({
       tabId,
       summarizeCharThreshold,
@@ -147,14 +177,18 @@ async function rePub(tabId: number) {
         url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
       });
     } else if (deviceToken) {
-      await upload(epubPromise, deviceToken, rmOptions);
+      await upload(epubPromise, deviceToken, rmOptions, { timeout });
     } else {
       await chrome.runtime.openOptionsPage();
       throw new Error(
         "must be authenticated to upload documents to reMarkable"
       );
     }
-    await progress(tabId, 1);
+
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "100%",
+    });
     // NOTE leave progress around to see
     await sleep(500);
   } catch (ex) {
@@ -166,7 +200,11 @@ async function rePub(tabId: number) {
       message: `${ex}`,
     });
   } finally {
-    await stop(tabId);
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "",
+    });
+    await chrome.action.enable(tabId);
   }
 }
 

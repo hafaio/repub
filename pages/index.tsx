@@ -540,6 +540,34 @@ function TextScalePicker({
   );
 }
 
+const allowedTimeouts = [
+  { value: 30 * 1000, label: "30 sec" },
+  { value: 60 * 1000, label: "1 min" },
+  { value: 2 * 60 * 1000, label: "2 min" },
+  { value: 5 * 60 * 1000, label: "5 min" },
+];
+function TimeoutPicker({
+  timeout,
+  setOpts,
+}: {
+  timeout: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onChange = useCallback(
+    (val: number) => setOpts({ timeout: val }),
+    [setOpts]
+  );
+  return (
+    <SliderSelection
+      title="Upload Timeout"
+      caption={`Set maximum time to try uploading document to remarkable cloud. If you're having difficulties or are on a slow connection, try increasing this.`}
+      value={timeout}
+      onChange={onChange}
+      options={allowedTimeouts}
+    />
+  );
+}
+
 function TextAlignmentPicker({
   textAlignment,
   setOpts,
@@ -725,6 +753,7 @@ function UploadOptions({
       <LineHeightPicker lineHeight={opts.lineHeight} setOpts={setOpts} />
       <MarginsPicker margins={opts.margins} setOpts={setOpts} />
       <TextScalePicker textScale={opts.textScale} setOpts={setOpts} />
+      <TimeoutPicker timeout={opts.timeout} setOpts={setOpts} />
     </Section>
   );
 }

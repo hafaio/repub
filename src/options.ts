@@ -61,6 +61,7 @@ export interface Options {
   textAlignment: TextAlignment;
   cover: Cover;
   fontName: string;
+  timeout: number;
 }
 
 const optionsSchema: JtdSchema<Partial<Options>> = {
@@ -82,6 +83,7 @@ const optionsSchema: JtdSchema<Partial<Options>> = {
     textAlignment: { enum: ["left", "justify"] },
     cover: { enum: ["first", "visited"] },
     fontName: { type: "string" },
+    timeout: { type: "float64" },
   },
   additionalProperties: true,
 };
@@ -104,6 +106,7 @@ export const defaultOptions: Options = {
   textAlignment: "justify",
   cover: "visited",
   fontName: "",
+  timeout: 60 * 1000,
 };
 
 export async function getOptions(

@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "next dev",
     "fmt": "prettier --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.json' bundle.mjs",
-    "lint": "pnpify tsc && eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' bundle.mjs",
+    "lint:tsc": "pnpify tsc",
+    "lint:eslint": "eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' bundle.mjs",
+    "lint": "yarn lint:tsc && yarn lint:eslint",
     "test": "jest --silent --coverage",
     "build:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
     "build:bundle": "node bundle.mjs",

@@ -9,6 +9,8 @@ import {
   RequestInitLike,
   ResponseLike,
 } from "rmapi-js/dist";
+import { lock } from "./lock";
+import { timeout as asyncTimeout } from "./utils";
 
 interface Epub {
   buffer: Uint8Array;
@@ -84,7 +86,12 @@ async function uploadEntry(
   return await api.putEpub(title, buffer, options);
 }
 
-export async function upload(
+// TODO ideally we'd save information between calls so that we're not creating
+// a new api and root hash each time, but reusing the last one that worked.
+// However, I can't think of a clever way to transition that state without
+// either using a ttl cache dependency, or manually clearing the cache when I
+// detect that the lock is no longer locked, which seems really inellegant.
+async function singleUpload(
   epubPromise: Promise<Epub>,
   deviceToken: string,
   options: PutEpubOptions,
@@ -117,5 +124,33 @@ export async function upload(
         throw ex;
       }
     }
+  }
+}
+
+interface UploadOptions {
+  retries?: number;
+  timeout: number;
+}
+
+const uploadLock = lock();
+
+export async function upload(
+  epubPromise: Promise<Epub>,
+  deviceToken: string,
+  options: PutEpubOptions,
+  { retries = 2, timeout }: UploadOptions
+): Promise<void> {
+  try {
+    // TODO since we only upload one at a time, we could update the status
+    // badge to indicate paused, but that might be tricky from an api
+    // perspective, and might create confusion for users
+    await uploadLock.acquire();
+    await asyncTimeout(
+      singleUpload(epubPromise, deviceToken, options, retries),
+      timeout,
+      "timed out uploading"
+    );
+  } finally {
+    uploadLock.release();
   }
 }
