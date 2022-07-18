@@ -137,7 +137,6 @@ figcaption {
  */
 async function rePub(tabId: number) {
   try {
-    await chrome.action.disable(tabId);
     await chrome.action.setBadgeBackgroundColor({
       tabId,
       color: "#000000",
@@ -204,7 +203,6 @@ async function rePub(tabId: number) {
       tabId,
       text: "",
     });
-    await chrome.action.enable(tabId);
   }
 }
 
