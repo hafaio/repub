@@ -11,6 +11,8 @@ export async function pageCapture(
       // typescript is confused because of leaked node types, and there's no
       // way around it
       return blob.stream() as unknown as ReadableStream<ArrayBuffer>;
+    } else {
+      console.warn(chrome.runtime.lastError);
     }
   }
   throw new Error("couldn't fetch page");
