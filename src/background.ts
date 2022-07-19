@@ -207,8 +207,8 @@ async function rePub(tabId: number) {
 }
 
 // watch for clicks
-chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener(async (tab) => {
   if (tab.id !== undefined) {
-    void rePub(tab.id);
+    await rePub(tab.id);
   }
 });
