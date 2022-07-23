@@ -134,6 +134,9 @@ interface UploadOptions {
 
 const uploadLock = lock();
 
+// TODO instead of doing a singel upload at a time, everything should upload
+// individually and then this should just tontinnously try and update the root
+// hash
 export async function upload(
   epubPromise: Promise<Epub>,
   deviceToken: string,
