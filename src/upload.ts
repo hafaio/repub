@@ -10,7 +10,6 @@ import {
   ResponseLike,
 } from "rmapi-js/dist";
 import { lock } from "./lock";
-import { timeout as asyncTimeout } from "./utils";
 
 interface Epub {
   buffer: Uint8Array;
@@ -34,9 +33,28 @@ async function wrapper(
   return await fetch(url, init);
 }
 
-async function getState(
-  apiPromise: Promise<RemarkableApi>
-): Promise<UploadState> {
+const cacheLock = lock();
+let cachedToken = "";
+let cachedApi: WeakRef<RemarkableApi> | undefined;
+
+async function getApi(deviceToken: string): Promise<RemarkableApi> {
+  const existing = cachedApi?.deref();
+  if (existing === undefined || cachedToken !== deviceToken) {
+    try {
+      await cacheLock.acquire();
+      cachedToken = deviceToken;
+      const api = await remarkable(deviceToken, { fetch: wrapper });
+      cachedApi = new WeakRef(api);
+      return api;
+    } finally {
+      cacheLock.release();
+    }
+  } else {
+    return existing;
+  }
+}
+
+async function getState(api: RemarkableApi): Promise<UploadState> {
   try {
     const { rootHash, generation, entriesStrings } =
       await chrome.storage.local.get([
@@ -59,7 +77,6 @@ async function getState(
   } catch (ex) {
     console.error(ex);
   }
-  const api = await apiPromise;
   const [rootHash, generation] = await api.getRootHash();
   const entries = await api.getEntries(rootHash);
   return { rootHash, generation, entries };
@@ -78,82 +95,85 @@ async function setState({
 }
 
 async function uploadEntry(
-  apiPromise: Promise<RemarkableApi>,
+  api: RemarkableApi,
   epubPromise: Promise<Epub>,
   options: PutEpubOptions
 ): Promise<Entry> {
-  const [api, { buffer, title }] = await Promise.all([apiPromise, epubPromise]);
+  const { buffer, title } = await epubPromise;
   return await api.putEpub(title, buffer, options);
-}
-
-// TODO ideally we'd save information between calls so that we're not creating
-// a new api and root hash each time, but reusing the last one that worked.
-// However, I can't think of a clever way to transition that state without
-// either using a ttl cache dependency, or manually clearing the cache when I
-// detect that the lock is no longer locked, which seems really inellegant.
-async function singleUpload(
-  epubPromise: Promise<Epub>,
-  deviceToken: string,
-  options: PutEpubOptions,
-  retries = 2
-): Promise<void> {
-  const apiPromise = remarkable(deviceToken, { fetch: wrapper });
-  const [api, entry, state] = await Promise.all([
-    apiPromise,
-    uploadEntry(apiPromise, epubPromise, options),
-    getState(apiPromise),
-  ]);
-  let { rootHash, generation, entries } = state;
-
-  for (let tryNum = 0; ; ++tryNum) {
-    try {
-      entries.push(entry);
-      const { hash } = await api.putEntries("", entries);
-      const newGen = await api.putRootHash(hash, generation);
-      await api.syncComplete();
-      // NOTE we don't strictly need to wait for the cache to write, but we probably should?
-      await setState({ rootHash: hash, generation: newGen, entries });
-      return;
-    } catch (ex) {
-      if (tryNum < retries && ex instanceof GenerationError) {
-        console.log("failed upload due to generation");
-        // failed due to generation, resync with remote
-        [rootHash, generation] = await api.getRootHash();
-        entries = await api.getEntries(rootHash);
-      } else {
-        throw ex;
-      }
-    }
-  }
 }
 
 interface UploadOptions {
   retries?: number;
-  timeout: number;
 }
 
-const uploadLock = lock();
+const registerLock = lock();
+const entryQueue: [Promise<Entry>, (err?: unknown) => void][] = [];
 
-// TODO instead of doing a singel upload at a time, everything should upload
-// individually and then this should just tontinnously try and update the root
-// hash
 export async function upload(
   epubPromise: Promise<Epub>,
   deviceToken: string,
   options: PutEpubOptions,
-  { retries = 2, timeout }: UploadOptions
+  { retries = 2 }: UploadOptions
 ): Promise<void> {
+  const api = await getApi(deviceToken);
+  let complete = null;
+  entryQueue.push([
+    uploadEntry(api, epubPromise, options),
+    (err?: unknown) => {
+      complete = err;
+    },
+  ]);
   try {
-    // TODO since we only upload one at a time, we could update the status
-    // badge to indicate paused, but that might be tricky from an api
-    // perspective, and might create confusion for users
-    await uploadLock.acquire();
-    await asyncTimeout(
-      singleUpload(epubPromise, deviceToken, options, retries),
-      timeout,
-      "timed out uploading"
-    );
+    await registerLock.acquire();
+    if (complete === null) {
+      let { rootHash, generation, entries } = await getState(api);
+
+      const newEntries = [];
+      const callbacks = [];
+      for (let tryNum = 0; ; ++tryNum) {
+        // find any more entries to upload
+        let pair;
+        while ((pair = entryQueue.pop())) {
+          const [prom, callback] = pair;
+          newEntries.push(await prom);
+          callbacks.push(callback);
+          tryNum = 0;
+        }
+        entries.push(...newEntries);
+
+        try {
+          const { hash } = await api.putEntries("", entries);
+          const newGen = await api.putRootHash(hash, generation);
+          await api.syncComplete();
+          // NOTE we don't strictly need to wait for the cache to write, but we probably should?
+          await setState({ rootHash: hash, generation: newGen, entries });
+          // mark everything as complete
+          for (const callback of callbacks) {
+            callback();
+          }
+          return;
+        } catch (ex) {
+          if (tryNum < retries && ex instanceof GenerationError) {
+            console.log("failed upload due to generation");
+            // failed due to generation, resync with remote
+            [rootHash, generation] = await api.getRootHash();
+            entries = await api.getEntries(rootHash);
+          } else {
+            // fail everything we tried to upload
+            for (const callback of callbacks) {
+              callback(ex);
+            }
+            throw ex;
+          }
+        }
+      }
+    } else if (complete === undefined) {
+      return;
+    } else {
+      throw complete;
+    }
   } finally {
-    uploadLock.release();
+    registerLock.release();
   }
 }

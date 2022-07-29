@@ -152,7 +152,6 @@ async function rePub(tabId: number) {
       hrefHeader,
       rmCss,
       filterLinks,
-      timeout,
       ...rmOptions
     } = await getOptions();
 
@@ -176,7 +175,7 @@ async function rePub(tabId: number) {
         url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
       });
     } else if (deviceToken) {
-      await upload(epubPromise, deviceToken, rmOptions, { timeout });
+      await upload(epubPromise, deviceToken, rmOptions, {});
     } else {
       await chrome.runtime.openOptionsPage();
       throw new Error(
