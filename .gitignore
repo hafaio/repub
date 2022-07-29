@@ -11,6 +11,7 @@
 # Cache #
 #########
 coverage
+node_modules
 *.tsbuildinfo
 .eslintcache
 .next
