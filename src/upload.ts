@@ -145,7 +145,6 @@ export async function upload(
         try {
           const { hash } = await api.putEntries("", entries);
           const newGen = await api.putRootHash(hash, generation);
-          await api.syncComplete();
           // NOTE we don't strictly need to wait for the cache to write, but we probably should?
           await setState({ rootHash: hash, generation: newGen, entries });
           // mark everything as complete
