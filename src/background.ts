@@ -36,6 +36,11 @@ async function fetchEpub({
   css: string | undefined;
   hrefHeader: boolean;
 }): Promise<{ buffer: Uint8Array; title: string }> {
+  await chrome.action.setBadgeText({
+    tabId,
+    text: "10%",
+  });
+
   const stream = await pageCapture(tabId);
   await chrome.action.setBadgeText({
     tabId,
