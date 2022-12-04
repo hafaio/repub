@@ -141,6 +141,7 @@ figcaption {
  * create and upload epub
  */
 async function rePub(tabId: number) {
+  let title: string | undefined;
   try {
     await chrome.action.setBadgeBackgroundColor({
       tabId,
@@ -170,6 +171,10 @@ async function rePub(tabId: number) {
       hrefHeader,
       filterLinks,
       css: rmCss ? remarkableCss : undefined,
+    }).then((epub) => {
+      // set title for use in error;
+      title = epub.title;
+      return epub;
     });
 
     // upload
@@ -195,12 +200,12 @@ async function rePub(tabId: number) {
     // NOTE leave progress around to see
     await sleep(500);
   } catch (ex) {
-    console.error("problem creating epub", ex);
+    console.error("problem creating epub", title, ex);
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",
       title: "Conversion to epub failed",
-      message: `${ex}`,
+      message: title ? `${title} - ${ex}` : `${ex}`,
     });
   } finally {
     await chrome.action.setBadgeText({
