@@ -17,12 +17,13 @@ if (!mhtml) {
   console.error("first argument must be an mhtml file to debug");
 } else {
   const buff = await readFile(mhtml);
-  const stream = new ReadableStream({
+  const stream = new ReadableStream<ArrayBuffer>({
     async start(controller) {
       controller.enqueue(buff);
       controller.close();
     },
   });
+  // @ts-expect-error some weird incompatability between node and chrome types
   const { content, assets } = await parseMhtmlStream(stream);
   const images = new Set<string>();
   for await (const { href, contentType } of assets) {
