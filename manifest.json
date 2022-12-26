@@ -5,8 +5,8 @@
   "manifest_version": 3,
   "permissions": ["downloads", "storage", "notifications", "pageCapture"],
   "host_permissions": [
-    "https://webapp-production-dot-remarkable-production.appspot.com/",
-    "https://rm-blob-storage-prod.appspot.com/",
+    "https://webapp-prod.cloud.remarkable.engineering/",
+    "https://internal.cloud.remarkable.com/",
     "https://storage.googleapis.com/"
   ],
   "options_page": "out/index.html",

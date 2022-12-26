@@ -208,7 +208,7 @@ function SignIn({
           <Typography>
             Click{" "}
             <Link
-              href="https://my.remarkable.com/device/desktop/connect"
+              href="https://my.remarkable.com/device/browser/connect"
               target="_blank"
             >
               here

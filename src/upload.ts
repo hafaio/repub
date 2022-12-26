@@ -151,6 +151,8 @@ export async function upload(
           for (const callback of callbacks) {
             callback();
           }
+          // tell devices to sync
+          await api.syncComplete(newGen);
           return;
         } catch (ex) {
           if (tryNum < retries && ex instanceof GenerationError) {
