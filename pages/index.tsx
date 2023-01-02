@@ -127,56 +127,61 @@ function SignIn({
   const [registering, setRegistering] = useState(false);
 
   const changeAuth = useCallback(
-    async (evt: ChangeEvent<HTMLInputElement>) => {
-      const val = evt.target.value;
-      setIncCode(val);
-      if (val.length !== 8) return;
-      setRegistering(true);
-      try {
-        const deviceToken = await getToken(val);
-        setOpts({ deviceToken });
-        showSnack({
-          key: "login",
-          severity: "success",
-          message: "linked reMarkable account successfully",
-        });
-      } catch (ex) {
-        showSnack({
-          key: "login error",
-          severity: "error",
-          message: "problem trying to link reMarkable account",
-        });
-      } finally {
-        setIncCode("");
-        setRegistering(false);
-      }
-    },
+    (evt: ChangeEvent<HTMLInputElement>) =>
+      void (async () => {
+        const val = evt.target.value;
+        setIncCode(val);
+        if (val.length !== 8) return;
+        setRegistering(true);
+        try {
+          const deviceToken = await getToken(val);
+          setOpts({ deviceToken });
+          showSnack({
+            key: "login",
+            severity: "success",
+            message: "linked reMarkable account successfully",
+          });
+        } catch (ex) {
+          showSnack({
+            key: "login error",
+            severity: "error",
+            message: "problem trying to link reMarkable account",
+          });
+        } finally {
+          setIncCode("");
+          setRegistering(false);
+        }
+      })(),
     [setIncCode, setRegistering, setOpts]
   );
-  const clipboard = useCallback(async () => {
-    setRegistering(true);
-    try {
-      const content = await navigator.clipboard.readText();
-      if (content.length !== 8) return;
-      setIncCode(content);
-      const deviceToken = await getToken(content);
-      setOpts({ deviceToken });
-      showSnack({
-        key: "login",
-        severity: "success",
-        message: "linked reMarkable account successfully",
-      });
-    } catch (ex) {
-      showSnack({
-        key: "login error",
-        severity: "error",
-        message: "problem trying to link reMarkable account",
-      });
-    } finally {
-      setIncCode("");
-      setRegistering(false);
-    }
-  }, [setRegistering, setIncCode, setOpts]);
+  const clipboard = useCallback(
+    () =>
+      void (async () => {
+        setRegistering(true);
+        try {
+          const content = await navigator.clipboard.readText();
+          if (content.length !== 8) return;
+          setIncCode(content);
+          const deviceToken = await getToken(content);
+          setOpts({ deviceToken });
+          showSnack({
+            key: "login",
+            severity: "success",
+            message: "linked reMarkable account successfully",
+          });
+        } catch (ex) {
+          showSnack({
+            key: "login error",
+            severity: "error",
+            message: "problem trying to link reMarkable account",
+          });
+        } finally {
+          setIncCode("");
+          setRegistering(false);
+        }
+      })(),
+    [setRegistering, setIncCode, setOpts]
+  );
 
   if (show) {
     const pasteAdornment = (

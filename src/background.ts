@@ -77,16 +77,12 @@ async function fetchEpub({
     title: parsedTitle,
     byline,
     seen,
-  } = await alter(content, matcher, {
+  } = alter(content, matcher, {
     imageHandling,
     filterLinks,
     summarizeCharThreshold,
   });
   const images = [...seen].map((href) => imageMap.get(href)!);
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "50%",
-  });
 
   // convert epub unfriendly images
   const converted = await convert(
@@ -187,7 +183,7 @@ async function rePub(tabId: number) {
     } else if (deviceToken) {
       await upload(epubPromise, deviceToken, rmOptions, {});
     } else {
-      await chrome.runtime.openOptionsPage();
+      chrome.runtime.openOptionsPage();
       throw new Error(
         "must be authenticated to upload documents to reMarkable"
       );
@@ -200,12 +196,13 @@ async function rePub(tabId: number) {
     // NOTE leave progress around to see
     await sleep(500);
   } catch (ex) {
-    console.error("problem creating epub", title, ex);
+    const msg = ex instanceof Error ? ex.toString() : "unknown error";
+    console.error("problem creating epub", title, msg);
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",
       title: "Conversion to epub failed",
-      message: title ? `${title} - ${ex}` : `${ex}`,
+      message: title ? `${title} - ${msg}` : msg,
     });
   } finally {
     await chrome.action.setBadgeText({
@@ -216,8 +213,8 @@ async function rePub(tabId: number) {
 }
 
 // watch for clicks
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener((tab) => {
   if (tab.id !== undefined) {
-    await rePub(tab.id);
+    void rePub(tab.id);
   }
 });

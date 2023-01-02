@@ -10,8 +10,8 @@
     "dev": "next dev",
     "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.json' bundle.mjs",
     "lint:tsc": "pnpify tsc",
-    "lint:eslint": "eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' bundle.mjs",
-    "lint": "yarn lint:tsc && yarn lint:eslint",
+    "lint:es": "pnpify eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx'",
+    "lint": "yarn lint:tsc && yarn lint:es",
     "test": "jest --silent --coverage",
     "build:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
     "build:bundle": "node bundle.mjs",
@@ -98,9 +98,15 @@
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
       "prettier",
       "plugin:@next/next/recommended"
     ],
+    "parserOptions": {
+      "project": [
+        "./tsconfig.json"
+      ]
+    },
     "parser": "@typescript-eslint/parser",
     "plugins": [
       "@typescript-eslint",

@@ -18,7 +18,7 @@ if (!mhtml) {
 } else {
   const buff = await readFile(mhtml);
   const stream = new ReadableStream<ArrayBuffer>({
-    async start(controller) {
+    start(controller) {
       controller.enqueue(buff);
       controller.close();
     },
@@ -75,7 +75,7 @@ if (!mhtml) {
     return match;
   };
 
-  const { seen } = await alter(content, matcher, {
+  const { seen } = alter(content, matcher, {
     summarizeCharThreshold: 0,
     filterLinks: false,
     imageHandling: "keep",

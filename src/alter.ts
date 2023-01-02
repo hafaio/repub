@@ -88,7 +88,7 @@ function* parseSrcset(srcset: string): IterableIterator<string> {
     const match = field.match(/\S+/);
     if (!match) continue;
     const [href] = match;
-    yield decodeURIComponent(href!);
+    yield decodeURIComponent(href);
   }
 }
 
@@ -184,11 +184,11 @@ function walk(
 }
 
 /** update img src's with srcset information */
-export async function alter(
+export function alter(
   raw: string,
   match: Matcher<string>,
   { summarizeCharThreshold, ...opts }: Options
-): Promise<Altered> {
+): Altered {
   // all seen hrefs
   const doc = parse(raw, { treeAdapter });
   const res = new Readability<RTElement>(doc as unknown as Document, {

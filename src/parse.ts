@@ -1,4 +1,4 @@
-import { parseMhtml } from "mhtml-stream";
+import { MhtmlFile, parseMhtml } from "mhtml-stream";
 import { assert } from "./utils";
 
 export interface Asset {
@@ -36,13 +36,15 @@ export async function parseMhtmlStream(
 ): Promise<ParsedWebpage> {
   // init
   const files = parseMhtml(asIterable(stream))[Symbol.asyncIterator]();
-  let done, value;
+  let done: boolean | undefined, value: MhtmlFile;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   ({ done, value } = await files.next());
   assert(!done, "no header file in mhtml");
-  const title = value.headers.get("Subject");
+  const title = value.headers.get("Subject") || undefined;
   const locate = value.headers.get("Snapshot-Content-Location");
   assert(locate !== null, "no location url in html");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   ({ done, value } = await files.next());
   assert(!done, "no content file in mhtml");
   assert(
