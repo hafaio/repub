@@ -236,36 +236,6 @@ function SignIn({
   }
 }
 
-function SummarizeCharThreshold({
-  summarizeCharThreshold,
-  setOpts,
-}: {
-  summarizeCharThreshold: number | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        summarizeCharThreshold: summarizeCharThreshold
-          ? 0
-          : defaultOptions.summarizeCharThreshold,
-      }),
-    [setOpts, summarizeCharThreshold]
-  );
-  const value =
-    summarizeCharThreshold === undefined ? undefined : !!summarizeCharThreshold;
-  return (
-    <CheckboxSelection
-      value={value}
-      onToggle={onToggle}
-      title="Use threshold for summarized content"
-      caption={`If set, the summarized content must have at least
-      ${defaultOptions.summarizeCharThreshold} characters in it, otherwise the
-      summarization will fail.`}
-    />
-  );
-}
-
 function RemarkableCssPicker({
   rmCss,
   setOpts,
@@ -410,6 +380,50 @@ function HrefHeader({
       title="Include page URL in epub"
       caption={`Include a small header with the original page URL right above
       the article title when converting an article into an epub.`}
+    />
+  );
+}
+
+function BylineHeader({
+  bylineHeader,
+  setOpts,
+}: {
+  bylineHeader: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ bylineHeader: !bylineHeader }),
+    [setOpts, bylineHeader]
+  );
+  return (
+    <CheckboxSelection
+      value={bylineHeader}
+      onToggle={onToggle}
+      title="Include byline in epub"
+      caption={`Include a small byline with the extracted author right below
+      the article title when converting an article into an epub.`}
+    />
+  );
+}
+
+function CoverHeader({
+  coverHeader,
+  setOpts,
+}: {
+  coverHeader: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ coverHeader: !coverHeader }),
+    [setOpts, coverHeader]
+  );
+  return (
+    <CheckboxSelection
+      value={coverHeader}
+      onToggle={onToggle}
+      title="Include cover image in epub"
+      caption={`Include the extracted cover image right below the article title
+      when converting an article into an epub.`}
     />
   );
 }
@@ -689,10 +703,6 @@ function EpubOptions({
       subtitle={`These options alter the way the epub is generated independent of
           whether it's uploaded to reMarkable or kept as an epub`}
     >
-      <SummarizeCharThreshold
-        summarizeCharThreshold={opts.summarizeCharThreshold}
-        setOpts={setOpts}
-      />
       <CloseImages
         imageHrefSimilarityThreshold={opts.imageHrefSimilarityThreshold}
         setOpts={setOpts}
@@ -702,6 +712,8 @@ function EpubOptions({
         setOpts={setOpts}
       />
       <HrefHeader hrefHeader={opts.hrefHeader} setOpts={setOpts} />
+      <BylineHeader bylineHeader={opts.bylineHeader} setOpts={setOpts} />
+      <CoverHeader coverHeader={opts.coverHeader} setOpts={setOpts} />
       <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
       <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
     </Section>

@@ -38,24 +38,3 @@ export function safeFilename(original: string): string {
   // NOTE could use text encoder / decoder to get bytes right for utf-8 encoding
   return original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/, "_");
 }
-
-/** edit distance between two strings */
-export function levenshtein(left: string, right: string): number {
-  if (left.length > right.length) {
-    [left, right] = [right, left];
-  }
-  const lchars = [...left];
-  const rchars = [...right];
-
-  let dists = [...Array(lchars.length + 1).keys()];
-  for (const [i, rc] of rchars.entries()) {
-    const next = [i + 1];
-    for (const [j, lc] of lchars.entries()) {
-      next.push(
-        rc === lc ? dists[j]! : Math.min(dists[j]!, dists[j + 1]!, next[j]!) + 1
-      );
-    }
-    dists = next;
-  }
-  return dists[dists.length - 1]!;
-}

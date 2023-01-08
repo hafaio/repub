@@ -2,15 +2,13 @@
 export async function pageCapture(
   tabId: number,
   { retries = 3 }: { retries?: number } = {}
-): Promise<ReadableStream<ArrayBuffer>> {
+): Promise<ArrayBuffer> {
   for (; retries; --retries) {
     const blob = await new Promise<Blob | undefined>((resolve) =>
       chrome.pageCapture.saveAsMHTML({ tabId }, resolve)
     );
     if (blob) {
-      // typescript is confused because of leaked node types, and there's no
-      // way around it
-      return blob.stream() as unknown as ReadableStream<ArrayBuffer>;
+      return await blob.arrayBuffer();
     } else {
       console.warn(chrome.runtime.lastError);
     }

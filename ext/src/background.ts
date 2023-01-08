@@ -1,11 +1,7 @@
 import { fromByteArray } from "base64-js";
-import { alter, closeMatch, exactMatch } from "./alter";
+import { default as init, render } from "repub-bind/repub_bind";
 import { pageCapture } from "./capture";
-import { convert } from "./convert";
-import { createConverter } from "./converter";
-import { epub } from "./epub";
 import { getOptions, ImageHandling } from "./options";
-import { Asset, parseMhtmlStream } from "./parse";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
 
@@ -19,98 +15,61 @@ import { safeFilename, sleep } from "./utils";
  */
 async function fetchEpub({
   tabId,
-  summarizeCharThreshold,
   imageHandling,
   imageHrefSimilarityThreshold,
   imageBrightness,
   filterLinks,
   css,
   hrefHeader,
+  bylineHeader,
+  coverHeader,
 }: {
   tabId: number;
-  summarizeCharThreshold: number;
   imageHandling: ImageHandling;
   imageHrefSimilarityThreshold: number;
   imageBrightness: number;
   filterLinks: boolean;
   css: string | undefined;
   hrefHeader: boolean;
+  bylineHeader: boolean;
+  coverHeader: boolean;
 }): Promise<{ buffer: Uint8Array; title: string }> {
   await chrome.action.setBadgeText({
     tabId,
-    text: "10%",
+    text: "25%",
   });
 
-  const stream = await pageCapture(tabId);
+  const mhtml = await pageCapture(tabId);
   await chrome.action.setBadgeText({
     tabId,
-    text: "20%",
+    text: "50%",
   });
 
-  // parse components out of mhtml
-  const { content, href, title, assets } = await parseMhtmlStream(stream);
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "30%",
-  });
-
-  // get all images
-  const imageMap = new Map<string, Asset>();
-  for await (const asset of assets) {
-    const { href, contentType } = asset;
-    if (contentType.startsWith("image/")) {
-      imageMap.set(href, asset);
-    }
+  // necessary for render to work with web format
+  await init();
+  let epub, title, res;
+  try {
+    res = render(
+      new Uint8Array(mhtml),
+      imageHandling,
+      imageHrefSimilarityThreshold,
+      imageBrightness,
+      filterLinks,
+      css ?? "",
+      hrefHeader,
+      bylineHeader,
+      coverHeader
+    );
+    ({ epub, title } = res);
+  } finally {
+    res?.free();
   }
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "40%",
-  });
-
-  // alter page by parsing out images
-  const matcher =
-    imageHrefSimilarityThreshold <= 0
-      ? exactMatch(imageMap)
-      : closeMatch(imageMap, imageHrefSimilarityThreshold);
-  const {
-    altered,
-    title: parsedTitle,
-    byline,
-    seen,
-  } = alter(content, matcher, {
-    imageHandling,
-    filterLinks,
-    summarizeCharThreshold,
-  });
-  const images = [...seen].map((href) => imageMap.get(href)!);
-
-  // convert epub unfriendly images
-  const converted = await convert(
-    images,
-    createConverter({ brightness: imageBrightness })
-  );
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "60%",
-  });
-
-  // convert to an epub
-  const finalTitle = parsedTitle ?? title;
-  const buffer = await epub({
-    title: finalTitle,
-    content: altered,
-    author: byline,
-    images: converted,
-    css,
-    href: hrefHeader ? href : undefined,
-    missingImage: imageHandling === "keep" ? "ignore" : "remove",
-  });
 
   await chrome.action.setBadgeText({
     tabId,
-    text: "80%",
+    text: "75%",
   });
-  return { buffer, title: finalTitle };
+  return { buffer: epub, title: title ?? "missing title" };
 }
 
 const remarkableCss = `
@@ -143,15 +102,20 @@ async function rePub(tabId: number) {
       tabId,
       color: "#000000",
     });
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "0%",
+    });
 
     const {
       deviceToken,
       outputStyle,
-      summarizeCharThreshold,
       imageHandling,
       imageHrefSimilarityThreshold,
       imageBrightness,
       hrefHeader,
+      bylineHeader,
+      coverHeader,
       rmCss,
       filterLinks,
       ...rmOptions
@@ -160,11 +124,12 @@ async function rePub(tabId: number) {
     // NOTE we don't resolve the promise here so that it can be used elsewhere
     const epubPromise = fetchEpub({
       tabId,
-      summarizeCharThreshold,
       imageHandling,
       imageHrefSimilarityThreshold,
       imageBrightness,
       hrefHeader,
+      bylineHeader,
+      coverHeader,
       filterLinks,
       css: rmCss ? remarkableCss : undefined,
     }).then((epub) => {

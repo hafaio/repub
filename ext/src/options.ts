@@ -47,11 +47,12 @@ export interface Options {
   deviceToken: string;
   outputStyle: OutputStyle;
   // how we generate the epub
-  summarizeCharThreshold: number;
   imageHandling: ImageHandling;
   imageBrightness: number;
   imageHrefSimilarityThreshold: number;
   hrefHeader: boolean;
+  bylineHeader: boolean;
+  coverHeader: boolean;
   rmCss: boolean;
   filterLinks: boolean;
   // how we upload the epub
@@ -69,11 +70,12 @@ const optionsSchema: JtdSchema<Partial<Options>> = {
     deviceToken: { type: "string" },
     outputStyle: { enum: ["upload", "download"] },
     // how we generate the epub
-    summarizeCharThreshold: { type: "int32" },
     imageHandling: { enum: ["strip", "filter", "keep"] },
     imageHrefSimilarityThreshold: { type: "float64" },
     imageBrightness: { type: "float64" },
     hrefHeader: { type: "boolean" },
+    bylineHeader: { type: "boolean" },
+    coverHeader: { type: "boolean" },
     rmCss: { type: "boolean" },
     filterLinks: { type: "boolean" },
     // how we upload the epub
@@ -92,11 +94,12 @@ export const defaultOptions: Options = {
   deviceToken: "",
   outputStyle: "upload",
   // how we generate the epub
-  summarizeCharThreshold: 500,
   imageHandling: "filter",
   imageHrefSimilarityThreshold: 0.2,
   imageBrightness: 1.25,
   hrefHeader: false,
+  bylineHeader: true,
+  coverHeader: true,
   rmCss: true,
   filterLinks: true,
   // how we upload the epub
