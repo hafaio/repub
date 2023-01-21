@@ -4,5 +4,9 @@
     "ext",
     "bind/pkg"
   ],
+  "scripts": {
+    "lint": "yarn workspace repub lint",
+    "test": "yarn workspace repub test"
+  },
   "packageManager": "yarn@3.3.1"
 }

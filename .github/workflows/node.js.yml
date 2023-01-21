@@ -16,11 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: wasm-pack-action
+      uses: jetli/wasm-pack-action@v0.4.0
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: cd bind && wasm-pack build -t web
     - run: yarn install
     - run: yarn lint
     - run: yarn test
