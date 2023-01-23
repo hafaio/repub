@@ -26,6 +26,7 @@
     "/images/*.png",
     "/favicon.ico",
     "/background.js",
+    "/repub_bind_bg.wasm",
     "/out/**/*"
   ],
   "devDependencies": {

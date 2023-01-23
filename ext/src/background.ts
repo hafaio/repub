@@ -162,13 +162,13 @@ async function rePub(tabId: number) {
     await sleep(500);
   } catch (ex) {
     const msg = ex instanceof Error ? ex.toString() : "unknown error";
-    console.error("problem creating epub", title, msg);
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",
       title: "Conversion to epub failed",
       message: title ? `${title} - ${msg}` : msg,
     });
+    throw ex;
   } finally {
     await chrome.action.setBadgeText({
       tabId,
