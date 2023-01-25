@@ -2,10 +2,6 @@ use repub::{EpubVersion, Error, FilterType, ImageHandling, Repub};
 use std::str;
 use wasm_bindgen::prelude::*;
 
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 #[wasm_bindgen(getter_with_clone)]
 pub struct Epub {
     pub epub: Box<[u8]>,
