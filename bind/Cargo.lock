@@ -1076,7 +1076,7 @@ checksum = "456c603be3e8d448b072f410900c09faf164fbce2d480456f50eea6e25f9c848"
 [[package]]
 name = "repub"
 version = "0.1.0"
-source = "git+https://github.com/erikbrinkman/repub-rs?rev=7b003ed3d8500d6c8064811bc8ee2acf1e31976b#7b003ed3d8500d6c8064811bc8ee2acf1e31976b"
+source = "git+https://github.com/erikbrinkman/repub-rs?rev=dcf08aa4f28280a601444e3961aa15e5dad088ad#dcf08aa4f28280a601444e3961aa15e5dad088ad"
 dependencies = [
  "epub-builder",
  "eyre",

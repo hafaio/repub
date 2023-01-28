@@ -1,4 +1,4 @@
-use repub::{EpubVersion, Error, FilterType, ImageHandling, Repub};
+use repub::{EpubVersion, FilterType, ImageHandling, ImageOutputFormat, Repub};
 use std::str;
 use wasm_bindgen::prelude::*;
 
@@ -35,7 +35,7 @@ pub fn render(
         strip_links: filter_links,
         href_sim_thresh,
         image_handling,
-        jpeg_quality: 90,
+        image_format: ImageOutputFormat::Jpeg(90),
         css,
         max_width: 1404,
         max_height: 1872,
@@ -47,13 +47,7 @@ pub fn render(
     let mut res = Vec::new();
     let title = repub
         .mhtml_to_epub(mhtml_str, &mut res)
-        .map_err(|error| match error {
-            Error::MhtmlParseError => "invalid mhtml",
-            Error::MhtmlFormatError => "invalid mhtml format",
-            Error::ImageConversionError => "problem converting images",
-            Error::EpubCreationError => "problem creating epub",
-            Error::EpubWritingError => "problem writing epub",
-        })?;
+        .map_err(|error| format!("{error}"))?;
     Ok(Epub {
         epub: res.into(),
         title,
