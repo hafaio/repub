@@ -183,3 +183,6 @@ chrome.action.onClicked.addListener((tab) => {
     void rePub(tab.id);
   }
 });
+
+// load wasm
+void init();
