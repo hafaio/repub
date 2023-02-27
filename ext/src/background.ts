@@ -1,7 +1,7 @@
 import { fromByteArray } from "base64-js";
-import { default as init, render } from "repub-bind/repub_bind";
 import { pageCapture } from "./capture";
 import { getOptions, ImageHandling } from "./options";
+import { render } from "./render";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
 
@@ -46,10 +46,9 @@ async function fetchEpub({
   });
 
   // necessary for render to work with web format
-  await init();
   let epub, title, res;
   try {
-    res = render(
+    res = await render(
       new Uint8Array(mhtml),
       imageHandling,
       imageHrefSimilarityThreshold,
@@ -183,6 +182,3 @@ chrome.action.onClicked.addListener((tab) => {
     void rePub(tab.id);
   }
 });
-
-// load wasm
-void init();
