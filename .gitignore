@@ -18,10 +18,12 @@ node_modules
 
 # Artifacts #
 #############
-*.js
-*.d.ts
-*.epub
-*.zip
-out
-scripts
-favicon.ico
+/*.js
+/*.d.ts
+/*.epub
+/*.zip
+/out
+/scripts
+/target
+/pkg
+/favicon.ico
