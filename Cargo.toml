@@ -10,7 +10,7 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-repub = { version = "0.1.0", git = "https://github.com/erikbrinkman/repub-rs", rev = "dcf08aa4f28280a601444e3961aa15e5dad088ad" }
+repub = { version = "0.1.0", git = "https://github.com/erikbrinkman/repub-rs", rev = "7444776" }
 time = { version = "0.3.17", features = ["wasm-bindgen"] }
 uuid = { version = "0.8.2", features = ["wasm-bindgen"] }
 wasm-bindgen = "0.2.83"
