@@ -63,6 +63,8 @@ export interface Options {
   cover: Cover;
   fontName: string;
   timeout: number;
+  // how we download the epub
+  downloadAsk: boolean;
 }
 
 const optionsSchema: JtdSchema<Partial<Options>> = {
@@ -86,6 +88,8 @@ const optionsSchema: JtdSchema<Partial<Options>> = {
     cover: { enum: ["first", "visited"] },
     fontName: { type: "string" },
     timeout: { type: "float64" },
+    // how we download the epub
+    downloadAsk: { type: "boolean" },
   },
   additionalProperties: true,
 };
@@ -110,6 +114,8 @@ export const defaultOptions: Options = {
   cover: "visited",
   fontName: "",
   timeout: 60 * 1000,
+  // how we download the epub
+  downloadAsk: false,
 };
 
 export async function getOptions(

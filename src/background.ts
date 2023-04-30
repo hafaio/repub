@@ -117,6 +117,7 @@ async function rePub(tabId: number) {
       coverHeader,
       rmCss,
       filterLinks,
+      downloadAsk,
       ...rmOptions
     } = await getOptions();
 
@@ -143,6 +144,7 @@ async function rePub(tabId: number) {
       await chrome.downloads.download({
         filename: `${safeFilename(title)}.epub`,
         url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
+        saveAs: downloadAsk,
       });
     } else if (deviceToken) {
       await upload(epubPromise, deviceToken, rmOptions, {});

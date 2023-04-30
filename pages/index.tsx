@@ -451,6 +451,27 @@ function FilterLinksPicker({
   );
 }
 
+function DownloadAskPicker({
+  downloadAsk,
+  setOpts,
+}: {
+  downloadAsk: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ downloadAsk: !downloadAsk }),
+    [setOpts, downloadAsk]
+  );
+  return (
+    <CheckboxSelection
+      value={downloadAsk}
+      onToggle={onToggle}
+      title="Ask for Filename"
+      caption={`When downloading as a file, ask where to save each file.`}
+    />
+  );
+}
+
 function CoverOptions({
   cover,
   setOpts,
@@ -746,6 +767,24 @@ function UploadOptions({
   );
 }
 
+function DownloadOptions({
+  opts,
+  setOpts,
+}: {
+  opts: Partial<Options>;
+  setOpts: SetOptions;
+}): ReactElement | null {
+  return (
+    <Section
+      title="Download Options"
+      subtitle={`These are options that are only relevant if you're downloading
+      articles as files.`}
+    >
+      <DownloadAskPicker downloadAsk={opts.downloadAsk} setOpts={setOpts} />
+    </Section>
+  );
+}
+
 interface Snack {
   key: string;
   severity: AlertColor;
@@ -826,6 +865,7 @@ export default function OptionsPage(): ReactElement {
                   />
                   <EpubOptions opts={opts} setOpts={setOpts} />
                   <UploadOptions opts={opts} setOpts={setOpts} />
+                  <DownloadOptions opts={opts} setOpts={setOpts} />
                 </Box>
                 <Done />
               </Stack>

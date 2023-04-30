@@ -36,5 +36,7 @@ export function assert(
 /** this could be improved see npm:sanitize-filename */
 export function safeFilename(original: string): string {
   // NOTE could use text encoder / decoder to get bytes right for utf-8 encoding
-  return encodeURI(original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/g, "_"));
+  return encodeURI(
+    original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/g, "_")
+  ).replace(/%20/g, " ");
 }
