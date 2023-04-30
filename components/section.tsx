@@ -7,8 +7,8 @@ import MuiAccordionSummary, {
   AccordionSummaryProps,
 } from "@mui/material/AccordionSummary";
 import Stack from "@mui/material/Stack";
-import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { styled } from "@mui/material/styles";
 import { PropsWithChildren, ReactElement } from "react";
 import Right from "./right";
 

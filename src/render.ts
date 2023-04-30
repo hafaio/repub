@@ -1,4 +1,4 @@
-import { default as init, Epub, render as rend } from "../pkg/repub_bind";
+import { Epub, default as init, render as rend } from "../pkg/repub_bind";
 
 const ini = (async () => await init())();
 
