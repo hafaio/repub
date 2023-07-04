@@ -40,3 +40,15 @@ export function safeFilename(original: string): string {
     original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/g, "_")
   ).replace(/%20/g, " ");
 }
+
+export function errString(err: unknown): string {
+  if (err === null) {
+    return "null error";
+  } else if (err === undefined) {
+    return "undefined error";
+  } else if (typeof err === "function") {
+    return `function error: ${err.name}`;
+  } else {
+    return err.toString();
+  }
+}

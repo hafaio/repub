@@ -1,28 +1,39 @@
-import { Epub, default as init, render as rend } from "../pkg/repub_bind";
+import { fromByteArray, toByteArray } from "base64-js";
+import { Message, Response } from "./messages";
 
-const ini = (async () => await init())();
+let num = 0;
+let offscreen: null | Promise<void> = null;
+let closing: null | Promise<void> = null;
 
 export async function render(
-  mhtml: Uint8Array,
-  image_handling: string,
-  href_sim_thresh: number,
-  image_brightness: number,
-  filter_links: boolean,
-  css: string,
-  href_header: boolean,
-  byline_header: boolean,
-  cover_header: boolean
-): Promise<Epub> {
-  await ini;
-  return rend(
-    mhtml,
-    image_handling,
-    href_sim_thresh,
-    image_brightness,
-    filter_links,
-    css,
-    href_header,
-    byline_header,
-    cover_header
-  );
+  mhtml: ArrayBuffer
+): Promise<{ epub: ArrayBuffer; title?: string }> {
+  await closing;
+  num++;
+  if (offscreen === null) {
+    offscreen = chrome.offscreen.createDocument({
+      url: "/offscreen.html",
+      reasons: [chrome.offscreen.Reason.DOM_PARSER],
+      justification: "Parse DOM",
+    });
+  }
+  await offscreen;
+
+  try {
+    const msg: Message = fromByteArray(new Uint8Array(mhtml));
+    const resp: Response = await chrome.runtime.sendMessage(msg);
+    if (resp.success) {
+      const { epub, title } = resp;
+      return { epub: toByteArray(epub), title };
+    } else {
+      throw new Error(resp.err);
+    }
+  } finally {
+    num--;
+    if (num === 0) {
+      offscreen = null;
+      await (closing = chrome.offscreen.closeDocument());
+      closing = null;
+    }
+  }
 }

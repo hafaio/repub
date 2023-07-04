@@ -3,7 +3,13 @@
   "description": "reMarkable ePub",
   "version": "2.1.0",
   "manifest_version": 3,
-  "permissions": ["downloads", "storage", "notifications", "pageCapture"],
+  "permissions": [
+    "downloads",
+    "storage",
+    "notifications",
+    "pageCapture",
+    "offscreen"
+  ],
   "host_permissions": [
     "https://webapp-prod.cloud.remarkable.engineering/",
     "https://internal.cloud.remarkable.com/",

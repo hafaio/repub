@@ -1,6 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
-import { getOptions, ImageHandling } from "./options";
+import { getOptions } from "./options";
 import { render } from "./render";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
@@ -13,27 +13,9 @@ import { safeFilename, sleep } from "./utils";
  * NOTE this is a separate function because both the upload and download paths
  * use it slightly differently.
  */
-async function fetchEpub({
-  tabId,
-  imageHandling,
-  imageHrefSimilarityThreshold,
-  imageBrightness,
-  filterLinks,
-  css,
-  hrefHeader,
-  bylineHeader,
-  coverHeader,
-}: {
-  tabId: number;
-  imageHandling: ImageHandling;
-  imageHrefSimilarityThreshold: number;
-  imageBrightness: number;
-  filterLinks: boolean;
-  css: string | undefined;
-  hrefHeader: boolean;
-  bylineHeader: boolean;
-  coverHeader: boolean;
-}): Promise<{ buffer: Uint8Array; title: string }> {
+async function fetchEpub(
+  tabId: number
+): Promise<{ epub: ArrayBuffer; title: string }> {
   await chrome.action.setBadgeText({
     tabId,
     text: "25%",
@@ -45,57 +27,18 @@ async function fetchEpub({
     text: "50%",
   });
 
-  // necessary for render to work with web format
-  let epub, title, res;
-  try {
-    res = await render(
-      new Uint8Array(mhtml),
-      imageHandling,
-      imageHrefSimilarityThreshold,
-      imageBrightness,
-      filterLinks,
-      css ?? "",
-      hrefHeader,
-      bylineHeader,
-      coverHeader
-    );
-    ({ epub, title } = res);
-  } finally {
-    res?.free();
-  }
-
+  const { epub, title } = await render(mhtml);
   await chrome.action.setBadgeText({
     tabId,
     text: "75%",
   });
-  return { buffer: epub, title: title ?? "missing title" };
+  return { epub, title: title ?? "missing title" };
 }
-
-const remarkableCss = `
-p {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-ul, ol {
-  padding: 1em;
-}
-
-ul li, ol li {
-  margin-left: 1.5em;
-  padding-left: 0.5em;
-}
-
-figcaption {
-  font-size: 0.5rem;
-  font-style: italic;
-}`;
 
 /**
  * create and upload epub
  */
 async function rePub(tabId: number) {
-  let title: string | undefined;
   try {
     await chrome.action.setBadgeBackgroundColor({
       tabId,
@@ -106,48 +49,23 @@ async function rePub(tabId: number) {
       text: "0%",
     });
 
-    const {
-      deviceToken,
-      outputStyle,
-      imageHandling,
-      imageHrefSimilarityThreshold,
-      imageBrightness,
-      hrefHeader,
-      bylineHeader,
-      coverHeader,
-      rmCss,
-      filterLinks,
-      downloadAsk,
-      ...rmOptions
-    } = await getOptions();
+    const { deviceToken, outputStyle, downloadAsk, ...rest } =
+      await getOptions();
 
     // NOTE we don't resolve the promise here so that it can be used elsewhere
-    const epubPromise = fetchEpub({
-      tabId,
-      imageHandling,
-      imageHrefSimilarityThreshold,
-      imageBrightness,
-      hrefHeader,
-      bylineHeader,
-      coverHeader,
-      filterLinks,
-      css: rmCss ? remarkableCss : undefined,
-    }).then((epub) => {
-      // set title for use in error;
-      title = epub.title;
-      return epub;
-    });
+    const epubPromise = fetchEpub(tabId);
 
     // upload
     if (outputStyle === "download") {
-      const { buffer, title } = await epubPromise;
+      const { epub, title } = await epubPromise;
+      const base64 = fromByteArray(new Uint8Array(epub));
       await chrome.downloads.download({
         filename: `${safeFilename(title)}.epub`,
-        url: `data:application/epub+zip;base64,${fromByteArray(buffer)}`,
+        url: `data:application/epub+zip;base64,${base64}`,
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await upload(epubPromise, deviceToken, rmOptions, {});
+      await upload(epubPromise, deviceToken, rest, {});
     } else {
       chrome.runtime.openOptionsPage();
       throw new Error(
@@ -161,20 +79,29 @@ async function rePub(tabId: number) {
     });
     // NOTE leave progress around to see
     await sleep(500);
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "",
+    });
   } catch (ex) {
     const msg = ex instanceof Error ? ex.toString() : "unknown error";
     chrome.notifications.create({
       type: "basic",
       iconUrl: "images/repub_128.png",
       title: "Conversion to epub failed",
-      message: title ? `${title} - ${msg}` : msg,
+      message: msg,
     });
+    await Promise.all([
+      chrome.action.setBadgeText({
+        tabId,
+        text: "err",
+      }),
+      chrome.action.setBadgeBackgroundColor({
+        tabId,
+        color: "#ff0000",
+      }),
+    ]);
     throw ex;
-  } finally {
-    await chrome.action.setBadgeText({
-      tabId,
-      text: "",
-    });
   }
 }
 

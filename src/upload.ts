@@ -12,7 +12,7 @@ import {
 import { lock } from "./lock";
 
 interface Epub {
-  buffer: Uint8Array;
+  epub: ArrayBuffer;
   title: string;
 }
 
@@ -99,8 +99,8 @@ async function uploadEntry(
   epubPromise: Promise<Epub>,
   options: PutEpubOptions
 ): Promise<Entry> {
-  const { buffer, title } = await epubPromise;
-  return await api.putEpub(title, buffer, options);
+  const { epub, title } = await epubPromise;
+  return await api.putEpub(title, epub, options);
 }
 
 interface UploadOptions {

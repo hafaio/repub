@@ -1,5 +1,5 @@
 import { performance } from "node:perf_hooks";
-import { assert, safeFilename, sleep, timeout } from "./utils";
+import { assert, errString, safeFilename, sleep, timeout } from "./utils";
 
 test("sleep()", async () => {
   const first = performance.now();
@@ -29,4 +29,11 @@ test("assert()", () => {
   assert(true);
   expect(() => assert(false)).toThrow("internal error");
   expect(() => assert(false, "custom")).toThrow("custom");
+});
+
+test("errString()", () => {
+  expect(errString("err")).toBe("err");
+  expect(errString(null)).toBe("null error");
+  expect(errString(undefined)).toBe("undefined error");
+  expect(errString(() => undefined)).toBe("function error: ");
 });
