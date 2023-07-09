@@ -6,7 +6,7 @@ let offscreen: null | Promise<void> = null;
 let closing: null | Promise<void> = null;
 
 export async function render(
-  mhtml: ArrayBuffer
+  mhtml: ArrayBuffer,
 ): Promise<{ epub: ArrayBuffer; title?: string }> {
   await closing;
   num++;

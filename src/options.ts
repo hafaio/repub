@@ -1,5 +1,3 @@
-import { JTDSchemaType as JtdSchema } from "ajv/dist/jtd";
-import { validate } from "jtd";
 import { TextAlignment } from "rmapi-js/dist";
 
 export type { TextAlignment };
@@ -9,7 +7,7 @@ type Awaitable<T> = T | Promise<T>;
 export interface Storage {
   set(vals: Readonly<Record<string, unknown>>): Awaitable<void>;
   get<K extends string>(
-    keys: Readonly<Record<K, unknown>>
+    keys: Readonly<Record<K, unknown>>,
   ): Awaitable<Record<K, unknown>>;
   remove(keys: string[]): Awaitable<void>;
 }
@@ -22,13 +20,13 @@ const mockStorage: Storage = {
     }
   },
   get<K extends string>(
-    keys: Readonly<Record<K, unknown>>
+    keys: Readonly<Record<K, unknown>>,
   ): Record<K, unknown> {
     return Object.fromEntries(
       Object.entries(keys).map(([key, def]) => {
         const val = globalThis.localStorage.getItem(key);
         return [key, val === null ? def : JSON.parse(val)];
-      })
+      }),
     ) as Record<K, unknown>;
   },
   remove(keys: readonly string[]): void {
@@ -67,33 +65,6 @@ export interface Options {
   downloadAsk: boolean;
 }
 
-const optionsSchema: JtdSchema<Partial<Options>> = {
-  optionalProperties: {
-    deviceToken: { type: "string" },
-    outputStyle: { enum: ["upload", "download"] },
-    // how we generate the epub
-    imageHandling: { enum: ["strip", "filter", "keep"] },
-    imageHrefSimilarityThreshold: { type: "float64" },
-    imageBrightness: { type: "float64" },
-    hrefHeader: { type: "boolean" },
-    bylineHeader: { type: "boolean" },
-    coverHeader: { type: "boolean" },
-    rmCss: { type: "boolean" },
-    filterLinks: { type: "boolean" },
-    // how we upload the epub
-    margins: { type: "int32" },
-    lineHeight: { type: "int32" },
-    textScale: { type: "float64" },
-    textAlignment: { enum: ["left", "justify"] },
-    cover: { enum: ["first", "visited"] },
-    fontName: { type: "string" },
-    timeout: { type: "float64" },
-    // how we download the epub
-    downloadAsk: { type: "boolean" },
-  },
-  additionalProperties: true,
-};
-
 export const defaultOptions: Options = {
   deviceToken: "",
   outputStyle: "upload",
@@ -122,29 +93,10 @@ export async function getOptions(
   // istanbul ignore next
   {
     storage = globalThis.chrome?.storage?.local ?? mockStorage,
-  }: { storage?: Storage } = {}
+  }: { storage?: Storage } = {},
 ): Promise<Options> {
-  const loaded = await storage.get(defaultOptions);
-
-  // get initial errors and remove corrupted entries
-  const initErrors = validate(optionsSchema, loaded);
-  for (const {
-    instancePath: [key],
-  } of initErrors) {
-    delete loaded[key as keyof Options];
-  }
-
-  const errors = validate(optionsSchema, loaded);
-  // the else should never happen
-  // istanbul ignore if
-  if (errors.length) {
-    return defaultOptions;
-  } else {
-    // validate ensures there's no unknowns in loaded, but TS cann't seem to
-    // validate that even with exact optional property types. Not sure why
-    // because this works in the playground
-    return { ...defaultOptions, ...loaded } as Options;
-  }
+  const loaded = (await storage.get(defaultOptions)) as Partial<Options>;
+  return { ...defaultOptions, ...loaded };
 }
 
 export interface SetOptions {
@@ -156,7 +108,7 @@ export async function setOptions(
   // istanbul ignore next
   {
     storage = globalThis.chrome?.storage?.local ?? mockStorage,
-  }: { storage?: Storage } = {}
+  }: { storage?: Storage } = {},
 ): Promise<void> {
   await storage.set(opts);
 }

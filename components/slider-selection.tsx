@@ -18,7 +18,7 @@ export default function SliderSelection({
 }): ReactElement {
   const change = useCallback(
     (_: unknown, val: number | number[]) => onChange(val as number),
-    [onChange]
+    [onChange],
   );
   const min = Math.min(...options.map(({ value }) => value));
   const max = Math.max(...options.map(({ value }) => value));

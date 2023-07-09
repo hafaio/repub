@@ -17,7 +17,7 @@ export default function RadioSelection<T extends string>({
 }): ReactElement {
   const change = useCallback(
     (_: unknown, newValue: string) => onChange(newValue as T),
-    [onChange]
+    [onChange],
   );
 
   const choices = selections.map(({ val, title, caption }) => {

@@ -11,7 +11,7 @@ export function sleep(timeout: number): Promise<void> {
 export async function timeout<T>(
   prom: Promise<T>,
   timeout: number,
-  msg: string = "timeout"
+  msg: string = "timeout",
 ): Promise<T> {
   return await Promise.race([
     prom,
@@ -26,7 +26,7 @@ export async function timeout<T>(
  */
 export function assert(
   val: unknown,
-  msg: string = "internal error"
+  msg: string = "internal error",
 ): asserts val {
   if (!val) {
     throw new Error(msg);
@@ -37,7 +37,7 @@ export function assert(
 export function safeFilename(original: string): string {
   // NOTE could use text encoder / decoder to get bytes right for utf-8 encoding
   return encodeURI(
-    original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/g, "_")
+    original.replace(/[\x00-\x1f\x80-\x9f/?<>\\:*|]/g, "_"),
   ).replace(/%20/g, " ");
 }
 

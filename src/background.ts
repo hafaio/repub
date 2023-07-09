@@ -14,7 +14,7 @@ import { safeFilename, sleep } from "./utils";
  * use it slightly differently.
  */
 async function fetchEpub(
-  tabId: number
+  tabId: number,
 ): Promise<{ epub: ArrayBuffer; title: string }> {
   await chrome.action.setBadgeText({
     tabId,
@@ -69,7 +69,7 @@ async function rePub(tabId: number) {
     } else {
       chrome.runtime.openOptionsPage();
       throw new Error(
-        "must be authenticated to upload documents to reMarkable"
+        "must be authenticated to upload documents to reMarkable",
       );
     }
 

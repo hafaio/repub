@@ -27,7 +27,7 @@ figcaption {
 }`;
 
 export async function render(
-  mhtml: Uint8Array
+  mhtml: Uint8Array,
 ): Promise<{ epub: Uint8Array; title?: string }> {
   const [
     {
@@ -53,7 +53,7 @@ export async function render(
       rmCss ? remarkableCss : "",
       hrefHeader,
       bylineHeader,
-      coverHeader
+      coverHeader,
     ));
     return { epub, title };
   } finally {
@@ -70,8 +70,8 @@ chrome.runtime.onMessage.addListener(
         sendResponse({
           success: false,
           err: errString(ex),
-        })
+        }),
     );
     return true;
-  }
+  },
 );

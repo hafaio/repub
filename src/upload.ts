@@ -28,7 +28,7 @@ interface UploadState {
  */
 async function wrapper(
   url: string,
-  init?: RequestInitLike
+  init?: RequestInitLike,
 ): Promise<ResponseLike> {
   return await fetch(url, init);
 }
@@ -97,7 +97,7 @@ async function setState({
 async function uploadEntry(
   api: RemarkableApi,
   epubPromise: Promise<Epub>,
-  options: PutEpubOptions
+  options: PutEpubOptions,
 ): Promise<Entry> {
   const { epub, title } = await epubPromise;
   return await api.putEpub(title, epub, options);
@@ -114,7 +114,7 @@ export async function upload(
   epubPromise: Promise<Epub>,
   deviceToken: string,
   options: PutEpubOptions,
-  { retries = 2 }: UploadOptions
+  { retries = 2 }: UploadOptions,
 ): Promise<void> {
   const api = await getApi(deviceToken);
   let complete = null;

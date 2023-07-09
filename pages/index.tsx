@@ -64,7 +64,7 @@ const theme = createTheme({
 });
 
 const unknownOpts: Partial<Options> = Object.fromEntries(
-  Object.entries(defaultOptions).map(([key]) => [key, undefined])
+  Object.entries(defaultOptions).map(([key]) => [key, undefined]),
 );
 
 async function getToken(code: string): Promise<string> {
@@ -86,7 +86,7 @@ function OutputStylePicker({
 }): ReactElement {
   const onChange = useCallback(
     (val: OutputStyle) => setOpts({ outputStyle: val }),
-    [setOpts]
+    [setOpts],
   );
 
   return (
@@ -152,7 +152,7 @@ function SignIn({
           setRegistering(false);
         }
       })(),
-    [setIncCode, setRegistering, setOpts]
+    [setIncCode, setRegistering, setOpts],
   );
   const clipboard = useCallback(
     () =>
@@ -180,7 +180,7 @@ function SignIn({
           setRegistering(false);
         }
       })(),
-    [setRegistering, setIncCode, setOpts]
+    [setRegistering, setIncCode, setOpts],
   );
 
   if (show) {
@@ -248,7 +248,7 @@ function RemarkableCssPicker({
       setOpts({
         rmCss: !rmCss,
       }),
-    [setOpts, rmCss]
+    [setOpts, rmCss],
   );
   return (
     <CheckboxSelection
@@ -270,7 +270,7 @@ function ImageHandlingPicker({
 }): ReactElement {
   const change = useCallback(
     (val: ImageHandling) => setOpts({ imageHandling: val }),
-    [setOpts]
+    [setOpts],
   );
   return (
     <Section title="Image Handling">
@@ -318,7 +318,7 @@ function CloseImages({
             ? defaultOptions.imageHrefSimilarityThreshold
             : 0,
       }),
-    [setOpts, imageHrefSimilarityThreshold]
+    [setOpts, imageHrefSimilarityThreshold],
   );
   return (
     <CheckboxSelection
@@ -348,7 +348,7 @@ function ImageBrightness({
         imageBrightness:
           imageBrightness === 1 ? defaultOptions.imageBrightness : 1,
       }),
-    [setOpts, imageBrightness]
+    [setOpts, imageBrightness],
   );
   return (
     <CheckboxSelection
@@ -371,7 +371,7 @@ function HrefHeader({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ hrefHeader: !hrefHeader }),
-    [setOpts, hrefHeader]
+    [setOpts, hrefHeader],
   );
   return (
     <CheckboxSelection
@@ -393,7 +393,7 @@ function BylineHeader({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ bylineHeader: !bylineHeader }),
-    [setOpts, bylineHeader]
+    [setOpts, bylineHeader],
   );
   return (
     <CheckboxSelection
@@ -415,7 +415,7 @@ function CoverHeader({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ coverHeader: !coverHeader }),
-    [setOpts, coverHeader]
+    [setOpts, coverHeader],
   );
   return (
     <CheckboxSelection
@@ -437,7 +437,7 @@ function FilterLinksPicker({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ filterLinks: !filterLinks }),
-    [setOpts, filterLinks]
+    [setOpts, filterLinks],
   );
   return (
     <CheckboxSelection
@@ -460,7 +460,7 @@ function DownloadAskPicker({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ downloadAsk: !downloadAsk }),
-    [setOpts, downloadAsk]
+    [setOpts, downloadAsk],
   );
   return (
     <CheckboxSelection
@@ -481,7 +481,7 @@ function CoverOptions({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ cover: cover === "first" ? "visited" : "first" }),
-    [setOpts, cover]
+    [setOpts, cover],
   );
   return (
     <CheckboxSelection
@@ -505,7 +505,7 @@ function FontPicker({
 }): ReactElement {
   const onToggle = useCallback(
     () => setOpts({ fontName: fontName === maison ? "" : maison }),
-    [setOpts, fontName]
+    [setOpts, fontName],
   );
   return (
     <CheckboxSelection
@@ -535,7 +535,7 @@ function MarginsPicker({
 }): ReactElement {
   const onChange = useCallback(
     (val: number) => setOpts({ margins: val }),
-    [setOpts]
+    [setOpts],
   );
   return (
     <SliderSelection
@@ -567,7 +567,7 @@ function TextScalePicker({
 }): ReactElement {
   const onChange = useCallback(
     (val: number) => setOpts({ textScale: val }),
-    [setOpts]
+    [setOpts],
   );
   return (
     <SliderSelection
@@ -589,7 +589,7 @@ function TextAlignmentPicker({
 }): ReactElement {
   const onChange = useCallback(
     (change: TextAlignment) => setOpts({ textAlignment: change }),
-    [setOpts]
+    [setOpts],
   );
   return (
     <ButtonSelection
@@ -618,7 +618,7 @@ function LineHeightPicker({
       setOpts({
         lineHeight: change === "large" ? 200 : change === "medium" ? 150 : 100,
       }),
-    [setOpts]
+    [setOpts],
   );
   const value =
     lineHeight === 200
@@ -805,7 +805,7 @@ export default function OptionsPage(): ReactElement {
       setSnack(snk);
       setOpen(true);
     },
-    [setOpen, setSnack]
+    [setOpen, setSnack],
   );
 
   // options
@@ -816,7 +816,7 @@ export default function OptionsPage(): ReactElement {
       setOptsState({ ...opts, ...options });
       void setOptions(options);
     },
-    [opts, setOptsState]
+    [opts, setOptsState],
   );
 
   useEffect(() => {

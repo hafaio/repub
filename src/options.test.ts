@@ -10,13 +10,13 @@ class MapStorage implements Storage {
   }
 
   get<K extends string>(
-    keys: Readonly<Record<K, unknown>>
+    keys: Readonly<Record<K, unknown>>,
   ): Record<K, unknown> {
     return Object.fromEntries(
       Object.entries(keys).map(([key, def]) => {
         const val = this.#backing.get(key);
         return [key, val ? JSON.parse(val) : def];
-      })
+      }),
     ) as Record<K, unknown>;
   }
 
@@ -42,9 +42,4 @@ test("basic", async () => {
     deviceToken: "test",
     margins: 3,
   });
-
-  // corrupting one works and doesn't corrupt the others
-  await setOptions({ margins: 3.5 }, { storage });
-  const corrOpts = await getOptions({ storage });
-  expect(corrOpts).toEqual({ ...defaultOptions, deviceToken: "test" });
 });

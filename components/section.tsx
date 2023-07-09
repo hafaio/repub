@@ -25,14 +25,14 @@ const AccordionSummary = styled(MuiAccordionSummary)<AccordionSummaryProps>(
   () => ({
     flexDirection: "row-reverse",
     padding: 0,
-  })
+  }),
 );
 
 const AccordionDetails = styled(MuiAccordionDetails)<AccordionDetailsProps>(
   () => ({
     paddingLeft: 0,
     paddingRight: 0,
-  })
+  }),
 );
 
 export default function Section({
