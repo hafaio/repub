@@ -2427,6 +2427,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mozilla/readability@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@mozilla/readability@npm:0.4.4"
+  checksum: 24af169a7cf388c3b300d0beb2c4dc90e075730b926b0fde985dd07dc6940ec4ed754cdd80f76b843fa45141470db43080c5f97e60abed81b1e66cf68751672b
+  languageName: node
+  linkType: hard
+
 "@mui/base@npm:5.0.0-beta.6":
   version: 5.0.0-beta.6
   resolution: "@mui/base@npm:5.0.0-beta.6"
@@ -4310,6 +4317,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"entities@npm:^4.4.0":
+  version: 4.5.0
+  resolution: "entities@npm:4.5.0"
+  checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
+  languageName: node
+  linkType: hard
+
 "env-paths@npm:^2.2.0":
   version: 2.2.1
   resolution: "env-paths@npm:2.2.1"
@@ -5163,6 +5177,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immediate@npm:~3.0.5":
+  version: 3.0.6
+  resolution: "immediate@npm:3.0.6"
+  checksum: f9b3486477555997657f70318cc8d3416159f208bec4cca3ff3442fd266bc23f50f0c9bd8547e1371a6b5e82b821ec9a7044a4f7b944798b25aa3cc6d5e63e62
+  languageName: node
+  linkType: hard
+
 "import-fresh@npm:^3.0.0, import-fresh@npm:^3.2.1":
   version: 3.3.0
   resolution: "import-fresh@npm:3.3.0"
@@ -5994,6 +6015,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jszip@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "jszip@npm:3.10.1"
+  dependencies:
+    lie: ~3.3.0
+    pako: ~1.0.2
+    readable-stream: ~2.3.6
+    setimmediate: ^1.0.5
+  checksum: abc77bfbe33e691d4d1ac9c74c8851b5761fba6a6986630864f98d876f3fcc2d36817dfc183779f32c00157b5d53a016796677298272a714ae096dfe6b1c8b60
+  languageName: node
+  linkType: hard
+
 "jtd@npm:^0.1.1":
   version: 0.1.1
   resolution: "jtd@npm:0.1.1"
@@ -6024,6 +6057,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"leven@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "leven@npm:4.0.0"
+  checksum: d70b9fef4cca487a38021bb173a5cae98d39b1c7f4a5b2439763bd89df8e389f178a3c941b6fc3fab1582f5052b5e8c91353d9607799a2ad3841e7ea22f9720f
+  languageName: node
+  linkType: hard
+
 "levn@npm:^0.4.1":
   version: 0.4.1
   resolution: "levn@npm:0.4.1"
@@ -6031,6 +6071,15 @@ __metadata:
     prelude-ls: ^1.2.1
     type-check: ~0.4.0
   checksum: 12c5021c859bd0f5248561bf139121f0358285ec545ebf48bb3d346820d5c61a4309535c7f387ed7d84361cf821e124ce346c6b7cef8ee09a67c1473b46d0fc4
+  languageName: node
+  linkType: hard
+
+"lie@npm:~3.3.0":
+  version: 3.3.0
+  resolution: "lie@npm:3.3.0"
+  dependencies:
+    immediate: ~3.0.5
+  checksum: 33102302cf19766f97919a6a98d481e01393288b17a6aa1f030a3542031df42736edde8dab29ffdbf90bebeffc48c761eb1d064dc77592ca3ba3556f9fe6d2a8
   languageName: node
   linkType: hard
 
@@ -6176,6 +6225,15 @@ __metadata:
   version: 1.4.1
   resolution: "merge2@npm:1.4.1"
   checksum: 7268db63ed5169466540b6fb947aec313200bcf6d40c5ab722c22e242f651994619bcd85601602972d3c85bd2cc45a358a4c61937e9f11a061919a1da569b0c2
+  languageName: node
+  linkType: hard
+
+"mhtml-stream@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "mhtml-stream@npm:1.0.3"
+  dependencies:
+    base64-js: ^1.5.1
+  checksum: 6ae407a6916ba57f2e86a8014f01ec164fc62ae23f0f306bc7398dbaffaf2800c0e3ac21f7587618dde2e4024b9f0e34bca58597144765077f21babef42aa3b6
   languageName: node
   linkType: hard
 
@@ -6609,6 +6667,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pako@npm:~1.0.2":
+  version: 1.0.11
+  resolution: "pako@npm:1.0.11"
+  checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
+  languageName: node
+  linkType: hard
+
 "parent-module@npm:^1.0.0":
   version: 1.0.1
   resolution: "parent-module@npm:1.0.1"
@@ -6627,6 +6692,15 @@ __metadata:
     json-parse-even-better-errors: ^2.3.0
     lines-and-columns: ^1.1.6
   checksum: 62085b17d64da57f40f6afc2ac1f4d95def18c4323577e1eced571db75d9ab59b297d1d10582920f84b15985cbfc6b6d450ccbf317644cfa176f3ed982ad87e2
+  languageName: node
+  linkType: hard
+
+"parse5@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "parse5@npm:7.1.2"
+  dependencies:
+    entities: ^4.4.0
+  checksum: 59465dd05eb4c5ec87b76173d1c596e152a10e290b7abcda1aecf0f33be49646ea74840c69af975d7887543ea45564801736356c568d6b5e71792fd0f4055713
   languageName: node
   linkType: hard
 
@@ -6724,6 +6798,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"preact-render-to-string@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "preact-render-to-string@npm:6.1.0"
+  dependencies:
+    pretty-format: ^3.8.0
+  peerDependencies:
+    preact: ">=10"
+  checksum: 2bf62e90d14b391bf20a16442ceaec252c94cf9dd22ec27e9aa7ce92ff4339c299a025ae804d5237867c398c6609aeee282bbc269a15ecf28be4923491fb9f55
+  languageName: node
+  linkType: hard
+
+"preact@npm:^10.15.1":
+  version: 10.16.0
+  resolution: "preact@npm:10.16.0"
+  checksum: 47a91f47d583b68a4afe971a7f992c06547df6d637cadf56eb3b69fee1fb202659b199af37d0e1a90637385144cadd75aa40acdb4e125cc4b3155e2883c24c07
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -6776,6 +6868,13 @@ __metadata:
     ansi-styles: ^5.0.0
     react-is: ^18.0.0
   checksum: 6f923a2379a37a425241dc223d76f671c73c4f37dba158050575a54095867d565c068b441843afdf3d7c37bed9df4bbadf46297976e60d4149972b779474203a
+  languageName: node
+  linkType: hard
+
+"pretty-format@npm:^3.8.0":
+  version: 3.8.0
+  resolution: "pretty-format@npm:3.8.0"
+  checksum: 21a114d43ef06978f8f7f6212be4649b0b094f05d9b30e14e37550bf35c8ca24d8adbca9e5adc4cc15d9eaf7a1e7a30478a4dc37b30982bfdf0292a5b385484c
   languageName: node
   linkType: hard
 
@@ -7026,6 +7125,7 @@ __metadata:
     "@babel/runtime": ^7.22.6
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
+    "@mozilla/readability": ^0.4.4
     "@mui/icons-material": ^5.13.7
     "@mui/material": ^5.13.7
     "@next/eslint-plugin-next": ^13.4.9
@@ -7047,6 +7147,8 @@ __metadata:
     eslint-config-prettier: ^8.8.0
     eslint-plugin-spellcheck: ^0.0.20
     jest: ^29.6.1
+    leven: ^4.0.0
+    mhtml-stream: ^1.0.3
     next: ^13.4.9
     prettier: ^3.0.0
     prettier-plugin-organize-imports: ^3.2.2
@@ -7054,6 +7156,7 @@ __metadata:
     react-dom: ^18.2.0
     rmapi-js: ^3.0.0
     tar-to-zip: ^3.0.0
+    teapub: ^1.0.2
     typescript: 5.1.6
   languageName: unknown
   linkType: soft
@@ -7256,6 +7359,13 @@ __metadata:
   version: 2.0.0
   resolution: "set-blocking@npm:2.0.0"
   checksum: 6e65a05f7cf7ebdf8b7c75b101e18c0b7e3dff4940d480efed8aad3a36a4005140b660fa1d804cb8bce911cac290441dc728084a30504d3516ac2ff7ad607b02
+  languageName: node
+  linkType: hard
+
+"setimmediate@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "setimmediate@npm:1.0.5"
+  checksum: c9a6f2c5b51a2dabdc0247db9c46460152ffc62ee139f3157440bd48e7c59425093f42719ac1d7931f054f153e2d26cf37dfeb8da17a794a58198a2705e527fd
   languageName: node
   linkType: hard
 
@@ -7561,6 +7671,19 @@ __metadata:
     mkdirp: ^1.0.3
     yallist: ^4.0.0
   checksum: 8a278bed123aa9f53549b256a36b719e317c8b96fe86a63406f3c62887f78267cea9b22dc6f7007009738509800d4a4dccc444abd71d762287c90f35b002eb1c
+  languageName: node
+  linkType: hard
+
+"teapub@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "teapub@npm:1.0.2"
+  dependencies:
+    jszip: ^3.10.1
+    parse5: ^7.1.2
+    preact: ^10.15.1
+    preact-render-to-string: ^6.1.0
+    uuid: ^9.0.0
+  checksum: 77255bc9a473d77d81e7feec85e302cd2986ebcd883ac5d940ef90706ac1ecf48ac6104a92785d8a56ef4c532843b42cc112389b4a2adb3968d3db31c7115e9b
   languageName: node
   linkType: hard
 

@@ -41,10 +41,8 @@ export type ImageHandling = "strip" | "filter" | "keep";
 export type Orientation = "portrait" | "landscape";
 export type Cover = "first" | "visited";
 
-export interface Options {
-  deviceToken: string;
-  outputStyle: OutputStyle;
-  // how we generate the epub
+/** how we generate the epub */
+export interface EpubOptions {
   imageHandling: ImageHandling;
   imageBrightness: number;
   imageHrefSimilarityThreshold: number;
@@ -53,6 +51,11 @@ export interface Options {
   coverHeader: boolean;
   rmCss: boolean;
   filterLinks: boolean;
+}
+
+export interface Options extends EpubOptions {
+  deviceToken: string;
+  outputStyle: OutputStyle;
   // how we upload the epub
   margins: number;
   lineHeight: number;

@@ -1,6 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
-import { getOptions } from "./options";
+import { EpubOptions, getOptions } from "./options";
 import { render } from "./render";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
@@ -15,6 +15,7 @@ import { safeFilename, sleep } from "./utils";
  */
 async function fetchEpub(
   tabId: number,
+  opts: EpubOptions,
 ): Promise<{ epub: ArrayBuffer; title: string }> {
   await chrome.action.setBadgeText({
     tabId,
@@ -27,7 +28,7 @@ async function fetchEpub(
     text: "50%",
   });
 
-  const { epub, title } = await render(mhtml);
+  const { epub, title } = await render(mhtml, opts);
   await chrome.action.setBadgeText({
     tabId,
     text: "75%",
@@ -53,7 +54,7 @@ async function rePub(tabId: number) {
       await getOptions();
 
     // NOTE we don't resolve the promise here so that it can be used elsewhere
-    const epubPromise = fetchEpub(tabId);
+    const epubPromise = fetchEpub(tabId, rest);
 
     // upload
     if (outputStyle === "download") {

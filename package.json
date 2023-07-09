@@ -8,17 +8,15 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "fmt": "pnpify prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.json' && cargo fmt",
-    "lint:wasm": "cargo clippy",
+    "fmt": "pnpify prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.json'",
     "lint:tsc": "pnpify tsc",
     "lint:es": "pnpify eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx'",
-    "lint": "yarn lint:tsc && yarn lint:es && yarn lint:wasm",
+    "lint": "yarn lint:tsc && yarn lint:es",
     "test": "jest --silent --coverage",
-    "build:wasm": "wasm-pack build -t web && cp pkg/repub_bind_bg.wasm .",
     "build:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
-    "build:bundle": "esbuild src/background.ts --outfile=background.js --bundle --minify && esbuild src/offscreen.ts --outfile=offscreen.js --bundle --minify --define:import.meta.url=location.origin",
+    "build:bundle": "esbuild src/background.ts --outfile=background.js --bundle --minify && esbuild src/offscreen.ts --outfile=offscreen.js --bundle --minify",
     "build:options": "pnpify next build && next export",
-    "build": "yarn build:images && yarn build:wasm && yarn build:bundle && yarn build:options",
+    "build": "yarn build:images && yarn build:bundle && yarn build:options",
     "prepack": "yarn build && yarn lint && yarn test",
     "postpack": "[ -f package.tgz ] && < package.tgz tar2zip > repub.zip && rm package.tgz"
   },
@@ -29,8 +27,7 @@
     "/manifest.json",
     "/offscreen.html",
     "/offscreen.js",
-    "/out/**/*",
-    "/repub_bind_bg.wasm"
+    "/out/**/*"
   ],
   "devDependencies": {
     "@babel/core": "^7.22.8",
@@ -39,6 +36,7 @@
     "@babel/runtime": "^7.22.6",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@mozilla/readability": "^0.4.4",
     "@mui/icons-material": "^5.13.7",
     "@mui/material": "^5.13.7",
     "@next/eslint-plugin-next": "^13.4.9",
@@ -60,6 +58,8 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-spellcheck": "^0.0.20",
     "jest": "^29.6.1",
+    "leven": "^4.0.0",
+    "mhtml-stream": "^1.0.3",
     "next": "^13.4.9",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.2",
@@ -67,6 +67,7 @@
     "react-dom": "^18.2.0",
     "rmapi-js": "^3.0.0",
     "tar-to-zip": "^3.0.0",
+    "teapub": "^1.0.2",
     "typescript": "5.1.6"
   },
   "prettier": {
