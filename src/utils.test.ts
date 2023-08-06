@@ -36,4 +36,6 @@ test("errString()", () => {
   expect(errString(null)).toBe("null error");
   expect(errString(undefined)).toBe("undefined error");
   expect(errString(() => undefined)).toBe("function error: ");
+  expect(errString(new Error("custom error"))).toBe("Error: custom error");
+  expect(errString({})).toBe("unknown object error");
 });

@@ -48,7 +48,11 @@ export function errString(err: unknown): string {
     return "undefined error";
   } else if (typeof err === "function") {
     return `function error: ${err.name}`;
-  } else {
+  } else if (typeof err === "string") {
+    return err;
+  } else if (err instanceof Error) {
     return err.toString();
+  } else {
+    return "unknown object error";
   }
 }

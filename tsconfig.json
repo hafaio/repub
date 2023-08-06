@@ -16,8 +16,13 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src", "content", "pages", "components"],
+  "include": ["src", "content", "pages", "components", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
