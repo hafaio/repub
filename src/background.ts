@@ -36,10 +36,23 @@ async function fetchEpub(
   return { epub, title: title ?? "missing title" };
 }
 
+// store active state for navigation
+const activeTabs = new Map<number, [boolean, number]>();
+
 /**
  * create and upload epub
  */
 async function rePub(tabId: number) {
+  // get active state for clearing badge with navigation
+  let active = activeTabs.get(tabId);
+  if (active) {
+    active[0] = false;
+    active[1] += 1;
+  } else {
+    active = [false, 1];
+    activeTabs.set(tabId, active);
+  }
+
   try {
     await chrome.action.setBadgeBackgroundColor({
       tabId,
@@ -76,13 +89,7 @@ async function rePub(tabId: number) {
 
     await chrome.action.setBadgeText({
       tabId,
-      text: "100%",
-    });
-    // NOTE leave progress around to see
-    await sleep(500);
-    await chrome.action.setBadgeText({
-      tabId,
-      text: "",
+      text: "sent",
     });
   } catch (ex) {
     const msg = ex instanceof Error ? ex.toString() : "unknown error";
@@ -99,12 +106,46 @@ async function rePub(tabId: number) {
       }),
       chrome.action.setBadgeBackgroundColor({
         tabId,
-        color: "#ff0000",
+        color: "#d62626",
       }),
     ]);
     throw ex;
+  } finally {
+    // handle clearing the bad if we've navigated
+
+    // NOTE leave progress around to see
+    await sleep(500);
+    active[1] -= 1;
+    const [nav, count] = active;
+    if (!count) {
+      activeTabs.delete(tabId);
+      if (nav) {
+        await chrome.action.setBadgeText({
+          tabId,
+          text: "",
+        });
+      }
+    }
   }
 }
+
+// watch for navigation
+chrome.webNavigation.onBeforeNavigate.addListener(
+  ({ tabId, parentDocumentId }) => {
+    if (parentDocumentId === undefined) {
+      // only care about root navigation
+      const active = activeTabs.get(tabId);
+      if (active) {
+        active[0] = true;
+      } else {
+        void chrome.action.setBadgeText({
+          tabId,
+          text: "",
+        });
+      }
+    }
+  },
+);
 
 // watch for clicks
 chrome.action.onClicked.addListener((tab) => {
