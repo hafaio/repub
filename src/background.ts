@@ -1,40 +1,9 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
-import { EpubOptions, getOptions } from "./options";
+import { getOptions } from "./options";
 import { render } from "./render";
 import { upload } from "./upload";
 import { safeFilename, sleep } from "./utils";
-
-/**
- * fetch an epub from the current page
- *
- * Update status while progressing.
- *
- * NOTE this is a separate function because both the upload and download paths
- * use it slightly differently.
- */
-async function fetchEpub(
-  tabId: number,
-  opts: EpubOptions,
-): Promise<{ epub: ArrayBuffer; title: string }> {
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "25%",
-  });
-
-  const mhtml = await pageCapture(tabId);
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "50%",
-  });
-
-  const { epub, title } = await render(mhtml, opts);
-  await chrome.action.setBadgeText({
-    tabId,
-    text: "75%",
-  });
-  return { epub, title: title ?? "missing title" };
-}
 
 // store active state for navigation
 const activeTabs = new Map<number, [boolean, number]>();
@@ -63,15 +32,27 @@ async function rePub(tabId: number) {
       text: "0%",
     });
 
-    const { deviceToken, outputStyle, downloadAsk, ...rest } =
+    const { deviceToken, outputStyle, downloadAsk, ...opts } =
       await getOptions();
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "25%",
+    });
 
-    // NOTE we don't resolve the promise here so that it can be used elsewhere
-    const epubPromise = fetchEpub(tabId, rest);
+    const mhtml = await pageCapture(tabId);
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "50%",
+    });
+
+    const { epub, title = "missing title" } = await render(mhtml, opts);
+    await chrome.action.setBadgeText({
+      tabId,
+      text: "75%",
+    });
 
     // upload
     if (outputStyle === "download") {
-      const { epub, title } = await epubPromise;
       const base64 = fromByteArray(new Uint8Array(epub));
       await chrome.downloads.download({
         filename: `${safeFilename(title)}.epub`,
@@ -79,7 +60,7 @@ async function rePub(tabId: number) {
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await upload(epubPromise, deviceToken, rest, {});
+      await upload(epub, title, deviceToken, opts, {});
     } else {
       chrome.runtime.openOptionsPage();
       throw new Error(
