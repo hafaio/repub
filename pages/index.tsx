@@ -210,16 +210,18 @@ function SignIn({
             If choosing to upload documents, you must link this extension to
             your reMarkable account
           </Alert>
+          <Link
+            href="https://my.remarkable.com/device/browser/connect"
+            target="_blank"
+          >
+            <Button variant="contained" fullWidth={true}>
+              Get one-time code
+            </Button>
+          </Link>
           <Typography>
-            Click{" "}
-            <Link
-              href="https://my.remarkable.com/device/browser/connect"
-              target="_blank"
-            >
-              here
-            </Link>{" "}
-            and copy the eight-letter code into the box below to link your
-            reMarkable account.
+            Click the button above to copy an eight-letter one time code
+            authorizing connection to your reMarkable account, then paste it
+            below, or click the clipboard paste icon.
           </Typography>
           <OutlinedInput
             value={incCode}
