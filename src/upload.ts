@@ -56,7 +56,15 @@ export async function upload(
 ): Promise<void> {
   const api = await getApi(deviceToken);
   const entry = await api.putEpub(title, epub, options);
+  const gen = await updateRootState(api, entry, retries);
+  await api.syncComplete(gen);
+}
 
+async function updateRootState(
+  api: RemarkableApi,
+  entry: Entry,
+  retries: number,
+): Promise<bigint> {
   await registerLock.acquire();
   try {
     for (; retries > 0; --retries) {
@@ -72,7 +80,7 @@ export async function upload(
         const { hash } = await api.putEntries("", entries);
         const newGen = await api.putRootHash(hash, generation);
         rootState = [entries, rootHash, newGen];
-        return;
+        return newGen;
       } catch (ex) {
         if (ex instanceof GenerationError) {
           console.log("failed upload due to generation");
@@ -85,4 +93,5 @@ export async function upload(
   } finally {
     registerLock.release();
   }
+  throw Error("failed up update remarkable root state");
 }
