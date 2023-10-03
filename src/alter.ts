@@ -123,7 +123,9 @@ function* walk(
     yield node;
   } else if (node instanceof HTMLAnchorElement && options.filterLinks) {
     // remove link leaving just children
-    yield* node.childNodes;
+    for (const child of node.childNodes) {
+      yield* walk(child, match, seen, options);
+    }
   } else if (node instanceof HTMLImageElement) {
     // img element, find best src
     const { imageHandling } = options;
@@ -155,7 +157,7 @@ function* walk(
     } else if (!img) {
       console.warn("no img inside picture element", node);
     } else if (imageHandling !== "filter" || !seen.has(href)) {
-      img.src = encodeURI(href);
+      img.src = href;
       seen.add(href);
       yield img;
     }
@@ -215,15 +217,12 @@ export function alter(
     void _;
   }
 
-  if (content instanceof Element) {
-    return {
-      altered: content.innerHTML,
-      title,
-      byline,
-      cover,
-      seen,
-    };
-  } else {
-    throw new Error("summarized content wasn't an element");
-  }
+  const serial = new XMLSerializer();
+  return {
+    altered: serial.serializeToString(content),
+    title,
+    byline,
+    cover,
+    seen,
+  };
 }

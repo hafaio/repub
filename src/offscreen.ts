@@ -1,4 +1,5 @@
 import { fromByteArray, toByteArray } from "base64-js";
+import { brighten } from "./image";
 import { generate } from "./lib";
 import { Message, Response } from "./messages";
 import { errString } from "./utils";
@@ -9,7 +10,7 @@ chrome.runtime.onMessage.addListener(
     _: unknown,
     sendResponse: (msg: Response) => void,
   ): true => {
-    generate(toByteArray(mhtml), opts).then(
+    generate(toByteArray(mhtml), brighten, opts).then(
       ({ epub, title }) =>
         sendResponse({ success: true, epub: fromByteArray(epub), title }),
       (ex) =>

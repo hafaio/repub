@@ -1,5 +1,5 @@
-import { ImageData, render } from "teapub/dist";
-export type { ImageData };
+import { ImageData, ImageMime, render } from "teapub/dist";
+export type { ImageData, ImageMime };
 
 export async function epub({
   title,
@@ -15,7 +15,7 @@ export async function epub({
   title: string;
   content: string;
   author: string;
-  images: Record<string, ImageData>;
+  images: Map<string, ImageData>;
   css: string | undefined;
   uid?: string;
   href?: string;

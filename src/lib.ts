@@ -1,6 +1,5 @@
 import { alter, closeMatch, exactMatch } from "./alter";
-import { ImageData, epub } from "./epub";
-import { brighten } from "./image";
+import { ImageData, ImageMime, epub } from "./epub";
 import { EpubOptions } from "./options";
 import { parse } from "./parse";
 
@@ -24,32 +23,62 @@ figcaption {
   font-style: italic;
 }`;
 
+interface RawImageData {
+  readonly data: Uint8Array;
+  readonly mime: `image/${string}`;
+}
+
+interface Brighten {
+  (
+    buffer: Uint8Array,
+    mime: string,
+    brightness: number,
+  ): Promise<readonly [Uint8Array, ImageMime]>;
+}
+
+interface Result {
+  initial: string;
+  altered: string;
+  images: Map<string, RawImageData>;
+  brightened: Map<string, ImageData>;
+  epub: Uint8Array;
+  title?: string;
+}
+
+function startsWithNarrow<const T extends string>(
+  inp: string,
+  prefix: T,
+): inp is `${T}${string}` {
+  return inp.startsWith(prefix);
+}
+
 export async function generate(
   mhtml: Uint8Array,
+  brighten: Brighten,
   {
     imageHrefSimilarityThreshold,
-    imageBrightness,
     imageHandling,
+    imageBrightness,
     filterLinks,
     rmCss,
     hrefHeader,
     bylineHeader,
     coverHeader,
   }: EpubOptions,
-): Promise<{ epub: Uint8Array; title?: string }> {
+): Promise<Result> {
   const { href, content, assets } = await parse(mhtml);
   const parser = new DOMParser();
   const doc = parser.parseFromString(content, "text/html");
 
-  const images = new Map<string, readonly [string, Uint8Array]>();
-  for await (const { href, content, contentType } of assets) {
-    if (contentType.startsWith("image/")) {
-      images.set(href, [contentType, content]);
+  const images = new Map<string, RawImageData>();
+  for await (const { href, content: data, contentType } of assets) {
+    if (startsWithNarrow(contentType, "image/")) {
+      images.set(href, { mime: contentType, data });
     }
   }
 
   const matcher =
-    imageHrefSimilarityThreshold < 1
+    imageHrefSimilarityThreshold > 0
       ? closeMatch(images, imageHrefSimilarityThreshold)
       : exactMatch(images);
   const { altered, title, byline, cover, seen } = alter(doc, matcher, {
@@ -64,19 +93,23 @@ export async function generate(
 
   const proms = [];
   for (const href of seen) {
-    const [contentType, buff] = images.get(href)!;
+    const { mime, data } = images.get(href)!;
     proms.push(
-      brighten(buff, contentType, imageBrightness).then(
+      brighten(data, mime, imageBrightness).then(
         ([data, mime]) => [href, data, mime] as const,
-        () => undefined,
+        (err) => {
+          console.warn(`problem brightening ${href}:`, err);
+          return null;
+        },
       ),
     );
   }
-  const brightened: Record<string, ImageData> = {};
+
+  const brightened = new Map<string, ImageData>();
   for (const res of await Promise.all(proms)) {
     if (res) {
       const [href, data, mime] = res;
-      brightened[href] = { data, mime };
+      brightened.set(href, { data, mime });
     }
   }
 
@@ -90,5 +123,5 @@ export async function generate(
     byline: bylineHeader,
     cover: coverHeader ? cover : undefined,
   });
-  return { epub: buffer, title };
+  return { epub: buffer, title, initial: content, altered, brightened, images };
 }
