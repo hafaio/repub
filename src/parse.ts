@@ -1,4 +1,4 @@
-import { parseMhtml } from "mhtml-stream";
+import { parseMhtml } from "mhtml-stream/dist";
 import { assert } from "./utils";
 
 export interface Asset {

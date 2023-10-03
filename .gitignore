@@ -19,6 +19,7 @@ node_modules
 # Artifacts #
 #############
 /*.js
+/*.cjs
 /*.d.ts
 /*.epub
 /*.zip

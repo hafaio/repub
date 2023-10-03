@@ -2,8 +2,6 @@ import { Readability } from "@mozilla/readability";
 import leven from "leven";
 import { ImageHandling } from "./options";
 
-const parser = new DOMParser();
-
 /** something that has a `has` method */
 export interface HasAble<T> {
   has(val: T): boolean;
@@ -198,11 +196,10 @@ function* coverUrls(doc: Document): IterableIterator<string> {
 
 /** update img src's with srcset information */
 export function alter(
-  raw: string,
+  doc: Document,
   match: Matcher<string>,
   { summarizeCharThreshold, ...opts }: Options,
 ): Altered {
-  const doc = parser.parseFromString(raw, "text/html");
   const cover = match(coverUrls(doc));
 
   const res = new Readability<Node>(doc, {
