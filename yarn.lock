@@ -7750,7 +7750,7 @@ __metadata:
     react-dom: ^18.2.0
     rmapi-js: ^3.0.2
     tar-to-zip: ^3.0.0
-    teapub: ^2.0.1
+    teapub: ^2.1.0
     ts-node: ^10.9.1
     typescript: 5.2.2
     yargs: ^17.7.2
@@ -8316,16 +8316,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"teapub@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "teapub@npm:2.0.1"
+"teapub@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "teapub@npm:2.1.0"
   dependencies:
     jszip: ^3.10.1
     parse5: ^7.1.2
     preact: ^10.18.0
     preact-render-to-string: ^6.2.1
     uuid: ^9.0.1
-  checksum: 700629cfd3e5fd30ea8988a75c5839cbce28d93de3c4ee41454577a66bedae502c63ad293dfcdfc45a07de42922119a57db73c3c59824dc24dbdc06c14a4a4eb
+  checksum: 5424450e70eb93a805aeceee561339363c7aa58ba229a2abd57ac38df1526610de3c070c1ced08861cd5df92c8ecd0930a630a53627203683ff659cfa8b417fe
   languageName: node
   linkType: hard
 

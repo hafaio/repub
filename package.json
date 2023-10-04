@@ -73,7 +73,7 @@
     "react-dom": "^18.2.0",
     "rmapi-js": "^3.0.2",
     "tar-to-zip": "^3.0.0",
-    "teapub": "^2.0.1",
+    "teapub": "^2.1.0",
     "ts-node": "^10.9.1",
     "typescript": "5.2.2",
     "yargs": "^17.7.2"

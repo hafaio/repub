@@ -47,6 +47,8 @@ global.HTMLAnchorElement = dom.window.HTMLAnchorElement;
 global.HTMLImageElement = dom.window.HTMLImageElement;
 global.HTMLPictureElement = dom.window.HTMLPictureElement;
 global.Element = dom.window.Element;
+global.SVGElement = dom.window.SVGElement;
+global.Image = dom.window["Image"] as typeof Image;
 
 void (async () => {
   const args = await yargs(argv.slice(2))

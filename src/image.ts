@@ -6,7 +6,12 @@ export async function brighten(
   buffer: Uint8Array,
   mime: string,
   brightness: number,
-): Promise<readonly [Uint8Array, "image/jpeg"]> {
+): Promise<readonly [Uint8Array, "image/jpeg" | "image/svg+xml"]> {
+  if (mime === "image/svg+xml") {
+    // don't alter svgs
+    return [buffer, mime] as const;
+  }
+
   // get into a bitmap
   const blob = new Blob([buffer], { type: mime });
   const bitmap = await createImageBitmap(blob);

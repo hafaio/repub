@@ -81,7 +81,7 @@ export async function generate(
     imageHrefSimilarityThreshold > 0
       ? closeMatch(images, imageHrefSimilarityThreshold)
       : exactMatch(images);
-  const { altered, title, byline, cover, seen } = alter(doc, matcher, {
+  const { altered, title, byline, cover, seen, svgs } = alter(doc, matcher, {
     filterLinks,
     imageHandling,
     summarizeCharThreshold: 0,
@@ -111,6 +111,10 @@ export async function generate(
       const [href, data, mime] = res;
       brightened.set(href, { data, mime });
     }
+  }
+  const encoder = new TextEncoder();
+  for (const [svg, url] of svgs) {
+    brightened.set(url, { data: encoder.encode(svg), mime: "image/svg+xml" });
   }
 
   const buffer = await epub({

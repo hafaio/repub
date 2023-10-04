@@ -74,6 +74,7 @@ export interface Altered {
   byline: string;
   cover?: string | undefined;
   seen: Set<string>;
+  svgs: Map<string, string>;
 }
 
 function* parseSrcset(srcset: string): IterableIterator<string> {
@@ -110,6 +111,7 @@ interface Options extends WalkOptions {
 
 class Walker {
   readonly seen = new Set<string>();
+  readonly svgs = new Map<string, string>();
 
   constructor(
     private match: Matcher<string>,
@@ -129,6 +131,21 @@ class Walker {
       for (const child of node.childNodes) {
         yield* this.#walk(child);
       }
+    } else if (node instanceof SVGElement) {
+      // remarkable can't seem to handle inline svgs, so we remap them to
+      // "external" svgs
+      const serial = new XMLSerializer();
+      const rep = `<?xml version="1.0" encoding="utf-8"?>${serial.serializeToString(
+        node,
+      )}`;
+      let url = this.svgs.get(rep);
+      if (url === undefined) {
+        url = `inlinesvg://${this.svgs.size}.svg`;
+        this.svgs.set(rep, url);
+      }
+      const img = new Image();
+      img.src = url;
+      yield img;
     } else if (node instanceof HTMLImageElement) {
       // img element, find best src
       const { imageHandling } = this.options;
@@ -224,7 +241,7 @@ export function alter(
     throw new Error("failed to summarize document");
   }
   const { content, title, byline } = res;
-  const { seen } = new Walker(match, opts).walk(content);
+  const { seen, svgs } = new Walker(match, opts).walk(content);
 
   const serial = new XMLSerializer();
   return {
@@ -233,5 +250,6 @@ export function alter(
     byline,
     cover,
     seen,
+    svgs,
   };
 }
