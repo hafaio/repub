@@ -51,6 +51,7 @@ export interface EpubOptions {
   coverHeader: boolean;
   rmCss: boolean;
   filterLinks: boolean;
+  authorByline: boolean;
 }
 
 export interface Options extends EpubOptions {
@@ -80,6 +81,7 @@ export const defaultOptions: Options = {
   coverHeader: true,
   rmCss: true,
   filterLinks: true,
+  authorByline: true,
   // how we upload the epub
   margins: 180,
   lineHeight: 100,

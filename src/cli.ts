@@ -117,6 +117,12 @@ void (async () => {
       type: "boolean",
       default: defaultOptions.coverHeader,
     })
+    .option("author-byline", {
+      describe:
+        "display the byline as the article author rather than the stated byline",
+      type: "boolean",
+      default: defaultOptions.authorByline,
+    })
     .option("verbose", {
       alias: "v",
       describe: "verbosity to log information",
@@ -141,6 +147,7 @@ void (async () => {
       hrefHeader: args.hrefHeader,
       bylineHeader: args.bylineHeader,
       coverHeader: args.coverHeader,
+      authorByline: args.authorByline,
     },
   );
 

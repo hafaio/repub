@@ -107,6 +107,7 @@ interface WalkOptions {
 
 interface Options extends WalkOptions {
   summarizeCharThreshold: number;
+  authorByline: boolean;
 }
 
 class Walker {
@@ -228,9 +229,14 @@ function* coverUrls(doc: Document): IterableIterator<string> {
 export function alter(
   doc: Document,
   match: Matcher<string>,
-  { summarizeCharThreshold, ...opts }: Options,
+  { summarizeCharThreshold, authorByline, ...opts }: Options,
 ): Altered {
   const cover = match(coverUrls(doc));
+  const articleAuthor = doc.querySelector(`meta[property="article:author"]`);
+  const author =
+    authorByline && articleAuthor instanceof HTMLMetaElement
+      ? articleAuthor.content
+      : null;
 
   const res = new Readability<Node>(doc, {
     charThreshold: summarizeCharThreshold,
@@ -247,7 +253,7 @@ export function alter(
   return {
     altered: serial.serializeToString(content),
     title,
-    byline,
+    byline: author ?? byline,
     cover,
     seen,
     svgs,

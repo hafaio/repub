@@ -60,6 +60,7 @@ export async function generate(
     imageHandling,
     imageBrightness,
     filterLinks,
+    authorByline,
     rmCss,
     hrefHeader,
     bylineHeader,
@@ -85,6 +86,7 @@ export async function generate(
     filterLinks,
     imageHandling,
     summarizeCharThreshold: 0,
+    authorByline,
   });
 
   if (cover && coverHeader) {

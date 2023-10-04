@@ -430,6 +430,28 @@ function CoverHeader({
   );
 }
 
+function AuthorByline({
+  authorByline,
+  setOpts,
+}: {
+  authorByline: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ authorByline: !authorByline }),
+    [setOpts, authorByline],
+  );
+  return (
+    <CheckboxSelection
+      value={authorByline}
+      onToggle={onToggle}
+      title="Use article author instead of byline"
+      caption={`Some articles list the publication as the byline. If this is
+      true, use the author instead.`}
+    />
+  );
+}
+
 function FilterLinksPicker({
   filterLinks,
   setOpts,
@@ -736,6 +758,7 @@ function EpubOptions({
       />
       <HrefHeader hrefHeader={opts.hrefHeader} setOpts={setOpts} />
       <BylineHeader bylineHeader={opts.bylineHeader} setOpts={setOpts} />
+      <AuthorByline authorByline={opts.authorByline} setOpts={setOpts} />
       <CoverHeader coverHeader={opts.coverHeader} setOpts={setOpts} />
       <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
       <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
