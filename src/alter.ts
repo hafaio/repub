@@ -108,80 +108,91 @@ interface Options extends WalkOptions {
   summarizeCharThreshold: number;
 }
 
-function* walk(
-  node: Node,
-  match: Matcher<string>,
-  seen: Set<string>,
-  options: WalkOptions,
-): IterableIterator<Node> {
-  // istanbul ignore if
-  if (node instanceof DocumentType) {
-    // <!doctype ...> node should never actually find
-    throw new Error("internal error: should never get a doctype element");
-  } else if (node instanceof Text) {
-    // preserve these these
-    yield node;
-  } else if (node instanceof HTMLAnchorElement && options.filterLinks) {
-    // remove link leaving just children
-    for (const child of node.childNodes) {
-      yield* walk(child, match, seen, options);
-    }
-  } else if (node instanceof HTMLImageElement) {
-    // img element, find best src
-    const { imageHandling } = options;
-    const href = match(getSrcs([node]));
-    if (imageHandling === "strip") {
-      // noop
-    } else if (!href) {
-      console.warn("no src match found for", node);
-    } else if (imageHandling !== "filter" || !seen.has(href)) {
-      node.src = href;
-      seen.add(href);
+class Walker {
+  readonly seen = new Set<string>();
+
+  constructor(
+    private match: Matcher<string>,
+    private options: WalkOptions,
+  ) {}
+
+  *#walk(node: Node): IterableIterator<Node> {
+    // istanbul ignore if
+    if (node instanceof DocumentType) {
+      // <!doctype ...> node should never actually find
+      throw new Error("internal error: should never get a doctype element");
+    } else if (node instanceof Text) {
+      // preserve these these
+      yield node;
+    } else if (node instanceof HTMLAnchorElement && this.options.filterLinks) {
+      // remove link leaving just children
+      for (const child of node.childNodes) {
+        yield* this.#walk(child);
+      }
+    } else if (node instanceof HTMLImageElement) {
+      // img element, find best src
+      const { imageHandling } = this.options;
+      const href = this.match(getSrcs([node]));
+      if (imageHandling === "strip") {
+        // noop
+      } else if (!href) {
+        console.warn("no src match found for", node);
+      } else if (imageHandling !== "filter" || !this.seen.has(href)) {
+        node.src = href;
+        this.seen.add(href);
+        yield node;
+      }
+    } else if (node instanceof HTMLPictureElement) {
+      // picture element, find best source and set pictures source
+      const { imageHandling } = this.options;
+      const href = this.match(getSrcs(node.childNodes));
+      let img;
+      for (const child of node.childNodes) {
+        if (child instanceof HTMLImageElement) {
+          img = child;
+          break;
+        }
+      }
+      if (imageHandling === "strip") {
+        // no op
+      } else if (!href) {
+        console.warn("no src match found for", node);
+      } else if (!img) {
+        console.warn("no img inside picture element", node);
+      } else if (imageHandling !== "filter" || !this.seen.has(href)) {
+        img.src = href;
+        this.seen.add(href);
+        yield img;
+      }
+    } else {
+      // all others
+      const newChildren = [];
+      for (const child of node.childNodes) {
+        newChildren.push(...this.#walk(child));
+      }
+
+      if (
+        newChildren.length !== node.childNodes.length ||
+        newChildren.some((child, i) => child !== node.childNodes[i])
+      ) {
+        let child;
+        while ((child = node.firstChild)) {
+          node.removeChild(child);
+        }
+        for (const child of newChildren) {
+          node.appendChild(child);
+        }
+      }
+
       yield node;
     }
-  } else if (node instanceof HTMLPictureElement) {
-    // picture element, find best source and set pictures source
-    const { imageHandling } = options;
-    const href = match(getSrcs(node.childNodes));
-    let img;
-    for (const child of node.childNodes) {
-      if (child instanceof HTMLImageElement) {
-        img = child;
-        break;
-      }
-    }
-    if (imageHandling === "strip") {
-      // no op
-    } else if (!href) {
-      console.warn("no src match found for", node);
-    } else if (!img) {
-      console.warn("no img inside picture element", node);
-    } else if (imageHandling !== "filter" || !seen.has(href)) {
-      img.src = href;
-      seen.add(href);
-      yield img;
-    }
-  } else {
-    // all others
-    const newChildren = [];
-    for (const child of node.childNodes) {
-      newChildren.push(...walk(child, match, seen, options));
-    }
+  }
 
-    if (
-      newChildren.length !== node.childNodes.length ||
-      newChildren.some((child, i) => child !== node.childNodes[i])
-    ) {
-      let child;
-      while ((child = node.firstChild)) {
-        node.removeChild(child);
-      }
-      for (const child of newChildren) {
-        node.appendChild(child);
-      }
+  walk(node: Node): this {
+    for (const _ of this.#walk(node)) {
+      void _;
     }
-
-    yield node;
+    return this;
   }
 }
 
@@ -206,16 +217,14 @@ export function alter(
 
   const res = new Readability<Node>(doc, {
     charThreshold: summarizeCharThreshold,
+    allowedVideoRegex: /(?!)/, // nothing matches
     serializer: (v: Node) => v,
   }).parse();
   if (!res) {
     throw new Error("failed to summarize document");
   }
   const { content, title, byline } = res;
-  const seen = new Set<string>();
-  for (const _ of walk(content, match, seen, opts)) {
-    void _;
-  }
+  const { seen } = new Walker(match, opts).walk(content);
 
   const serial = new XMLSerializer();
   return {
