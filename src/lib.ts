@@ -1,4 +1,4 @@
-import { alter, closeMatch, exactMatch } from "./alter";
+import { MimeData, alter, closeMatch, exactMatch } from "./alter";
 import { ImageData, ImageMime, epub } from "./epub";
 import { EpubOptions } from "./options";
 import { parse } from "./parse";
@@ -23,11 +23,6 @@ figcaption {
   font-style: italic;
 }`;
 
-interface RawImageData {
-  readonly data: Uint8Array;
-  readonly mime: `image/${string}`;
-}
-
 interface Brighten {
   (
     buffer: Uint8Array,
@@ -39,17 +34,10 @@ interface Brighten {
 interface Result {
   initial: string;
   altered: string;
-  images: Map<string, RawImageData>;
+  assets: Map<string, MimeData>;
   brightened: Map<string, ImageData>;
   epub: Uint8Array;
   title?: string;
-}
-
-function startsWithNarrow<const T extends string>(
-  inp: string,
-  prefix: T,
-): inp is `${T}${string}` {
-  return inp.startsWith(prefix);
 }
 
 export async function generate(
@@ -60,6 +48,7 @@ export async function generate(
     imageHandling,
     imageBrightness,
     filterLinks,
+    filterIframes,
     authorByline,
     rmCss,
     hrefHeader,
@@ -71,22 +60,31 @@ export async function generate(
   const parser = new DOMParser();
   const doc = parser.parseFromString(content, "text/html");
 
-  const images = new Map<string, RawImageData>();
-  for await (const { href, content: data, contentType } of assets) {
-    if (startsWithNarrow(contentType, "image/")) {
-      images.set(href, { mime: contentType, data });
+  const assetData = new Map<string, MimeData>();
+  for await (const { href, content: data, contentType, contentId } of assets) {
+    if (contentType.startsWith("image/")) {
+      assetData.set(href, { mime: contentType, data });
+    } else if (
+      contentType === "text/html" &&
+      contentId &&
+      contentId.startsWith("<") &&
+      contentId.endsWith(">")
+    ) {
+      const cid = `cid:${contentId.slice(1, -1)}`;
+      assetData.set(cid, { mime: contentType, data });
     }
   }
 
   const matcher =
     imageHrefSimilarityThreshold > 0
-      ? closeMatch(images, imageHrefSimilarityThreshold)
-      : exactMatch(images);
+      ? closeMatch(assetData, imageHrefSimilarityThreshold)
+      : exactMatch(assetData);
   const { altered, title, byline, cover, seen, svgs } = alter(doc, matcher, {
     filterLinks,
     imageHandling,
     summarizeCharThreshold: 0,
     authorByline,
+    filterIframes,
   });
 
   if (cover && coverHeader) {
@@ -95,7 +93,7 @@ export async function generate(
 
   const proms = [];
   for (const href of seen) {
-    const { mime, data } = images.get(href)!;
+    const { mime, data } = assetData.get(href)!;
     proms.push(
       brighten(data, mime, imageBrightness).then(
         ([data, mime]) => [href, data, mime] as const,
@@ -129,5 +127,12 @@ export async function generate(
     byline: bylineHeader,
     cover: coverHeader ? cover : undefined,
   });
-  return { epub: buffer, title, initial: content, altered, brightened, images };
+  return {
+    epub: buffer,
+    title,
+    initial: content,
+    altered,
+    brightened,
+    assets: assetData,
+  };
 }

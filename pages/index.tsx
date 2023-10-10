@@ -475,6 +475,29 @@ function FilterLinksPicker({
   );
 }
 
+function FilterIframesPicker({
+  filterIframes,
+  setOpts,
+}: {
+  filterIframes: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () => setOpts({ filterIframes: !filterIframes }),
+    [setOpts, filterIframes],
+  );
+  return (
+    <CheckboxSelection
+      value={filterIframes}
+      onToggle={onToggle}
+      title="Remove IFrames"
+      caption={`Some pages may include relevant information in iframes.
+      ReMarkable doesn't natively render these, but by disabling this, we'll
+      copy the contents of preserved iframes into the epub contents.`}
+    />
+  );
+}
+
 function DownloadAskPicker({
   downloadAsk,
   setOpts,
@@ -762,6 +785,10 @@ function EpubOptions({
       <CoverHeader coverHeader={opts.coverHeader} setOpts={setOpts} />
       <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
       <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
+      <FilterIframesPicker
+        filterIframes={opts.filterIframes}
+        setOpts={setOpts}
+      />
     </Section>
   );
 }

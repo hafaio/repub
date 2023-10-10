@@ -46,6 +46,7 @@ global.Text = dom.window.Text;
 global.HTMLAnchorElement = dom.window.HTMLAnchorElement;
 global.HTMLImageElement = dom.window.HTMLImageElement;
 global.HTMLPictureElement = dom.window.HTMLPictureElement;
+global.HTMLIFrameElement = dom.window.HTMLIFrameElement;
 global.Element = dom.window.Element;
 global.SVGElement = dom.window.SVGElement;
 global.Image = dom.window["Image"] as typeof Image;
@@ -97,6 +98,11 @@ void (async () => {
       type: "boolean",
       default: defaultOptions.filterLinks,
     })
+    .option("filter-iframes", {
+      describe: "filter iframes from generated results",
+      type: "boolean",
+      default: defaultOptions.filterIframes,
+    })
     .option("rm-css", {
       describe: "use remarkable css",
       type: "boolean",
@@ -135,7 +141,7 @@ void (async () => {
 
   const mhtml = await readFile(args.mhtml);
 
-  const { initial, altered, images, brightened, epub, title } = await generate(
+  const { initial, altered, assets, brightened, epub, title } = await generate(
     mhtml,
     brighten,
     {
@@ -143,6 +149,7 @@ void (async () => {
       imageBrightness: args.imgBrightness,
       imageHandling: args.imageHandling,
       filterLinks: args.filterLinks,
+      filterIframes: args.filterIframes,
       rmCss: args.rmCss,
       hrefHeader: args.hrefHeader,
       bylineHeader: args.bylineHeader,
@@ -158,9 +165,9 @@ void (async () => {
     console.log();
   }
   if (args.verbose > 2) {
-    console.log("initial images");
+    console.log("initial assets");
     console.log("--------------");
-    for (const href of images.keys()) {
+    for (const href of assets.keys()) {
       console.log(href);
     }
     console.log();

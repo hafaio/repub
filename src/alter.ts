@@ -2,27 +2,24 @@ import { Readability } from "@mozilla/readability";
 import leven from "leven";
 import { ImageHandling } from "./options";
 
-/** something that has a `has` method */
-export interface HasAble<T> {
-  has(val: T): boolean;
-}
-
-/** something that has keys */
-export interface Keys<T> {
-  keys(): Iterable<T>;
+/** a generic "file" */
+export interface MimeData {
+  readonly data: Uint8Array;
+  readonly mime: string;
 }
 
 /** something that finds matches */
-export interface Matcher<T> {
-  (iter: Iterable<T>): T | undefined;
+export interface UrlMatcher {
+  (iter: Iterable<string>): [string, MimeData] | undefined;
 }
 
 /** only valid if matches exactly, relatively efficient */
-export function exactMatch(images: HasAble<string>): Matcher<string> {
-  return (hrefs: Iterable<string>): string | undefined => {
+export function exactMatch(assetData: Map<string, MimeData>): UrlMatcher {
+  return (hrefs: Iterable<string>): [string, MimeData] | undefined => {
     for (const href of hrefs) {
-      if (images.has(href)) {
-        return href;
+      const data = assetData.get(href);
+      if (data) {
+        return [href, data];
       }
     }
   };
@@ -46,21 +43,21 @@ export function exactMatch(images: HasAble<string>): Matcher<string> {
 // NOTE this seems only necessary due to this bug:
 // https://bugs.chromium.org/p/chromium/issues/detail?id=1323522
 export function closeMatch(
-  images: Keys<string>,
+  assetData: Map<string, MimeData>,
   thresh: number,
-): Matcher<string> {
+): UrlMatcher {
   // NOTE this could be better if we actually parsed the hrefs and looked at
   // differences there so that ordering of query parameters wouldn't affect it,
   // etc.
-  return (hrefs: Iterable<string>): string | undefined => {
-    let match: string | undefined = undefined;
+  return (hrefs: Iterable<string>): [string, MimeData] | undefined => {
+    let match: [string, MimeData] | undefined;
     let score = thresh;
     for (const href of hrefs) {
-      for (const test of images.keys()) {
+      for (const [test, val] of assetData) {
         const dist = leven(href, test) / Math.max(href.length, test.length);
         if (dist < score) {
           score = dist;
-          match = test;
+          match = [test, val];
         }
       }
     }
@@ -108,6 +105,7 @@ interface WalkOptions {
 interface Options extends WalkOptions {
   summarizeCharThreshold: number;
   authorByline: boolean;
+  filterIframes: boolean;
 }
 
 class Walker {
@@ -115,7 +113,7 @@ class Walker {
   readonly svgs = new Map<string, string>();
 
   constructor(
-    private match: Matcher<string>,
+    private match: UrlMatcher,
     private options: WalkOptions,
   ) {}
 
@@ -147,10 +145,22 @@ class Walker {
       const img = new Image();
       img.src = url;
       yield img;
+    } else if (node instanceof HTMLIFrameElement) {
+      const match = this.match([node.src ?? ""]);
+      if (match) {
+        const [, { data, mime }] = match;
+        const decoder = new TextDecoder();
+        const parser = new DOMParser();
+        if (mime !== "text/html") throw new Error("unexpected mime");
+        const contents = parser.parseFromString(decoder.decode(data), mime);
+        for (const child of contents.body.childNodes) {
+          yield* this.#walk(child);
+        }
+      }
     } else if (node instanceof HTMLImageElement) {
       // img element, find best src
       const { imageHandling } = this.options;
-      const href = this.match(getSrcs([node]));
+      const [href] = this.match(getSrcs([node])) ?? [];
       if (imageHandling === "strip") {
         // noop
       } else if (!href) {
@@ -163,7 +173,7 @@ class Walker {
     } else if (node instanceof HTMLPictureElement) {
       // picture element, find best source and set pictures source
       const { imageHandling } = this.options;
-      const href = this.match(getSrcs(node.childNodes));
+      const [href] = this.match(getSrcs(node.childNodes)) ?? [];
       let img;
       for (const child of node.childNodes) {
         if (child instanceof HTMLImageElement) {
@@ -228,10 +238,11 @@ function* coverUrls(doc: Document): IterableIterator<string> {
 /** update img src's with srcset information */
 export function alter(
   doc: Document,
-  match: Matcher<string>,
-  { summarizeCharThreshold, authorByline, ...opts }: Options,
+  match: UrlMatcher,
+  { summarizeCharThreshold, authorByline, filterIframes, ...opts }: Options,
 ): Altered {
-  const cover = match(coverUrls(doc));
+  const [cover] = match(coverUrls(doc)) ?? [];
+  const allowedVideoRegex = filterIframes ? /(?!)/ : /(?:)/;
   const articleAuthor = doc.querySelector(`meta[property="article:author"]`);
   const author =
     authorByline && articleAuthor instanceof HTMLMetaElement
@@ -240,7 +251,7 @@ export function alter(
 
   const res = new Readability<Node>(doc, {
     charThreshold: summarizeCharThreshold,
-    allowedVideoRegex: /(?!)/, // nothing matches
+    allowedVideoRegex,
     serializer: (v: Node) => v,
   }).parse();
   if (!res) {

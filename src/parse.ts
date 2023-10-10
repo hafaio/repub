@@ -5,6 +5,7 @@ export interface Asset {
   readonly href: string;
   readonly content: Uint8Array;
   readonly contentType: string;
+  readonly contentId: string | null;
 }
 
 const decoder = new TextDecoder();
@@ -49,11 +50,13 @@ export async function parse(data: ArrayBuffer): Promise<ParsedWebpage> {
     for await (const { headers, content } of files) {
       const href = headers.get("Content-Location");
       const contentType = headers.get("Content-Type");
+      const contentId = headers.get("Content-ID");
       if (href && contentType) {
         yield {
           href,
           content,
           contentType,
+          contentId,
         };
       }
     }
