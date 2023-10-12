@@ -24,11 +24,7 @@ figcaption {
 }`;
 
 interface Brighten {
-  (
-    buffer: Uint8Array,
-    mime: string,
-    brightness: number,
-  ): Promise<readonly [Uint8Array, ImageMime]>;
+  (buffer: Uint8Array, mime: string): Promise<readonly [Uint8Array, ImageMime]>;
 }
 
 interface Result {
@@ -46,7 +42,6 @@ export async function generate(
   {
     imageHrefSimilarityThreshold,
     imageHandling,
-    imageBrightness,
     filterLinks,
     filterIframes,
     authorByline,
@@ -95,7 +90,7 @@ export async function generate(
   for (const href of seen) {
     const { mime, data } = assetData.get(href)!;
     proms.push(
-      brighten(data, mime, imageBrightness).then(
+      brighten(data, mime).then(
         ([data, mime]) => [href, data, mime] as const,
         (err) => {
           console.warn(`problem brightening ${href}:`, err);

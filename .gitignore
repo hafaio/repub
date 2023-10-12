@@ -22,6 +22,7 @@ node_modules
 /*.cjs
 /*.d.ts
 /*.epub
+/*.mhtml
 /*.zip
 /*.wasm
 /out

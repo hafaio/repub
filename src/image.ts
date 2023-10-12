@@ -6,6 +6,7 @@ export async function brighten(
   buffer: Uint8Array,
   mime: string,
   brightness: number,
+  grayscale: boolean,
 ): Promise<readonly [Uint8Array, "image/jpeg" | "image/svg+xml"]> {
   if (mime === "image/svg+xml") {
     // don't alter svgs
@@ -34,8 +35,10 @@ export async function brighten(
   // create canvas, write to it, and brighten it
   const canvas = new OffscreenCanvas(width, height);
   const ctx = canvas.getContext("2d")!;
+  ctx.filter = `
+  brightness(${brightness * 100}%)
+  grayscale(${+grayscale * 100}%)`;
   ctx.drawImage(bitmap, 0, 0, width, height);
-  ctx.filter = `${brightness * 100}%`;
 
   // export result
   const type = "image/jpeg" as const;

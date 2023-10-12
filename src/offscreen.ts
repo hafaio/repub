@@ -10,7 +10,9 @@ chrome.runtime.onMessage.addListener(
     _: unknown,
     sendResponse: (msg: Response) => void,
   ): true => {
-    generate(toByteArray(mhtml), brighten, opts).then(
+    const bright = (buffer: Uint8Array, mime: string) =>
+      brighten(buffer, mime, opts.imageBrightness, false);
+    generate(toByteArray(mhtml), bright, opts).then(
       ({ epub, title }) =>
         sendResponse({ success: true, epub: fromByteArray(epub), title }),
       (ex) =>

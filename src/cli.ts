@@ -9,7 +9,6 @@ import { defaultOptions } from "./options";
 function brighten(
   buffer: Uint8Array,
   mime: string,
-  // brightness: number,
 ): Promise<readonly [Uint8Array, ImageMime]> {
   // TODO ideally use sharp to load, resize, brighten but doing so with esbuild
   // likely requires a custom loader for the native code, and there doesn't
@@ -82,11 +81,6 @@ void (async () => {
       type: "number",
       default: defaultOptions.imageHrefSimilarityThreshold,
     })
-    .option("img-brightness", {
-      describe: "how much to brighten images",
-      type: "number",
-      default: defaultOptions.imageBrightness,
-    })
     .option("image-handling", {
       describe: "how to handle images",
       type: "string",
@@ -146,7 +140,6 @@ void (async () => {
     brighten,
     {
       imageHrefSimilarityThreshold: args.imgSimThresh,
-      imageBrightness: args.imgBrightness,
       imageHandling: args.imageHandling,
       filterLinks: args.filterLinks,
       filterIframes: args.filterIframes,
@@ -155,6 +148,7 @@ void (async () => {
       bylineHeader: args.bylineHeader,
       coverHeader: args.coverHeader,
       authorByline: args.authorByline,
+      imageBrightness: 1, // unused
     },
   );
 
