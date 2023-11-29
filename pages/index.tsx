@@ -671,10 +671,10 @@ function LineHeightPicker({
     lineHeight === 200
       ? "large"
       : lineHeight === 150
-      ? "medium"
-      : lineHeight === 100
-      ? "small"
-      : "unknown";
+        ? "medium"
+        : lineHeight === 100
+          ? "small"
+          : "unknown";
   return (
     <ButtonSelection
       value={value}
@@ -743,8 +743,8 @@ function SignInOptions({
     outputStyle === "download"
       ? false
       : deviceToken === undefined
-      ? undefined
-      : !deviceToken;
+        ? undefined
+        : !deviceToken;
 
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (

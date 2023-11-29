@@ -21,7 +21,15 @@ ul li, ol li {
 figcaption {
   font-size: 0.5rem;
   font-style: italic;
-}`;
+}
+
+pre {
+  font-family: "Noto Mono", monospace;
+  white-space: pre-wrap;
+  /* this doesn't work, but it might as some point */
+  text-align: left !important;
+}
+`;
 
 interface Brighten {
   (buffer: Uint8Array, mime: string): Promise<readonly [Uint8Array, ImageMime]>;
