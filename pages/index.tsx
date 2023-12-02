@@ -263,6 +263,31 @@ function RemarkableCssPicker({
   );
 }
 
+function CodeCssPicker({
+  codeCss,
+  setOpts,
+}: {
+  codeCss: boolean | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  const onToggle = useCallback(
+    () =>
+      setOpts({
+        codeCss: !codeCss,
+      }),
+    [setOpts, codeCss],
+  );
+  return (
+    <CheckboxSelection
+      value={codeCss}
+      onToggle={onToggle}
+      title="Use code environment CSS"
+      caption={`This renders <pre/> and <code/> tags in a wrapped fixed-width
+      font with a light gray background.`}
+    />
+  );
+}
+
 function ImageHandlingPicker({
   imageHandling,
   setOpts,
@@ -784,6 +809,7 @@ function EpubOptions({
       <AuthorByline authorByline={opts.authorByline} setOpts={setOpts} />
       <CoverHeader coverHeader={opts.coverHeader} setOpts={setOpts} />
       <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
+      <CodeCssPicker codeCss={opts.codeCss} setOpts={setOpts} />
       <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
       <FilterIframesPicker
         filterIframes={opts.filterIframes}

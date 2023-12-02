@@ -102,6 +102,11 @@ void (async () => {
       type: "boolean",
       default: defaultOptions.rmCss,
     })
+    .option("code-css", {
+      describe: "use code css",
+      type: "boolean",
+      default: defaultOptions.codeCss,
+    })
     .option("href-header", {
       describe: "add a header with the url",
       type: "boolean",
@@ -144,6 +149,7 @@ void (async () => {
       filterLinks: args.filterLinks,
       filterIframes: args.filterIframes,
       rmCss: args.rmCss,
+      codeCss: args.codeCss,
       hrefHeader: args.hrefHeader,
       bylineHeader: args.bylineHeader,
       coverHeader: args.coverHeader,

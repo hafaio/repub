@@ -50,6 +50,7 @@ export interface EpubOptions {
   bylineHeader: boolean;
   coverHeader: boolean;
   rmCss: boolean;
+  codeCss: boolean;
   filterLinks: boolean;
   filterIframes: boolean;
   authorByline: boolean;
@@ -81,6 +82,7 @@ export const defaultOptions: Options = {
   bylineHeader: true,
   coverHeader: true,
   rmCss: true,
+  codeCss: true,
   filterLinks: true,
   filterIframes: true,
   authorByline: true,

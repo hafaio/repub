@@ -22,9 +22,16 @@ figcaption {
   font-size: 0.5rem;
   font-style: italic;
 }
+`;
+
+const codeEnvironmentCss = `
+pre, code {
+  font-family: "Noto Mono", monospace;
+  font-size: 0.8em;
+  background-color: #f2f2f2;
+}
 
 pre {
-  font-family: "Noto Mono", monospace;
   white-space: pre-wrap;
   /* this doesn't work, but it might as some point */
   text-align: left !important;
@@ -54,6 +61,7 @@ export async function generate(
     filterIframes,
     authorByline,
     rmCss,
+    codeCss,
     hrefHeader,
     bylineHeader,
     coverHeader,
@@ -125,7 +133,7 @@ export async function generate(
     content: altered,
     author: byline,
     images: brightened,
-    css: rmCss ? remarkableCss : undefined,
+    css: (rmCss ? remarkableCss : "") + (codeCss ? codeEnvironmentCss : ""),
     href: hrefHeader ? href : undefined,
     byline: bylineHeader,
     cover: coverHeader ? cover : undefined,
