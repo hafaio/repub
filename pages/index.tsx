@@ -51,9 +51,6 @@ import { sleep } from "../src/utils";
 
 const theme = createTheme({
   palette: {
-    background: {
-      paper: "#fff",
-    },
     primary: {
       main: "#000",
     },
@@ -918,45 +915,42 @@ export default function OptionsPage(): ReactElement {
         <title>reMarkable ePub Options</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box sx={{ backgroundColor: "#0b212e" }}>
-        <Box
-          sx={{
-            bgcolor: "background.paper",
-            maxWidth: "700px",
-            width: "100%",
-            padding: 0,
-            margin: "0 auto",
-          }}
-        >
-          <Stack justifyContent="space-between" sx={{ minHeight: "100vh" }}>
-            <Container maxWidth="sm" sx={{ padding: 4 }}>
-              <Stack spacing={4}>
-                <SignInOptions
-                  opts={opts}
+      <Box
+        sx={{
+          maxWidth: "700px",
+          width: "100%",
+          padding: 0,
+          margin: "0 auto",
+        }}
+      >
+        <Stack justifyContent="space-between" sx={{ minHeight: "100vh" }}>
+          <Container maxWidth="sm" sx={{ padding: 4 }}>
+            <Stack spacing={4}>
+              <SignInOptions
+                opts={opts}
+                setOpts={setOpts}
+                showSnack={showSnack}
+              />
+              <Box>
+                <ImageHandlingPicker
+                  imageHandling={opts.imageHandling}
                   setOpts={setOpts}
-                  showSnack={showSnack}
                 />
-                <Box>
-                  <ImageHandlingPicker
-                    imageHandling={opts.imageHandling}
-                    setOpts={setOpts}
-                  />
-                  <EpubOptions opts={opts} setOpts={setOpts} />
-                  <UploadOptions opts={opts} setOpts={setOpts} />
-                  <DownloadOptions opts={opts} setOpts={setOpts} />
-                </Box>
-                <Done />
+                <EpubOptions opts={opts} setOpts={setOpts} />
+                <UploadOptions opts={opts} setOpts={setOpts} />
+                <DownloadOptions opts={opts} setOpts={setOpts} />
+              </Box>
+              <Done />
+            </Stack>
+          </Container>
+          <Box>
+            <Container maxWidth="sm" sx={{ padding: 4 }}>
+              <Stack>
+                <SignOut deviceToken={deviceToken} setOpts={setOpts} />
               </Stack>
             </Container>
-            <Box sx={{ backgroundColor: "#ebebeb" }}>
-              <Container maxWidth="sm" sx={{ padding: 4 }}>
-                <Stack>
-                  <SignOut deviceToken={deviceToken} setOpts={setOpts} />
-                </Stack>
-              </Container>
-            </Box>
-          </Stack>
-        </Box>
+          </Box>
+        </Stack>
       </Box>
       <Snackbar open={open} autoHideDuration={6000} onClose={close}>
         <Alert

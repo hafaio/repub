@@ -46,7 +46,7 @@ export default function Section({
     </Right>
   ) : null;
   return (
-    <Accordion elevation={0}>
+    <Accordion elevation={0} sx={{ backgroundColor: "transparent" }}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon sx={{ ml: 2.875, mr: 2.875 }} />}
       >
