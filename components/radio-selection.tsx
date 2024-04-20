@@ -16,7 +16,9 @@ export default function RadioSelection<T extends string>({
   selections: { val: T; title: string; caption: string }[];
 }): ReactElement {
   const change = useCallback(
-    (_: unknown, newValue: string) => onChange(newValue as T),
+    (_: unknown, newValue: string) => {
+      onChange(newValue as T);
+    },
     [onChange],
   );
 
@@ -39,7 +41,7 @@ export default function RadioSelection<T extends string>({
   });
 
   return (
-    <RadioGroup value={value || ""} onChange={change}>
+    <RadioGroup value={value ?? ""} onChange={change}>
       <Stack spacing={1}>{choices}</Stack>
     </RadioGroup>
   );

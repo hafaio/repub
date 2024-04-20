@@ -15,7 +15,7 @@ class AsyncLock implements Lock {
 
   async acquire(): Promise<void> {
     if (this.#locked) {
-      return await new Promise<void>((resolve) => this.#queue.push(resolve));
+      await new Promise<void>((resolve) => this.#queue.push(resolve));
     } else {
       this.#locked = true;
     }

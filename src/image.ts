@@ -35,13 +35,15 @@ export async function brighten(
   // create canvas, write to it, and brighten it
   const canvas = new OffscreenCanvas(width, height);
   const ctx = canvas.getContext("2d")!;
+  /* eslint-disable spellcheck/spell-checker */
   ctx.filter = `
   brightness(${brightness * 100}%)
   grayscale(${+grayscale * 100}%)`;
+  /* eslint-enable spellcheck/spell-checker */
   ctx.drawImage(bitmap, 0, 0, width, height);
 
   // export result
-  const type = "image/jpeg" as const;
+  const type = "image/jpeg";
   const result = await canvas.convertToBlob({ type, quality: 0.9 });
   const buff = await result.arrayBuffer();
   return [new Uint8Array(buff), type];

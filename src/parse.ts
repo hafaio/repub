@@ -19,12 +19,12 @@ export interface ParsedWebpage {
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function* asIterable(
-  data: ArrayBuffer,
-): AsyncIterableIterator<ArrayBuffer> {
+  data: Uint8Array,
+): AsyncIterableIterator<Uint8Array> {
   yield data;
 }
 
-export async function parse(data: ArrayBuffer): Promise<ParsedWebpage> {
+export async function parse(data: Uint8Array): Promise<ParsedWebpage> {
   // init
   const files = parseMhtml(asIterable(data));
 

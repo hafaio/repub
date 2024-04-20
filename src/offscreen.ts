@@ -13,13 +13,15 @@ chrome.runtime.onMessage.addListener(
     const bright = (buffer: Uint8Array, mime: string) =>
       brighten(buffer, mime, opts.imageBrightness, false);
     generate(toByteArray(mhtml), bright, opts).then(
-      ({ epub, title }) =>
-        sendResponse({ success: true, epub: fromByteArray(epub), title }),
-      (ex) =>
+      ({ epub, title }) => {
+        sendResponse({ success: true, epub: fromByteArray(epub), title });
+      },
+      (ex) => {
         sendResponse({
           success: false,
           err: errString(ex),
-        }),
+        });
+      },
     );
     return true;
   },

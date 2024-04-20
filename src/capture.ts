@@ -4,9 +4,9 @@ export async function pageCapture(
   { retries = 3 }: { retries?: number } = {},
 ): Promise<ArrayBuffer> {
   for (; retries; --retries) {
-    const blob = await new Promise<Blob | undefined>((resolve) =>
-      chrome.pageCapture.saveAsMHTML({ tabId }, resolve),
-    );
+    const blob = await new Promise<Blob | undefined>((resolve) => {
+      chrome.pageCapture.saveAsMHTML({ tabId }, resolve);
+    });
     if (blob) {
       return await blob.arrayBuffer();
     } else {

@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { performance } from "node:perf_hooks";
 import { assert, errString, safeFilename, sleep, timeout } from "./utils";
 
@@ -12,9 +13,15 @@ test("sleep()", async () => {
   expect(Math.abs(expected - actual)).toBeLessThan(Math.max(expected, actual));
 });
 
+async function mySleep(seconds: number): Promise<null> {
+  await sleep(seconds);
+  return null;
+}
+
 test("timeout()", async () => {
-  expect(await timeout(sleep(1), 10)).toBeUndefined();
-  await expect(timeout(sleep(10), 1)).rejects.toThrow("timeout");
+  expect(await timeout(mySleep(1), 10)).toBeNull();
+  // eslint-disable-next-line @typescript-eslint/await-thenable,@typescript-eslint/no-confusing-void-expression
+  await expect(timeout(mySleep(10), 1)).rejects.toThrow("timeout");
 });
 
 test("safeFilename()", () => {
@@ -27,8 +34,12 @@ test("safeFilename()", () => {
 
 test("assert()", () => {
   assert(true);
-  expect(() => assert(false)).toThrow("internal error");
-  expect(() => assert(false, "custom")).toThrow("custom");
+  expect(() => {
+    assert(false);
+  }).toThrow("internal error");
+  expect(() => {
+    assert(false, "custom");
+  }).toThrow("custom");
 });
 
 test("errString()", () => {

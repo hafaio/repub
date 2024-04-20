@@ -10,10 +10,10 @@ function brighten(
   buffer: Uint8Array,
   mime: string,
 ): Promise<readonly [Uint8Array, ImageMime]> {
-  // TODO ideally use sharp to load, resize, brighten but doing so with esbuild
-  // likely requires a custom loader for the native code, and there doesn't
-  // seem to be non-native webp-parsing. The alternative would be to write this
-  // CLI in deno, but deno ts interop isn't great
+  /* TODO ideally use sharp to load, resize, brighten but doing so with esbuild
+   * likely requires a custom loader for the native code, and there doesn't
+   * seem to be non-native webp-parsing. The alternative would be to write this
+   * CLI in deno, but deno ts interop isn't great */
   if (
     mime === "image/png" ||
     mime === "image/jpeg" ||
@@ -77,6 +77,7 @@ void (async () => {
       type: "string",
     })
     .option("img-sim-thresh", {
+      // eslint-disable-next-line spellcheck/spell-checker
       describe: "how similar image urls need to be to use them",
       type: "number",
       default: defaultOptions.imageHrefSimilarityThreshold,
@@ -92,7 +93,9 @@ void (async () => {
       type: "boolean",
       default: defaultOptions.filterLinks,
     })
+    // eslint-disable-next-line spellcheck/spell-checker
     .option("filter-iframes", {
+      // eslint-disable-next-line spellcheck/spell-checker
       describe: "filter iframes from generated results",
       type: "boolean",
       default: defaultOptions.filterIframes,

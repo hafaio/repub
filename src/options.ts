@@ -12,7 +12,6 @@ export interface Storage {
   remove(keys: string[]): Awaitable<void>;
 }
 
-// istanbul ignore next
 const mockStorage: Storage = {
   set(vals: Readonly<Record<string, unknown>>): void {
     for (const [key, val] of Object.entries(vals)) {
@@ -98,24 +97,20 @@ export const defaultOptions: Options = {
   downloadAsk: false,
 };
 
-export async function getOptions(
-  // istanbul ignore next
-  {
-    storage = globalThis.chrome?.storage?.local ?? mockStorage,
-  }: { storage?: Storage } = {},
-): Promise<Options> {
+export async function getOptions({
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  storage = globalThis.chrome?.storage?.local ?? mockStorage,
+}: { storage?: Storage } = {}): Promise<Options> {
   const loaded = (await storage.get(defaultOptions)) as Partial<Options>;
   return { ...defaultOptions, ...loaded };
 }
 
-export interface SetOptions {
-  (options: Partial<Options>): void;
-}
+export type SetOptions = (options: Partial<Options>) => void;
 
 export async function setOptions(
   opts: Partial<Options>,
-  // istanbul ignore next
   {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     storage = globalThis.chrome?.storage?.local ?? mockStorage,
   }: { storage?: Storage } = {},
 ): Promise<void> {

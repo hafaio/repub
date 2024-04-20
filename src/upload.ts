@@ -48,14 +48,14 @@ interface UploadOptions {
 }
 
 export async function upload(
-  epub: ArrayBuffer,
+  epub: Uint8Array,
   title: string,
   deviceToken: string,
   options: PutEpubOptions,
   { retries = 2 }: UploadOptions,
 ): Promise<void> {
   const api = await getApi(deviceToken);
-  const entry = await api.putEpub(title, epub, options);
+  const entry = await api.putEpub(title, epub.buffer as ArrayBuffer, options);
   const gen = await updateRootState(api, entry, retries);
   await api.syncComplete(gen);
 }

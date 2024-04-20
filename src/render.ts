@@ -9,7 +9,7 @@ let closing: null | Promise<void> = null;
 export async function render(
   mhtml: ArrayBuffer,
   opts: EpubOptions,
-): Promise<{ epub: ArrayBuffer; title?: string }> {
+): Promise<{ epub: Uint8Array; title?: string }> {
   await closing;
   num++;
   if (offscreen === null) {

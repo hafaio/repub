@@ -36,7 +36,7 @@ async function rePub(tabId: number) {
     } else if (deviceToken) {
       await upload(epub, title, deviceToken, opts, {});
     } else {
-      chrome.runtime.openOptionsPage();
+      void chrome.runtime.openOptionsPage();
       throw new Error(
         "must be authenticated to upload documents to reMarkable",
       );

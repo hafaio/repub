@@ -66,6 +66,7 @@ const unknownOpts: Partial<Options> = Object.fromEntries(
 
 async function getToken(code: string): Promise<string> {
   // This is for testing in dev mode
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (window.chrome?.runtime?.id) {
     return await register(code);
   } else {
@@ -82,7 +83,9 @@ function OutputStylePicker({
   setOpts: SetOptions;
 }): ReactElement {
   const onChange = useCallback(
-    (val: OutputStyle) => setOpts({ outputStyle: val }),
+    (val: OutputStyle) => {
+      setOpts({ outputStyle: val });
+    },
     [setOpts],
   );
 
@@ -242,13 +245,11 @@ function RemarkableCssPicker({
   rmCss: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        rmCss: !rmCss,
-      }),
-    [setOpts, rmCss],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({
+      rmCss: !rmCss,
+    });
+  }, [setOpts, rmCss]);
   return (
     <CheckboxSelection
       value={rmCss}
@@ -267,13 +268,11 @@ function CodeCssPicker({
   codeCss: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        codeCss: !codeCss,
-      }),
-    [setOpts, codeCss],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({
+      codeCss: !codeCss,
+    });
+  }, [setOpts, codeCss]);
   return (
     <CheckboxSelection
       value={codeCss}
@@ -293,7 +292,9 @@ function ImageHandlingPicker({
   setOpts: SetOptions;
 }): ReactElement {
   const change = useCallback(
-    (val: ImageHandling) => setOpts({ imageHandling: val }),
+    (val: ImageHandling) => {
+      setOpts({ imageHandling: val });
+    },
     [setOpts],
   );
   return (
@@ -311,6 +312,7 @@ function ImageHandlingPicker({
           {
             val: "filter",
             title: "Filter duplicate images",
+            // eslint-disable-next-line spellcheck/spell-checker
             caption: `Only keep the first appearance of any image url. This is
             helpful because sometimes the web page summarization duplicates
             images.`,
@@ -334,16 +336,14 @@ function CloseImages({
   imageHrefSimilarityThreshold: number | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        imageHrefSimilarityThreshold:
-          imageHrefSimilarityThreshold === 0
-            ? defaultOptions.imageHrefSimilarityThreshold
-            : 0,
-      }),
-    [setOpts, imageHrefSimilarityThreshold],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({
+      imageHrefSimilarityThreshold:
+        imageHrefSimilarityThreshold === 0
+          ? defaultOptions.imageHrefSimilarityThreshold
+          : 0,
+    });
+  }, [setOpts, imageHrefSimilarityThreshold]);
   return (
     <CheckboxSelection
       value={imageHrefSimilarityThreshold !== 0}
@@ -366,14 +366,12 @@ function ImageBrightness({
   imageBrightness: number | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () =>
-      setOpts({
-        imageBrightness:
-          imageBrightness === 1 ? defaultOptions.imageBrightness : 1,
-      }),
-    [setOpts, imageBrightness],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({
+      imageBrightness:
+        imageBrightness === 1 ? defaultOptions.imageBrightness : 1,
+    });
+  }, [setOpts, imageBrightness]);
   return (
     <CheckboxSelection
       value={imageBrightness !== 1}
@@ -393,10 +391,9 @@ function HrefHeader({
   hrefHeader: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ hrefHeader: !hrefHeader }),
-    [setOpts, hrefHeader],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ hrefHeader: !hrefHeader });
+  }, [setOpts, hrefHeader]);
   return (
     <CheckboxSelection
       value={hrefHeader}
@@ -415,10 +412,9 @@ function BylineHeader({
   bylineHeader: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ bylineHeader: !bylineHeader }),
-    [setOpts, bylineHeader],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ bylineHeader: !bylineHeader });
+  }, [setOpts, bylineHeader]);
   return (
     <CheckboxSelection
       value={bylineHeader}
@@ -437,10 +433,9 @@ function CoverHeader({
   coverHeader: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ coverHeader: !coverHeader }),
-    [setOpts, coverHeader],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ coverHeader: !coverHeader });
+  }, [setOpts, coverHeader]);
   return (
     <CheckboxSelection
       value={coverHeader}
@@ -459,10 +454,9 @@ function AuthorByline({
   authorByline: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ authorByline: !authorByline }),
-    [setOpts, authorByline],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ authorByline: !authorByline });
+  }, [setOpts, authorByline]);
   return (
     <CheckboxSelection
       value={authorByline}
@@ -481,10 +475,9 @@ function FilterLinksPicker({
   filterLinks: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ filterLinks: !filterLinks }),
-    [setOpts, filterLinks],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ filterLinks: !filterLinks });
+  }, [setOpts, filterLinks]);
   return (
     <CheckboxSelection
       value={filterLinks}
@@ -504,10 +497,9 @@ function FilterIframesPicker({
   filterIframes: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ filterIframes: !filterIframes }),
-    [setOpts, filterIframes],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ filterIframes: !filterIframes });
+  }, [setOpts, filterIframes]);
   return (
     <CheckboxSelection
       value={filterIframes}
@@ -527,10 +519,9 @@ function DownloadAskPicker({
   downloadAsk: boolean | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ downloadAsk: !downloadAsk }),
-    [setOpts, downloadAsk],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ downloadAsk: !downloadAsk });
+  }, [setOpts, downloadAsk]);
   return (
     <CheckboxSelection
       value={downloadAsk}
@@ -548,10 +539,9 @@ function CoverOptions({
   cover: Cover | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ cover: cover === "first" ? "visited" : "first" }),
-    [setOpts, cover],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ cover: cover === "first" ? "visited" : "first" });
+  }, [setOpts, cover]);
   return (
     <CheckboxSelection
       value={cover === "visited"}
@@ -563,6 +553,7 @@ function CoverOptions({
   );
 }
 
+// eslint-disable-next-line spellcheck/spell-checker
 const maison = "Maison Neue";
 
 function FontPicker({
@@ -572,11 +563,11 @@ function FontPicker({
   fontName: string | undefined;
   setOpts: SetOptions;
 }): ReactElement {
-  const onToggle = useCallback(
-    () => setOpts({ fontName: fontName === maison ? "" : maison }),
-    [setOpts, fontName],
-  );
+  const onToggle = useCallback(() => {
+    setOpts({ fontName: fontName === maison ? "" : maison });
+  }, [setOpts, fontName]);
   return (
+    /* eslint-disable spellcheck/spell-checker */
     <CheckboxSelection
       value={fontName === maison}
       onToggle={onToggle}
@@ -585,6 +576,7 @@ function FontPicker({
       otherwise no default font will be set, and reMarkable will likely default
       to EB Garamond.`}
     />
+    /* eslint-enable spellcheck/spell-checker */
   );
 }
 
@@ -603,7 +595,9 @@ function MarginsPicker({
   setOpts: SetOptions;
 }): ReactElement {
   const onChange = useCallback(
-    (val: number) => setOpts({ margins: val }),
+    (val: number) => {
+      setOpts({ margins: val });
+    },
     [setOpts],
   );
   return (
@@ -635,7 +629,9 @@ function TextScalePicker({
   setOpts: SetOptions;
 }): ReactElement {
   const onChange = useCallback(
-    (val: number) => setOpts({ textScale: val }),
+    (val: number) => {
+      setOpts({ textScale: val });
+    },
     [setOpts],
   );
   return (
@@ -657,7 +653,9 @@ function TextAlignmentPicker({
   setOpts: SetOptions;
 }): ReactElement {
   const onChange = useCallback(
-    (change: TextAlignment) => setOpts({ textAlignment: change }),
+    (change: TextAlignment) => {
+      setOpts({ textAlignment: change });
+    },
     [setOpts],
   );
   return (
@@ -683,10 +681,11 @@ function LineHeightPicker({
   setOpts: SetOptions;
 }): ReactElement {
   const onChange = useCallback(
-    (change: "small" | "medium" | "large" | "unknown") =>
+    (change: "small" | "medium" | "large" | "unknown") => {
       setOpts({
         lineHeight: change === "large" ? 200 : change === "medium" ? 150 : 100,
-      }),
+      });
+    },
     [setOpts],
   );
   const value =
@@ -720,9 +719,11 @@ export function SignOut({
   deviceToken: string | undefined;
   setOpts: SetOptions;
 }): ReactElement | null {
-  const signout = useCallback(() => setOpts({ deviceToken: "" }), [setOpts]);
+  const signout = useCallback(() => {
+    setOpts({ deviceToken: "" });
+  }, [setOpts]);
 
-  if (deviceToken || deviceToken === undefined) {
+  if (deviceToken ?? true) {
     return (
       <Button
         variant="outlined"
@@ -874,7 +875,9 @@ export default function OptionsPage(): ReactElement {
     severity: "info",
     message: "",
   });
-  const close = useCallback(() => setOpen(false), [setOpen]);
+  const close = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
   const showSnack = useCallback(
     (snk: Snack) => {
       setSnack(snk);
@@ -913,6 +916,7 @@ export default function OptionsPage(): ReactElement {
     <ThemeProvider theme={theme}>
       <Head>
         <title>reMarkable ePub Options</title>
+        {/* eslint-disable-next-line spellcheck/spell-checker */}
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Box
@@ -923,6 +927,7 @@ export default function OptionsPage(): ReactElement {
           margin: "0 auto",
         }}
       >
+        {/* eslint-disable-next-line spellcheck/spell-checker */}
         <Stack justifyContent="space-between" sx={{ minHeight: "100vh" }}>
           <Container maxWidth="sm" sx={{ padding: 4 }}>
             <Stack spacing={4}>

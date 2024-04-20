@@ -26,8 +26,9 @@ export default function ButtonSelection<T extends string>({
   );
 
   const change = useCallback(
-    (_: unknown, newVal: string | null) =>
-      newVal !== null && onChange(newVal as T),
+    (_: unknown, newVal: string | null) => {
+      newVal !== null && onChange(newVal as T);
+    },
     [onChange],
   );
 
@@ -41,7 +42,7 @@ export default function ButtonSelection<T extends string>({
     <LeftRight label={label}>
       <ToggleButtonGroup
         orientation="vertical"
-        value={value || ""}
+        value={value ?? ""}
         disabled={value === undefined}
         exclusive
         onChange={change}

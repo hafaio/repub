@@ -17,7 +17,9 @@ export default function SliderSelection({
   caption: string;
 }): ReactElement {
   const change = useCallback(
-    (_: unknown, val: number | number[]) => onChange(val as number),
+    (_: unknown, val: number | number[]) => {
+      onChange(val as number);
+    },
     [onChange],
   );
   const min = Math.min(...options.map(({ value }) => value));
@@ -27,7 +29,7 @@ export default function SliderSelection({
       <Typography>{title}</Typography>
       <Typography variant="caption">{caption}</Typography>
       <Slider
-        value={value || min}
+        value={value ?? min}
         onChange={change}
         marks={options}
         min={min}

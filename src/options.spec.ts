@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { defaultOptions, getOptions, setOptions, Storage } from "./options";
 
 class MapStorage implements Storage {

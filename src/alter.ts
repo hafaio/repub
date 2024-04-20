@@ -9,9 +9,9 @@ export interface MimeData {
 }
 
 /** something that finds matches */
-export interface UrlMatcher {
-  (iter: Iterable<string>): [string, MimeData] | undefined;
-}
+export type UrlMatcher = (
+  iter: Iterable<string>,
+) => [string, MimeData] | undefined;
 
 /** only valid if matches exactly, relatively efficient */
 export function exactMatch(assetData: Map<string, MimeData>): UrlMatcher {
@@ -25,6 +25,7 @@ export function exactMatch(assetData: Map<string, MimeData>): UrlMatcher {
   };
 }
 
+// eslint-disable-next-line spellcheck/spell-checker
 /**
  * looks for close matches
  *
@@ -32,7 +33,7 @@ export function exactMatch(assetData: Map<string, MimeData>): UrlMatcher {
  * smallest normalized edit distance in all of the queries.
  *
  * @remarks This currently does raw url matching instead of doing matching
- * based off of the semantics of the url, e.g. putting more emphesis on domain
+ * based off of the semantics of the url, e.g. putting more emphasis on domain
  * over the rest of the url, or ignoring ordering of parameters. It's not clear
  * how much this advanced similarity is necessary.
  *
@@ -46,9 +47,9 @@ export function closeMatch(
   assetData: Map<string, MimeData>,
   thresh: number,
 ): UrlMatcher {
-  // NOTE this could be better if we actually parsed the hrefs and looked at
-  // differences there so that ordering of query parameters wouldn't affect it,
-  // etc.
+  /* NOTE this could be better if we actually parsed the hrefs and looked at
+   * differences there so that ordering of query parameters wouldn't affect it,
+   * etc. */
   return (hrefs: Iterable<string>): [string, MimeData] | undefined => {
     let match: [string, MimeData] | undefined;
     let score = thresh;
@@ -131,14 +132,15 @@ class Walker {
         yield* this.#walk(child);
       }
     } else if (node instanceof SVGElement) {
-      // remarkable can't seem to handle inline svgs, so we remap them to
-      // "external" svgs
+      /* remarkable can't seem to handle inline svgs, so we remap them to
+       * "external" svgs */
       const serial = new XMLSerializer();
       const rep = `<?xml version="1.0" encoding="utf-8"?>${serial.serializeToString(
         node,
       )}`;
       let url = this.svgs.get(rep);
       if (url === undefined) {
+        // eslint-disable-next-line spellcheck/spell-checker
         url = `inlinesvg://${this.svgs.size}.svg`;
         this.svgs.set(rep, url);
       }
@@ -146,7 +148,7 @@ class Walker {
       img.src = url;
       yield img;
     } else if (node instanceof HTMLIFrameElement) {
-      const match = this.match([node.src ?? ""]);
+      const match = this.match([node.src]);
       if (match) {
         const [, { data, mime }] = match;
         const decoder = new TextDecoder();
