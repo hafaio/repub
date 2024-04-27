@@ -6,14 +6,10 @@ on: [ push, pull_request ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/checkout@v3
-    - name: wasm-pack-action
-      uses: jetli/wasm-pack-action@v0.4.0
     - uses: oven-sh/setup-bun@v1
     - run: bun install
     - run: bun fmt --check
