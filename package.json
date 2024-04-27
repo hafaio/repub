@@ -14,19 +14,10 @@
     "export:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
     "export:bundle": "bun build src/background.ts --outfile background.js --minify && bun build src/offscreen.ts --outfile offscreen.js --minify",
     "export:options": "next build",
-    "export": "bun export:images && bun export:bundle && bun export:options",
-    "prepack": "bun lint && bun test --coverage && bun export",
-    "postpack": "< repub-0.0.0.tgz bun tar2zip > repub.zip && rm repub-0.0.0.tgz"
+    "export:pack": "zip -r --filesync repub.zip background.js favicon.ico images/*.png manifest.json offscreen.html offscreen.js out",
+    "export": "bun export:images && bun export:bundle && bun export:options && bun export:pack",
+    "pack": "bun lint && bun test --coverage && bun export"
   },
-  "files": [
-    "/background.js",
-    "/favicon.ico",
-    "/images/*.png",
-    "/manifest.json",
-    "/offscreen.html",
-    "/offscreen.js",
-    "/out/**/*"
-  ],
   "devDependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -56,7 +47,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rmapi-js": "^5.0.0",
-    "tar-to-zip": "^3.0.0",
     "teapub": "^3.0.0",
     "typescript": "^5.4.4",
     "typescript-eslint": "^7.7.0",
