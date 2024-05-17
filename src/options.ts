@@ -101,8 +101,8 @@ export async function getOptions({
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   storage = globalThis.chrome?.storage?.local ?? mockStorage,
 }: { storage?: Storage } = {}): Promise<Options> {
-  const loaded = (await storage.get(defaultOptions)) as Partial<Options>;
-  return { ...defaultOptions, ...loaded };
+  const loaded = await storage.get(defaultOptions);
+  return loaded as Options;
 }
 
 export type SetOptions = (options: Partial<Options>) => void;
