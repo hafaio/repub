@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
       ({ epub, title }) => {
         sendResponse({ success: true, epub: fromByteArray(epub), title });
       },
-      (ex) => {
+      (ex: unknown) => {
         sendResponse({
           success: false,
           err: errString(ex),

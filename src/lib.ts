@@ -110,7 +110,7 @@ export async function generate(
     proms.push(
       brighten(data, mime).then(
         ([data, mime]) => [href, data, mime] as const,
-        (err) => {
+        (err: unknown) => {
           console.warn(`problem brightening ${href}:`, err);
           return null;
         },

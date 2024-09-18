@@ -36,12 +36,26 @@ export default tseslint.config(
       "no-control-regex": "off",
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+      "@typescript-eslint/no-deprecated": "off",
+      "@typescript-eslint/restrict-template-expressions": [
+        "error",
+        { allowNumber: true },
+      ],
       "spellcheck/spell-checker": [
         "error",
         {
           identifiers: false,
-          skipWords: ["mhtml", "offscreen", "epub", "repub", "href", "doctype", "srcset", "Markable", "nextjs"],
+          skipWords: [
+            "mhtml",
+            "offscreen",
+            "epub",
+            "repub",
+            "href",
+            "doctype",
+            "srcset",
+            "Markable",
+            "nextjs",
+          ],
           minLength: 4,
         },
       ],

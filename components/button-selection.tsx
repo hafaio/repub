@@ -27,7 +27,9 @@ export default function ButtonSelection<T extends string>({
 
   const change = useCallback(
     (_: unknown, newVal: string | null) => {
-      newVal !== null && onChange(newVal as T);
+      if (newVal !== null) {
+        onChange(newVal as T);
+      }
     },
     [onChange],
   );

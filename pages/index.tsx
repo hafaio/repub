@@ -142,7 +142,7 @@ function SignIn({
             severity: "success",
             message: "linked reMarkable account successfully",
           });
-        } catch (ex) {
+        } catch {
           showSnack({
             key: "login error",
             severity: "error",
@@ -170,7 +170,7 @@ function SignIn({
             severity: "success",
             message: "linked reMarkable account successfully",
           });
-        } catch (ex) {
+        } catch {
           showSnack({
             key: "login error",
             severity: "error",

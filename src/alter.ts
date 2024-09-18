@@ -77,7 +77,7 @@ export interface Altered {
 
 function* parseSrcset(srcset: string): IterableIterator<string> {
   for (const field of srcset.split(",")) {
-    const match = field.match(/\S+/);
+    const match = /\S+/.exec(field);
     if (!match) continue;
     const [href] = match;
     yield decodeURIComponent(href);
