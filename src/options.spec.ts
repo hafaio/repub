@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { defaultOptions, getOptions, setOptions, Storage } from "./options";
+import { Storage, defaultOptions, getOptions, setOptions } from "./options";
 
 class MapStorage implements Storage {
   #backing = new Map<string, string>();
@@ -33,7 +33,7 @@ test("basic", async () => {
 
   // default works
   const opts = await getOptions({ storage });
-  expect(opts).toEqual(defaultOptions);
+  expect(opts).toEqual({ ...defaultOptions, outputStyle: "download" });
 
   // updating works
   await setOptions({ deviceToken: "test", margins: 3 }, { storage });
@@ -42,5 +42,6 @@ test("basic", async () => {
     ...defaultOptions,
     deviceToken: "test",
     margins: 3,
+    outputStyle: "download",
   });
 });

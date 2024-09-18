@@ -108,6 +108,7 @@ function OutputStylePicker({
           caption: `With this selected, the article will be uploaded to your
           reMarkable cloud. This allows tweaking reMarkable upload settings,
           but requires connecting the extension to your reMarkable account.`,
+          disabled: true,
         },
       ]}
     />
@@ -775,6 +776,12 @@ function SignInOptions({
       <LeftRight sx={{ mt: "80px" }} label={title}>
         <StaticImage alt="repub" src={`repub.svg`} width={48} height={48} />
       </LeftRight>
+      <Alert severity="warning">
+        reMarkable updated their API, breaking this extension. Until it's
+        reverse-engineered this extension can't upload documents directly to
+        reMarkable Cloud. If you want to get this fixed, you try asking
+        reMarkable support to allow 3rd party access directly.
+      </Alert>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn show={showSignIn} setOpts={setOpts} showSnack={showSnack} />
     </Stack>

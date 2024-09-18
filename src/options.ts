@@ -68,6 +68,8 @@ export interface Options extends EpubOptions {
   timeout: number;
   // how we download the epub
   downloadAsk: boolean;
+  // did we notify about remarkable breaking
+  didNotify: boolean;
 }
 
 export const defaultOptions: Options = {
@@ -95,6 +97,8 @@ export const defaultOptions: Options = {
   timeout: 60 * 1000,
   // how we download the epub
   downloadAsk: false,
+  // did we notify about remarkable breaking
+  didNotify: false,
 };
 
 export async function getOptions({
@@ -102,7 +106,9 @@ export async function getOptions({
   storage = globalThis.chrome?.storage?.local ?? mockStorage,
 }: { storage?: Storage } = {}): Promise<Options> {
   const loaded = await storage.get(defaultOptions);
-  return loaded as Options;
+  const options = loaded as Options;
+  options.outputStyle = "download";
+  return options;
 }
 
 export type SetOptions = (options: Partial<Options>) => void;

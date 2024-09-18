@@ -33,11 +33,11 @@ class Tab {
     }
   }
 
-  async complete(): Promise<void> {
+  async complete(message: string): Promise<void> {
     try {
       await chrome.action.setBadgeText({
         tabId: this.#tabId,
-        text: "sent",
+        text: message,
       });
     } finally {
       // ignore

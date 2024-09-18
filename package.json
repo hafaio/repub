@@ -11,7 +11,7 @@
     "dev": "next dev",
     "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.{json,conifg.js}'",
     "lint": "tsc && eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx'",
-    "export:images": "<<< $'16\n32\n48\n128' xargs -I@ convert -background none -resize @x@ public/repub.svg images/repub_@.png && convert images/repub_*.png favicon.ico",
+    "export:images": "<<< $'16\n32\n48\n128' xargs -I@ magick public/repub.svg -background none -resize @x@ images/repub_@.png && magick images/repub_*.png favicon.ico",
     "export:bundle": "bun build src/background.ts --outfile background.js --minify && bun build src/offscreen.ts --outfile offscreen.js --minify",
     "export:options": "next build",
     "export:pack": "zip -r --filesync repub.zip background.js favicon.ico images/*.png manifest.json offscreen.html offscreen.js out",

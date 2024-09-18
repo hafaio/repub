@@ -13,7 +13,7 @@ export default function RadioSelection<T extends string>({
 }: {
   value: T | undefined;
   onChange: (opt: T) => void;
-  selections: { val: T; title: string; caption: string }[];
+  selections: { val: T; title: string; caption: string; disabled?: boolean }[];
 }): ReactElement {
   const change = useCallback(
     (_: unknown, newValue: string) => {
@@ -22,23 +22,25 @@ export default function RadioSelection<T extends string>({
     [onChange],
   );
 
-  const choices = selections.map(({ val, title, caption }) => {
-    return (
-      <FormControlLabel
-        key={val}
-        value={val}
-        control={<Radio />}
-        label={
-          <Box>
-            <Typography>{title}</Typography>
-            <Typography variant="caption">{caption}</Typography>
-          </Box>
-        }
-        disabled={value === undefined}
-        checked={value === val}
-      />
-    );
-  });
+  const choices = selections.map(
+    ({ val, title, caption, disabled = false }) => {
+      return (
+        <FormControlLabel
+          key={val}
+          value={val}
+          control={<Radio />}
+          label={
+            <Box>
+              <Typography>{title}</Typography>
+              <Typography variant="caption">{caption}</Typography>
+            </Box>
+          }
+          disabled={disabled || value === undefined}
+          checked={value === val}
+        />
+      );
+    },
+  );
 
   return (
     <RadioGroup value={value ?? ""} onChange={change}>

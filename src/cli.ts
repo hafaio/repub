@@ -144,7 +144,7 @@ void (async () => {
   const mhtml = await readFile(args.mhtml);
 
   const { initial, altered, assets, brightened, epub, title } = await generate(
-    mhtml,
+    new Uint8Array(mhtml),
     brighten,
     {
       imageHrefSimilarityThreshold: args.imgSimThresh,
