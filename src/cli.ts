@@ -138,7 +138,7 @@ void (async () => {
     })
     .help()
     .alias("h", "help")
-    .required("mhtml")
+    .demandOption("mhtml")
     .strict().argv;
 
   const mhtml = await readFile(args.mhtml);
