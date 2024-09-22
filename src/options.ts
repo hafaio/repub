@@ -66,7 +66,7 @@ export const defaultOptions: Options = {
   // how we generate the epub
   imageHandling: "filter",
   imageHrefSimilarityThreshold: 0.2,
-  imageBrightness: 1.25,
+  imageBrightness: 1,
   hrefHeader: false,
   bylineHeader: true,
   coverHeader: true,

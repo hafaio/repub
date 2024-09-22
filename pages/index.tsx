@@ -370,7 +370,8 @@ function ImageBrightness({
       title="Brighten Images"
       caption={`Due to the fact that reMarkable isn't pure white, images can
       appear darker. Check this to brighten every image so they're easier to
-      read on reMarkable.`}
+      read on reMarkable. You should generally not use this on reMarkable Paper
+      Pro.`}
     />
   );
 }
