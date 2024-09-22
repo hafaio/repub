@@ -454,7 +454,7 @@ function AuthorByline({
       onToggle={onToggle}
       title="Use article author instead of byline"
       caption={`Some articles list the publication as the byline. If this is
-      true, use the author instead.`}
+      true, also include the author if found.`}
     />
   );
 }
