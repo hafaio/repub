@@ -1,5 +1,6 @@
-const maxWidth = 1404;
-const maxHeight = 1872;
+const maxWidth = 1620;
+const maxHeight = 2160;
+
 const fact = maxWidth * maxHeight;
 
 export async function brighten(
