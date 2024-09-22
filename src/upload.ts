@@ -1,7 +1,4 @@
 import {
-  Entry,
-  GenerationError,
-  PutEpubOptions,
   remarkable,
   RemarkableApi,
   RequestInitLike,
@@ -40,58 +37,11 @@ async function getApi(deviceToken: string): Promise<RemarkableApi> {
   }
 }
 
-const registerLock = lock();
-let rootState: [Entry[], string, bigint] | undefined;
-
-interface UploadOptions {
-  retries?: number;
-}
-
 export async function upload(
   epub: Uint8Array,
   title: string,
   deviceToken: string,
-  options: PutEpubOptions,
-  { retries = 2 }: UploadOptions,
 ): Promise<void> {
   const api = await getApi(deviceToken);
-  const entry = await api.putEpub(title, epub.buffer as ArrayBuffer, options);
-  const gen = await updateRootState(api, entry, retries);
-  await api.syncComplete(gen);
-}
-
-async function updateRootState(
-  api: RemarkableApi,
-  entry: Entry,
-  retries: number,
-): Promise<bigint> {
-  await registerLock.acquire();
-  try {
-    for (; retries > 0; --retries) {
-      try {
-        let entries, rootHash, generation;
-        if (rootState) {
-          [entries, rootHash, generation] = rootState;
-        } else {
-          [rootHash, generation] = await api.getRootHash();
-          entries = await api.getEntries(rootHash);
-        }
-        entries.push(entry);
-        const { hash } = await api.putEntries("", entries);
-        const newGen = await api.putRootHash(hash, generation);
-        rootState = [entries, rootHash, newGen];
-        return newGen;
-      } catch (ex) {
-        if (ex instanceof GenerationError) {
-          console.log("failed upload due to generation");
-          rootState = undefined;
-        } else {
-          throw ex;
-        }
-      }
-    }
-  } finally {
-    registerLock.release();
-  }
-  throw Error("failed up update remarkable root state");
+  await api.uploadEpub(title, epub.buffer as ArrayBuffer);
 }

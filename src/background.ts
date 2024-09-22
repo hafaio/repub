@@ -1,6 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
-import { getOptions, setOptions } from "./options";
+import { getOptions } from "./options";
 import { render } from "./render";
 import { getTab } from "./status";
 import { upload } from "./upload";
@@ -15,18 +15,8 @@ async function rePub(tabId: number) {
   try {
     await tab.init();
 
-    const { deviceToken, outputStyle, downloadAsk, didNotify, ...opts } =
+    const { deviceToken, outputStyle, downloadAsk, ...opts } =
       await getOptions();
-    if (!didNotify) {
-      chrome.notifications.create({
-        type: "basic",
-        iconUrl: "images/repub_128.png",
-        title: "reMarkable Cloud API broken",
-        message:
-          "reMarkable broke uploading files directly to reMarkable cloud. Until we find a solution, only downloading is supported. Sorry!",
-      });
-      await setOptions({ didNotify: true });
-    }
     await tab.progress(25);
 
     const mhtml = await pageCapture(tabId);
@@ -44,7 +34,7 @@ async function rePub(tabId: number) {
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await upload(epub, title, deviceToken, opts, {});
+      await upload(epub, title, deviceToken);
     } else {
       void chrome.runtime.openOptionsPage();
       throw new Error(

@@ -33,15 +33,14 @@ test("basic", async () => {
 
   // default works
   const opts = await getOptions({ storage });
-  expect(opts).toEqual({ ...defaultOptions, outputStyle: "download" });
+  expect(opts).toEqual({ ...defaultOptions, outputStyle: "upload" });
 
   // updating works
-  await setOptions({ deviceToken: "test", margins: 3 }, { storage });
+  await setOptions({ deviceToken: "test" }, { storage });
   const newOpts = await getOptions({ storage });
   expect(newOpts).toEqual({
     ...defaultOptions,
     deviceToken: "test",
-    margins: 3,
-    outputStyle: "download",
+    outputStyle: "upload",
   });
 });

@@ -1,7 +1,3 @@
-import { TextAlignment } from "rmapi-js/dist";
-
-export type { TextAlignment };
-
 type Awaitable<T> = T | Promise<T>;
 
 export interface Storage {
@@ -58,14 +54,6 @@ export interface EpubOptions {
 export interface Options extends EpubOptions {
   deviceToken: string;
   outputStyle: OutputStyle;
-  // how we upload the epub
-  margins: number;
-  lineHeight: number;
-  textScale: number;
-  textAlignment: TextAlignment;
-  cover: Cover;
-  fontName: string;
-  timeout: number;
   // how we download the epub
   downloadAsk: boolean;
   // did we notify about remarkable breaking
@@ -87,17 +75,9 @@ export const defaultOptions: Options = {
   filterLinks: true,
   filterIframes: true,
   authorByline: true,
-  // how we upload the epub
-  margins: 180,
-  lineHeight: 100,
-  textScale: 1,
-  textAlignment: "justify",
-  cover: "visited",
-  fontName: "",
-  timeout: 60 * 1000,
   // how we download the epub
   downloadAsk: false,
-  // did we notify about remarkable breaking
+  // did we notify about remarkable breaking in 2024
   didNotify: false,
 };
 
@@ -106,9 +86,7 @@ export async function getOptions({
   storage = globalThis.chrome?.storage?.local ?? mockStorage,
 }: { storage?: Storage } = {}): Promise<Options> {
   const loaded = await storage.get(defaultOptions);
-  const options = loaded as Options;
-  options.outputStyle = "download";
-  return options;
+  return loaded as Options;
 }
 
 export type SetOptions = (options: Partial<Options>) => void;

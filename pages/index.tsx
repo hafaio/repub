@@ -1,9 +1,4 @@
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import DensityLargeIcon from "@mui/icons-material/DensityLarge";
-import DensityMediumIcon from "@mui/icons-material/DensityMedium";
-import DensitySmallIcon from "@mui/icons-material/DensitySmall";
-import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
-import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import Alert, { AlertColor } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -28,16 +23,13 @@ import {
 } from "react";
 // NOTE import from cjs here due to the way that nextjs handles internal es6 modules
 import { register } from "rmapi-js";
-import ButtonSelection from "../components/button-selection";
 import CheckboxSelection from "../components/checkbox-selection";
 import LeftRight from "../components/left-right";
 import RadioSelection from "../components/radio-selection";
 import Right from "../components/right";
 import Section from "../components/section";
-import SliderSelection from "../components/slider-selection";
 import StaticImage from "../components/static-image";
 import {
-  Cover,
   defaultOptions,
   getOptions,
   ImageHandling,
@@ -45,7 +37,6 @@ import {
   OutputStyle,
   setOptions,
   SetOptions,
-  TextAlignment,
 } from "../src/options";
 import { sleep } from "../src/utils";
 
@@ -108,7 +99,6 @@ function OutputStylePicker({
           caption: `With this selected, the article will be uploaded to your
           reMarkable cloud. This allows tweaking reMarkable upload settings,
           but requires connecting the extension to your reMarkable account.`,
-          disabled: true,
         },
       ]}
     />
@@ -533,186 +523,6 @@ function DownloadAskPicker({
   );
 }
 
-function CoverOptions({
-  cover,
-  setOpts,
-}: {
-  cover: Cover | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ cover: cover === "first" ? "visited" : "first" });
-  }, [setOpts, cover]);
-  return (
-    <CheckboxSelection
-      value={cover === "visited"}
-      onToggle={onToggle}
-      title="Use Last Page Visited as Cover"
-      caption={`If checked, the last visited page will be displayed as the
-      cover. If not, the first page will be.`}
-    />
-  );
-}
-
-// eslint-disable-next-line spellcheck/spell-checker
-const maison = "Maison Neue";
-
-function FontPicker({
-  fontName,
-  setOpts,
-}: {
-  fontName: string | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ fontName: fontName === maison ? "" : maison });
-  }, [setOpts, fontName]);
-  return (
-    /* eslint-disable spellcheck/spell-checker */
-    <CheckboxSelection
-      value={fontName === maison}
-      onToggle={onToggle}
-      title="Use Maison Neue as Default Font"
-      caption={`If checked, the default font will be set to Miason Neue,
-      otherwise no default font will be set, and reMarkable will likely default
-      to EB Garamond.`}
-    />
-    /* eslint-enable spellcheck/spell-checker */
-  );
-}
-
-const allowedMargins = [
-  { value: 0, label: "none" },
-  { value: 50, label: "small" },
-  { value: 125, label: "medium" },
-  { value: 180, label: "read" },
-  { value: 200, label: "large" },
-];
-function MarginsPicker({
-  margins,
-  setOpts,
-}: {
-  margins: number | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onChange = useCallback(
-    (val: number) => {
-      setOpts({ margins: val });
-    },
-    [setOpts],
-  );
-  return (
-    <SliderSelection
-      title="Margins"
-      caption={`Set the page margins. "small", "medium", and "large" correspond
-      to the options in "Text Settings", while "read" is the default margins
-      for Read on reMarkable.`}
-      value={margins}
-      onChange={onChange}
-      options={allowedMargins}
-    />
-  );
-}
-
-const allowedScales = [
-  { value: 0.7, label: "tiny" },
-  { value: 0.8, label: "small" },
-  { value: 1.0, label: "medium" },
-  { value: 1.2, label: "large" },
-  { value: 1.5, label: "extra large" },
-  { value: 2.0, label: "xx large" },
-];
-function TextScalePicker({
-  textScale,
-  setOpts,
-}: {
-  textScale: number | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onChange = useCallback(
-    (val: number) => {
-      setOpts({ textScale: val });
-    },
-    [setOpts],
-  );
-  return (
-    <SliderSelection
-      title="Text Scale"
-      caption={`Set the text scaling. Each of these corresponds to a setting in "Text Settings".`}
-      value={textScale}
-      onChange={onChange}
-      options={allowedScales}
-    />
-  );
-}
-
-function TextAlignmentPicker({
-  textAlignment,
-  setOpts,
-}: {
-  textAlignment: TextAlignment | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onChange = useCallback(
-    (change: TextAlignment) => {
-      setOpts({ textAlignment: change });
-    },
-    [setOpts],
-  );
-  return (
-    <ButtonSelection
-      value={textAlignment}
-      onChange={onChange}
-      title="Text Alignment"
-      caption={`Set the text alignment for upload. These are the same options presented
-        in the "Text Settings" menu.`}
-      selections={[
-        { val: "justify", icon: <FormatAlignJustifyIcon /> },
-        { val: "left", icon: <FormatAlignLeftIcon /> },
-      ]}
-    />
-  );
-}
-
-function LineHeightPicker({
-  lineHeight,
-  setOpts,
-}: {
-  lineHeight: number | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onChange = useCallback(
-    (change: "small" | "medium" | "large" | "unknown") => {
-      setOpts({
-        lineHeight: change === "large" ? 200 : change === "medium" ? 150 : 100,
-      });
-    },
-    [setOpts],
-  );
-  const value =
-    lineHeight === 200
-      ? "large"
-      : lineHeight === 150
-        ? "medium"
-        : lineHeight === 100
-          ? "small"
-          : "unknown";
-  return (
-    <ButtonSelection
-      value={value}
-      onChange={onChange}
-      title="Line Height"
-      caption={`Set the line height. These are the same options as available in
-      the "Text Settings" menu`}
-      selections={[
-        { val: "small", icon: <DensitySmallIcon /> },
-        { val: "medium", icon: <DensityMediumIcon /> },
-        { val: "large", icon: <DensityLargeIcon /> },
-      ]}
-    />
-  );
-}
-
 export function SignOut({
   deviceToken,
   setOpts,
@@ -776,12 +586,6 @@ function SignInOptions({
       <LeftRight sx={{ mt: "80px" }} label={title}>
         <StaticImage alt="repub" src={`repub.svg`} width={48} height={48} />
       </LeftRight>
-      <Alert severity="warning">
-        reMarkable updated their API, breaking this extension. Until it's
-        reverse-engineered this extension can't upload documents directly to
-        reMarkable Cloud. If you want to get this fixed, you try asking
-        reMarkable support to allow 3rd party access directly.
-      </Alert>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn show={showSignIn} setOpts={setOpts} showSnack={showSnack} />
     </Stack>
@@ -820,32 +624,6 @@ function EpubOptions({
         filterIframes={opts.filterIframes}
         setOpts={setOpts}
       />
-    </Section>
-  );
-}
-
-function UploadOptions({
-  opts,
-  setOpts,
-}: {
-  opts: Partial<Options>;
-  setOpts: SetOptions;
-}): ReactElement | null {
-  return (
-    <Section
-      title="Upload Options"
-      subtitle={`These are reMarkable specific options that can only be
-        enabled if your account is linked.`}
-    >
-      <CoverOptions cover={opts.cover} setOpts={setOpts} />
-      <FontPicker fontName={opts.fontName} setOpts={setOpts} />
-      <TextAlignmentPicker
-        textAlignment={opts.textAlignment}
-        setOpts={setOpts}
-      />
-      <LineHeightPicker lineHeight={opts.lineHeight} setOpts={setOpts} />
-      <MarginsPicker margins={opts.margins} setOpts={setOpts} />
-      <TextScalePicker textScale={opts.textScale} setOpts={setOpts} />
     </Section>
   );
 }
@@ -949,7 +727,6 @@ export default function OptionsPage(): ReactElement {
                   setOpts={setOpts}
                 />
                 <EpubOptions opts={opts} setOpts={setOpts} />
-                <UploadOptions opts={opts} setOpts={setOpts} />
                 <DownloadOptions opts={opts} setOpts={setOpts} />
               </Box>
               <Done />
