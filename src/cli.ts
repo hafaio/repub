@@ -1,6 +1,5 @@
+import { argv } from "bun";
 import { JSDOM } from "jsdom";
-import { readFile, writeFile } from "node:fs/promises";
-import { argv } from "node:process";
 import yargs from "yargs";
 import { ImageMime } from "./epub";
 import { generate } from "./lib";
@@ -141,10 +140,10 @@ void (async () => {
     .demandOption("mhtml")
     .strict().argv;
 
-  const mhtml = await readFile(args.mhtml);
+  const mhtml = await Bun.file(args.mhtml).bytes();
 
   const { initial, altered, assets, brightened, epub, title } = await generate(
-    new Uint8Array(mhtml),
+    mhtml,
     brighten,
     {
       imageHrefSimilarityThreshold: args.imgSimThresh,
@@ -188,17 +187,17 @@ void (async () => {
     const parser = new DOMParser();
     const serial = new XMLSerializer();
     proms.push(
-      writeFile(
+      Bun.write(
         args.rawOutput,
         serial.serializeToString(parser.parseFromString(initial, "text/html")),
       ),
     );
   }
   if (args.summarizedOutput) {
-    proms.push(writeFile(args.summarizedOutput, altered));
+    proms.push(Bun.write(args.summarizedOutput, altered));
   }
   if (args.epubOutput) {
-    proms.push(writeFile(args.epubOutput, epub));
+    proms.push(Bun.write(args.epubOutput, epub));
   }
   await Promise.all(proms);
 })();
