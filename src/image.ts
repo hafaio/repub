@@ -8,7 +8,7 @@ export async function brighten(
   mime: string,
   brightness: number,
   grayscale: boolean,
-): Promise<readonly [Uint8Array, "image/jpeg" | "image/svg+xml"]> {
+): Promise<readonly [Uint8Array, "image/png" | "image/svg+xml"]> {
   if (mime === "image/svg+xml") {
     // don't alter svgs
     return [buffer, mime] as const;
@@ -44,8 +44,8 @@ export async function brighten(
   ctx.drawImage(bitmap, 0, 0, width, height);
 
   // export result
-  const type = "image/jpeg";
-  const result = await canvas.convertToBlob({ type, quality: 0.9 });
+  const type = "image/png";
+  const result = await canvas.convertToBlob({ type });
   const buff = await result.arrayBuffer();
   return [new Uint8Array(buff), type];
 }
