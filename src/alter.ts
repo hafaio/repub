@@ -266,7 +266,7 @@ export function alter(
   return {
     altered: serial.serializeToString(content),
     title,
-    byline: author ? `${author}. ${byline}` : byline,
+    byline: author && author !== byline ? `${author}. ${byline}` : byline,
     cover,
     seen,
     svgs,
