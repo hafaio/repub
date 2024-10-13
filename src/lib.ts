@@ -122,7 +122,7 @@ export async function generate(
   for (const res of await Promise.all(proms)) {
     if (res) {
       const [href, data, mime] = res;
-      brightened.set(href, { data, mime });
+      brightened.set(decodeURIComponent(href), { data, mime });
     }
   }
   const encoder = new TextEncoder();

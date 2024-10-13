@@ -80,7 +80,7 @@ function* parseSrcset(srcset: string): IterableIterator<string> {
     const match = /\S+/.exec(field);
     if (!match) continue;
     const [href] = match;
-    yield decodeURIComponent(href);
+    yield href;
   }
 }
 
@@ -89,7 +89,7 @@ function* getSrcs(nodes: Iterable<Node>): IterableIterator<string> {
     if (node instanceof Element) {
       for (const { name, value } of node.attributes) {
         if (name === "src") {
-          yield decodeURIComponent(value);
+          yield value;
         } else if (name === "srcset") {
           yield* parseSrcset(value);
         }

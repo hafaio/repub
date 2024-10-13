@@ -37,7 +37,7 @@ export async function epub({
   if (cover) {
     components.push(
       `<div style="margin-top: 1em"><img src="`,
-      encodeURIComponent(cover),
+      cover,
       `"/></div>`,
     );
   }
