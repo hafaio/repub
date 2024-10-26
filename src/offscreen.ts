@@ -4,25 +4,46 @@ import { generate } from "./lib";
 import { Message, Response } from "./messages";
 import { errString } from "./utils";
 
-chrome.runtime.onMessage.addListener(
-  (
-    { mhtml, ...opts }: Message,
-    _: unknown,
-    sendResponse: (msg: Response) => void,
-  ): true => {
+const MAX_CHUNK_SIZE = 50_000_000;
+
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener(({ mhtml, ...opts }: Message) => {
     const bright = (buffer: Uint8Array, mime: string) =>
       brighten(buffer, mime, opts.imageBrightness, false);
-    generate(toByteArray(mhtml), bright, opts).then(
-      ({ epub, title }) => {
-        sendResponse({ success: true, epub: fromByteArray(epub), title });
-      },
-      (ex: unknown) => {
-        sendResponse({
-          success: false,
+    (async () => {
+      const { epub, title } = await generate(toByteArray(mhtml), bright, opts);
+      const encoded = fromByteArray(epub);
+
+      // chunk response to fit in message size
+      const chunks: string[] = [];
+      for (let start = 0; start < encoded.length; start += MAX_CHUNK_SIZE) {
+        chunks.push(encoded.slice(start, start + MAX_CHUNK_SIZE));
+      }
+
+      // send info
+      const info: Response = {
+        type: "info",
+        numParts: chunks.length,
+        title,
+      };
+      port.postMessage(info);
+
+      // send parts
+      for (const [index, part] of chunks.entries()) {
+        const msg: Response = { type: "part", index, part };
+        port.postMessage(msg);
+      }
+    })()
+      .catch((ex: unknown) => {
+        const resp: Response = {
+          type: "error",
           err: errString(ex),
-        });
-      },
-    );
-    return true;
-  },
-);
+        };
+        port.postMessage(resp);
+      })
+      .finally(() => {
+        port.disconnect();
+      });
+    //
+  });
+});

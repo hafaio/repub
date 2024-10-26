@@ -11,5 +11,6 @@ export interface Message extends EpubOptions {
   mhtml: string;
 }
 export type Response =
-  | { success: true; epub: string; title?: string }
-  | { success: false; err: string };
+  | { type: "part"; index: number; part: string }
+  | { type: "info"; numParts: number; title?: string }
+  | { type: "error"; err: string };

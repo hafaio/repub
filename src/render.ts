@@ -20,19 +20,46 @@ export async function render(
     });
   }
   await offscreen;
+  const msg: Message = {
+    mhtml: fromByteArray(new Uint8Array(mhtml)),
+    ...opts,
+  };
 
   try {
-    const msg: Message = {
-      mhtml: fromByteArray(new Uint8Array(mhtml)),
-      ...opts,
-    };
-    const resp: Response = await chrome.runtime.sendMessage(msg);
-    if (resp.success) {
-      const { epub, title } = resp;
-      return { epub: toByteArray(epub), title };
-    } else {
-      throw new Error(resp.err);
-    }
+    const { parts, title } = await new Promise<{
+      parts: string[];
+      title?: string;
+    }>((resolve, reject) => {
+      const parts: string[] = [];
+      let receivedParts = 0;
+      let expectedParts: number | undefined;
+      let title: string | undefined;
+
+      const port = chrome.runtime.connect();
+      port.onDisconnect.addListener(() => {
+        reject(Error("port disconnected early"));
+      });
+      port.onMessage.addListener((message: Response) => {
+        if (message.type === "part") {
+          parts[message.index] = message.part;
+          receivedParts++;
+          console.log(message.index);
+          if (expectedParts === receivedParts) {
+            resolve({ parts, title });
+          }
+        } else if (message.type === "info") {
+          expectedParts = message.numParts;
+          title = message.title;
+          if (expectedParts === receivedParts) {
+            resolve({ parts, title });
+          }
+        } else {
+          reject(Error(message.err));
+        }
+      });
+      port.postMessage(msg);
+    });
+    return { epub: toByteArray(parts.join("")), title };
   } finally {
     num--;
     if (num === 0) {
