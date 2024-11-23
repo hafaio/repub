@@ -23,6 +23,14 @@
       }
     ]
   },
-  "include": ["src", "content", "pages", "components", ".next/types/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "content",
+    "pages",
+    "components",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

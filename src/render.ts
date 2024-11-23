@@ -1,44 +1,33 @@
 import { fromByteArray, toByteArray } from "base64-js";
-import { Message, Response } from "./messages";
+import { generate } from "./lib";
+import { brighten } from "./image";
 import { EpubOptions } from "./options";
 
 let num = 0;
-let offscreen: null | Promise<void> = null;
-let closing: null | Promise<void> = null;
 
 export async function render(
   mhtml: ArrayBuffer,
   opts: EpubOptions,
 ): Promise<{ epub: Uint8Array; title?: string }> {
-  await closing;
+  console.log('[render] Starting render process');
   num++;
-  if (offscreen === null) {
-    offscreen = chrome.offscreen.createDocument({
-      url: "/offscreen.html",
-      reasons: [chrome.offscreen.Reason.DOM_PARSER],
-      justification: "Parse DOM",
-    });
-  }
-  await offscreen;
-
   try {
-    const msg: Message = {
-      mhtml: fromByteArray(new Uint8Array(mhtml)),
-      ...opts,
-    };
-    const resp: Response = await chrome.runtime.sendMessage(msg);
-    if (resp.success) {
-      const { epub, title } = resp;
-      return { epub: toByteArray(epub), title };
-    } else {
-      throw new Error(resp.err);
-    }
+    console.log('[render] Processing MHTML directly');
+    const mhtmlStr = new TextDecoder().decode(new Uint8Array(mhtml).slice(0, 500));
+    console.log('[render] First 500 bytes of MHTML:', mhtmlStr);
+    
+    const bright = (buffer: Uint8Array, mime: string) =>
+      brighten(buffer, mime, opts.imageBrightness, false);
+    
+    const result = await generate(new Uint8Array(mhtml), bright, opts);
+    console.log('[render] Successfully processed EPUB');
+    return result;
+  } catch (error) {
+    console.error('[render] Error in render process:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to render document: ${errorMessage}`);
   } finally {
     num--;
-    if (num === 0) {
-      offscreen = null;
-      await (closing = chrome.offscreen.closeDocument());
-      closing = null;
-    }
+    console.log('[render] Render process completed');
   }
 }

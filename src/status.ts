@@ -9,11 +9,11 @@ class Tab {
 
   async init(): Promise<void> {
     try {
-      await chrome.action.setBadgeBackgroundColor({
+      await browser.action.setBadgeBackgroundColor({
         tabId: this.#tabId,
         color: "#000000",
       });
-      await chrome.action.setBadgeText({
+      await browser.action.setBadgeText({
         tabId: this.#tabId,
         text: "0%",
       });
@@ -24,7 +24,7 @@ class Tab {
 
   async progress(perc: number): Promise<void> {
     try {
-      await chrome.action.setBadgeText({
+      await browser.action.setBadgeText({
         tabId: this.#tabId,
         text: `${perc.toFixed()}%`,
       });
@@ -35,7 +35,7 @@ class Tab {
 
   async complete(message: string): Promise<void> {
     try {
-      await chrome.action.setBadgeText({
+      await browser.action.setBadgeText({
         tabId: this.#tabId,
         text: message,
       });
@@ -47,11 +47,11 @@ class Tab {
   async error(): Promise<void> {
     try {
       await Promise.all([
-        chrome.action.setBadgeText({
+        browser.action.setBadgeText({
           tabId: this.#tabId,
           text: "err",
         }),
-        chrome.action.setBadgeBackgroundColor({
+        browser.action.setBadgeBackgroundColor({
           tabId: this.#tabId,
           color: "#d62626",
         }),
@@ -66,7 +66,7 @@ class Tab {
     if (!this.count) {
       activeTabs.delete(this.#tabId);
       if (this.nav) {
-        await chrome.action.setBadgeText({
+        await browser.action.setBadgeText({
           tabId: this.#tabId,
           text: "",
         });
@@ -92,19 +92,19 @@ export function getTab(tabId: number): Tab {
 }
 
 // watch for navigation
-chrome.webNavigation.onBeforeNavigate.addListener(
-  ({ tabId, parentDocumentId }) => {
-    if (parentDocumentId === undefined) {
-      // only care about root navigation
-      const active = activeTabs.get(tabId);
+browser.webNavigation.onBeforeNavigate.addListener(
+  (details) => {
+    if (details.frameId === 0) { // frameId 0 indicates it's the main frame
+      const active = activeTabs.get(details.tabId);
       if (active) {
         active.nav = true;
       } else {
-        void chrome.action.setBadgeText({
-          tabId,
+        void browser.action.setBadgeText({
+          tabId: details.tabId,
           text: "",
         });
       }
     }
   },
+  { url: [{ schemes: ["http", "https"] }] }
 );

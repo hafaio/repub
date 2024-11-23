@@ -9,12 +9,12 @@
   "scripts": {
     "cli": "bun run src/cli.ts",
     "dev": "next dev",
-    "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.{json,conifg.js}'",
+    "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.{json,config.js}'",
     "lint": "tsc && eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx'",
     "export:images": "<<< $'16\n32\n48\n128' xargs -I@ magick public/repub.svg -background none -resize @x@ images/repub_@.png && magick images/repub_*.png favicon.ico",
-    "export:bundle": "bun build src/background.ts --outfile background.js --minify && bun build src/offscreen.ts --outfile offscreen.js --minify",
+    "export:bundle": "bun build src/background.ts --outfile background.js --minify && bun build src/offscreen.ts --outfile offscreen.js --minify && bun build src/mhtml/generator.ts --outfile mhtml/generator.js --minify && bun build src/mhtml/content.ts --outfile mhtml/content.js --minify",
     "export:options": "next build",
-    "export:pack": "zip -r --filesync repub.zip background.js favicon.ico images/*.png manifest.json offscreen.html offscreen.js out",
+    "export:pack": "zip -r --filesync repub.zip background.js favicon.ico images/*.png manifest.json offscreen.html offscreen.js out mhtml/*.js",
     "export": "bun export:images && bun export:bundle && bun export:options && bun export:pack",
     "pack": "bun lint && bun test --coverage && bun export"
   },
@@ -26,8 +26,9 @@
     "@mui/material": "^6.1.3",
     "@next/eslint-plugin-next": "^14.2.15",
     "@types/base64-js": "^1.3.2",
-    "@types/bun": "^1.1.11",
+    "@types/bun": "latest",
     "@types/chrome": "^0.0.277",
+    "@types/firefox-webext-browser": "^120.0.4",
     "@types/jsdom": "^21.1.7",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
@@ -48,8 +49,9 @@
     "react-dom": "^18.3.1",
     "rmapi-js": "^6.0.0",
     "teapub": "^3.0.0",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "typescript-eslint": "^8.8.1",
     "yargs": "^17.7.2"
-  }
+  },
+  "module": "index.ts"
 }

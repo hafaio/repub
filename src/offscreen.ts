@@ -1,18 +1,19 @@
-import { fromByteArray, toByteArray } from "base64-js";
 import { brighten } from "./image";
 import { generate } from "./lib";
 import { Message, Response } from "./messages";
 import { errString } from "./utils";
+import { fromByteArray, toByteArray } from "base64-js";
 
-chrome.runtime.onMessage.addListener(
+browser.runtime.onMessage.addListener(
   (
-    { mhtml, ...opts }: Message,
-    _: unknown,
-    sendResponse: (msg: Response) => void,
+    message: Message,
+    _sender,
+    sendResponse: (response: Response) => void,
   ): true => {
     const bright = (buffer: Uint8Array, mime: string) =>
-      brighten(buffer, mime, opts.imageBrightness, false);
-    generate(toByteArray(mhtml), bright, opts).then(
+      brighten(buffer, mime, message.imageBrightness, false);
+    
+    generate(toByteArray(message.mhtml), bright, message).then(
       ({ epub, title }) => {
         sendResponse({ success: true, epub: fromByteArray(epub), title });
       },
