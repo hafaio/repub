@@ -21,7 +21,7 @@
     "default_title": "convert page to epub"
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
   "icons": {
     "16": "images/repub_16.png",
