@@ -13,3 +13,7 @@ extension, but those are disabled until a new API can be found.
 However this doesn't replicate the printer adapter, so if you want to upload
 PDFs it still recommended to keep the Read on reMarkable extension for those
 uploads.
+
+## Firefox
+
+Currently there's an unaffiliated [hard fork](https://github.com/jrockwar/repubfox) that may suit your needs. Full support is [planned](https://github.com/hafaio/repub/issues/14)
