@@ -14,7 +14,8 @@
   "host_permissions": [
     "https://webapp-prod.cloud.remarkable.engineering/",
     "https://internal.cloud.remarkable.com/",
-    "https://storage.googleapis.com/"
+    "https://storage.googleapis.com/",
+    "https://web.eu.tectonic.remarkable.com/"
   ],
   "options_page": "out/index.html",
   "action": {
