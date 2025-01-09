@@ -50,6 +50,7 @@ export default tseslint.config(
             "epub",
             "hacky",
             "href",
+            "latin",
             "Markable",
             "mhtml",
             "nextjs",

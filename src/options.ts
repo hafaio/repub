@@ -51,7 +51,19 @@ export interface EpubOptions {
   authorByline: boolean;
 }
 
-export interface Options extends EpubOptions {
+export interface UploadOptions {
+  coverPageNumber: number;
+  fontName: string;
+  margins: number;
+  textScale: number;
+  lineHeight: number;
+  tags: string;
+  textAlignment: "left" | "justify";
+  // eslint-disable-next-line spellcheck/spell-checker
+  viewBackgroundFilter: "off" | "fullpage" | null;
+}
+
+export interface Options extends EpubOptions, UploadOptions {
   deviceToken: string;
   outputStyle: OutputStyle;
   // how we download the epub
@@ -63,7 +75,13 @@ export interface Options extends EpubOptions {
 export const defaultOptions: Options = {
   deviceToken: "",
   outputStyle: "upload",
-  // how we generate the epub
+  // how we download the epub
+  downloadAsk: false,
+  // did we notify about remarkable breaking in 2024
+  didNotify: false,
+  // ---- //
+  // Epub //
+  // ---- //
   imageHandling: "filter",
   imageHrefSimilarityThreshold: 0.2,
   imageBrightness: 1,
@@ -75,10 +93,18 @@ export const defaultOptions: Options = {
   filterLinks: true,
   filterIframes: true,
   authorByline: true,
-  // how we download the epub
-  downloadAsk: false,
-  // did we notify about remarkable breaking in 2024
-  didNotify: false,
+  // ------ //
+  // Upload //
+  // ------ //
+  coverPageNumber: -1,
+  // eslint-disable-next-line spellcheck/spell-checker
+  fontName: "EB Garamond",
+  margins: 125,
+  textScale: 1,
+  lineHeight: 100,
+  tags: "",
+  textAlignment: "justify",
+  viewBackgroundFilter: null,
 };
 
 export async function getOptions({

@@ -22,7 +22,29 @@ import {
   useState,
 } from "react";
 // NOTE import from cjs here due to the way that nextjs handles internal es6 modules
+import styled from "@emotion/styled";
+import TextField from "@mui/material/TextField";
+import {
+  EB_Garamond,
+  Noto_Sans,
+  Noto_Sans_Mono,
+  Noto_Serif,
+} from "next/font/google";
+import {
+  FaA,
+  FaAlignJustify,
+  FaAlignLeft,
+  FaBars,
+  FaEquals,
+  FaRegFile,
+  FaRegFileImage,
+  FaRegFileLines,
+  FaRegImage,
+  FaRegImages,
+  FaRegRectangleXmark,
+} from "react-icons/fa6";
 import { register } from "rmapi-js";
+import ButtonSelection from "../components/button-selection";
 import CheckboxSelection from "../components/checkbox-selection";
 import LeftRight from "../components/left-right";
 import RadioSelection from "../components/radio-selection";
@@ -32,13 +54,29 @@ import StaticImage from "../components/static-image";
 import {
   defaultOptions,
   getOptions,
-  ImageHandling,
   Options,
   OutputStyle,
   setOptions,
   SetOptions,
 } from "../src/options";
 import { sleep } from "../src/utils";
+
+const ebGaramond = EB_Garamond({
+  weight: "400",
+  subsets: ["latin"],
+});
+const notoSans = Noto_Sans({
+  weight: "400",
+  subsets: ["latin"],
+});
+const notoSerif = Noto_Serif({
+  weight: "400",
+  subsets: ["latin"],
+});
+const notoMono = Noto_Sans_Mono({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 const theme = createTheme({
   palette: {
@@ -229,94 +267,34 @@ function SignIn({
   }
 }
 
-function RemarkableCssPicker({
-  rmCss,
+type BooleanKeys = {
+  [K in keyof Options]: Options[K] extends boolean ? K : never;
+}[keyof Options];
+
+function SimplCheckboxSelection({
+  name,
+  title,
+  caption,
+  opts,
   setOpts,
 }: {
-  rmCss: boolean | undefined;
+  name: BooleanKeys;
+  title: string;
+  caption: string;
+  opts: Partial<Options>;
   setOpts: SetOptions;
 }): ReactElement {
+  const val = opts[name];
   const onToggle = useCallback(() => {
-    setOpts({
-      rmCss: !rmCss,
-    });
-  }, [setOpts, rmCss]);
+    setOpts({ [name]: !val });
+  }, [setOpts, val]);
   return (
     <CheckboxSelection
-      value={rmCss}
+      value={val}
       onToggle={onToggle}
-      title="Use reMarkable CSS"
-      caption={`The default remarkable css adds some extra margins around
-      paragraphs among other changes. Select this to use it.`}
+      title={title}
+      caption={caption}
     />
-  );
-}
-
-function CodeCssPicker({
-  codeCss,
-  setOpts,
-}: {
-  codeCss: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({
-      codeCss: !codeCss,
-    });
-  }, [setOpts, codeCss]);
-  return (
-    <CheckboxSelection
-      value={codeCss}
-      onToggle={onToggle}
-      title="Use code environment CSS"
-      caption={`This renders <pre/> and <code/> tags in a wrapped fixed-width
-      font with a light gray background.`}
-    />
-  );
-}
-
-function ImageHandlingPicker({
-  imageHandling,
-  setOpts,
-}: {
-  imageHandling: ImageHandling | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const change = useCallback(
-    (val: ImageHandling) => {
-      setOpts({ imageHandling: val });
-    },
-    [setOpts],
-  );
-  return (
-    <Section title="Image Handling">
-      <RadioSelection
-        value={imageHandling}
-        onChange={change}
-        selections={[
-          {
-            val: "strip",
-            title: "Strip all images",
-            caption: `Remove all images from the generated epub. This is
-            similar to the way that "Read on reMarkable" works.`,
-          },
-          {
-            val: "filter",
-            title: "Filter duplicate images",
-            // eslint-disable-next-line spellcheck/spell-checker
-            caption: `Only keep the first appearance of any image url. This is
-            helpful because sometimes the web page summarization duplicates
-            images.`,
-          },
-          {
-            val: "keep",
-            title: "Keep all images",
-            caption: `Keep all images in the summarized document. Note, this
-            will still remove images that couldn't be found.`,
-          },
-        ]}
-      />
-    </Section>
   );
 }
 
@@ -372,154 +350,6 @@ function ImageBrightness({
       appear darker. Check this to brighten every image so they're easier to
       read on reMarkable. You should generally not use this on reMarkable Paper
       Pro.`}
-    />
-  );
-}
-
-function HrefHeader({
-  hrefHeader,
-  setOpts,
-}: {
-  hrefHeader: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ hrefHeader: !hrefHeader });
-  }, [setOpts, hrefHeader]);
-  return (
-    <CheckboxSelection
-      value={hrefHeader}
-      onToggle={onToggle}
-      title="Include page URL in epub"
-      caption={`Include a small header with the original page URL right above
-      the article title when converting an article into an epub.`}
-    />
-  );
-}
-
-function BylineHeader({
-  bylineHeader,
-  setOpts,
-}: {
-  bylineHeader: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ bylineHeader: !bylineHeader });
-  }, [setOpts, bylineHeader]);
-  return (
-    <CheckboxSelection
-      value={bylineHeader}
-      onToggle={onToggle}
-      title="Include byline in epub"
-      caption={`Include a small byline with the extracted author right below
-      the article title when converting an article into an epub.`}
-    />
-  );
-}
-
-function CoverHeader({
-  coverHeader,
-  setOpts,
-}: {
-  coverHeader: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ coverHeader: !coverHeader });
-  }, [setOpts, coverHeader]);
-  return (
-    <CheckboxSelection
-      value={coverHeader}
-      onToggle={onToggle}
-      title="Include cover image in epub"
-      caption={`Include the extracted cover image right below the article title
-      when converting an article into an epub.`}
-    />
-  );
-}
-
-function AuthorByline({
-  authorByline,
-  setOpts,
-}: {
-  authorByline: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ authorByline: !authorByline });
-  }, [setOpts, authorByline]);
-  return (
-    <CheckboxSelection
-      value={authorByline}
-      onToggle={onToggle}
-      title="Use article author instead of byline"
-      caption={`Some articles list the publication as the byline. If this is
-      true, also include the author if found.`}
-    />
-  );
-}
-
-function FilterLinksPicker({
-  filterLinks,
-  setOpts,
-}: {
-  filterLinks: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ filterLinks: !filterLinks });
-  }, [setOpts, filterLinks]);
-  return (
-    <CheckboxSelection
-      value={filterLinks}
-      onToggle={onToggle}
-      title="Remove Links"
-      caption={`Links are rendered on reMarkable with an underline, but aren't
-      navigable. Setting this to true removes the links, decluttering the
-      resulting epub.`}
-    />
-  );
-}
-
-function FilterIframesPicker({
-  filterIframes,
-  setOpts,
-}: {
-  filterIframes: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ filterIframes: !filterIframes });
-  }, [setOpts, filterIframes]);
-  return (
-    <CheckboxSelection
-      value={filterIframes}
-      onToggle={onToggle}
-      title="Remove IFrames"
-      caption={`Some pages may include relevant information in iframes.
-      ReMarkable doesn't natively render these, but by disabling this, we'll
-      copy the contents of preserved iframes into the epub contents.`}
-    />
-  );
-}
-
-function DownloadAskPicker({
-  downloadAsk,
-  setOpts,
-}: {
-  downloadAsk: boolean | undefined;
-  setOpts: SetOptions;
-}): ReactElement {
-  const onToggle = useCallback(() => {
-    setOpts({ downloadAsk: !downloadAsk });
-  }, [setOpts, downloadAsk]);
-  return (
-    <CheckboxSelection
-      value={downloadAsk}
-      onToggle={onToggle}
-      title="Ask for Filename"
-      caption={`When downloading as a file, ask where to save each file.`}
     />
   );
 }
@@ -606,6 +436,29 @@ function EpubOptions({
       subtitle={`These options alter the way the epub is generated independent of
           whether it's uploaded to reMarkable or kept as an epub`}
     >
+      <ButtonSelection
+        // potentially include captions next to each option
+        value={opts.imageHandling}
+        onChange={(val) => {
+          setOpts({ imageHandling: val });
+        }}
+        selections={[
+          {
+            val: "keep",
+            icon: <FaRegImages />,
+          },
+          {
+            val: "filter",
+            icon: <FaRegImage />,
+          },
+          {
+            val: "strip",
+            icon: <FaRegRectangleXmark />,
+          },
+        ]}
+        title="Image Handling"
+        caption="Control how images are handled: keep everything including duplicates, keep only the first image, or remove all images."
+      />
       <CloseImages
         imageHrefSimilarityThreshold={opts.imageHrefSimilarityThreshold}
         setOpts={setOpts}
@@ -614,15 +467,61 @@ function EpubOptions({
         imageBrightness={opts.imageBrightness}
         setOpts={setOpts}
       />
-      <HrefHeader hrefHeader={opts.hrefHeader} setOpts={setOpts} />
-      <BylineHeader bylineHeader={opts.bylineHeader} setOpts={setOpts} />
-      <AuthorByline authorByline={opts.authorByline} setOpts={setOpts} />
-      <CoverHeader coverHeader={opts.coverHeader} setOpts={setOpts} />
-      <RemarkableCssPicker rmCss={opts.rmCss} setOpts={setOpts} />
-      <CodeCssPicker codeCss={opts.codeCss} setOpts={setOpts} />
-      <FilterLinksPicker filterLinks={opts.filterLinks} setOpts={setOpts} />
-      <FilterIframesPicker
-        filterIframes={opts.filterIframes}
+      <SimplCheckboxSelection
+        name="hrefHeader"
+        title="Include page URL in epub"
+        caption="Include a small header with the original page URL right above the article title when converting an article into an epub."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="bylineHeader"
+        title="Include byline in epub"
+        caption="Include a small byline with the extracted author right below the article title when converting an article into an epub."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="authorByline"
+        title="Use article author instead of byline"
+        caption="Some articles list the publication as the byline. If this is true, also include the author if found."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="coverHeader"
+        title="Include cover image in epub"
+        caption="Include the extracted cover image right below the article title when converting an article into an epub."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="rmCss"
+        title="Use reMarkable CSS"
+        caption="The default remarkable css adds some extra margins around paragraphs among other changes. Select this to use it."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="codeCss"
+        title="Use code environment CSS"
+        caption="This renders <pre/> and <code/> tags in a wrapped fixed-width font with a light gray background."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="filterLinks"
+        title="Remove Links"
+        caption="Links are rendered on reMarkable with an underline, but aren't navigable. Setting this to true removes the links, decluttering the resulting epub."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        // eslint-disable-next-line spellcheck/spell-checker
+        name="filterIframes"
+        title="Remove IFrames"
+        caption="Some pages may include relevant information in iframes. ReMarkable doesn't natively render these, but by disabling this, we'll copy the contents of preserved iframes into the epub contents."
+        opts={opts}
         setOpts={setOpts}
       />
     </Section>
@@ -639,10 +538,370 @@ function DownloadOptions({
   return (
     <Section
       title="Download Options"
-      subtitle={`These are options that are only relevant if you're downloading
-      articles as files.`}
+      subtitle="These are options that are only relevant if you're downloading articles as files."
     >
-      <DownloadAskPicker downloadAsk={opts.downloadAsk} setOpts={setOpts} />
+      <SimplCheckboxSelection
+        name="downloadAsk"
+        title="Ask for Filename"
+        caption="When downloading as a file, ask where to save each file."
+        opts={opts}
+        setOpts={setOpts}
+      />
+    </Section>
+  );
+}
+
+function CoverPageNumberSelector({
+  coverPageNumber,
+  setOpts,
+}: {
+  coverPageNumber: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <CheckboxSelection
+      value={coverPageNumber === 0}
+      onToggle={() => {
+        setOpts({ coverPageNumber: coverPageNumber === 0 ? -1 : 0 });
+      }}
+      title="First Page Cover"
+      caption="If checked, use the first page as cover / thumbnail on the reMarkable, otherwise use the last page visited"
+    />
+  );
+}
+
+const MarginsSmall = styled(FaAlignJustify)`
+  transform: scaleX(1.25);
+`;
+const MarginsLarge = styled(FaAlignJustify)`
+  transform: scaleX(0.75);
+`;
+
+function MarginSelector({
+  margins,
+  setOpts,
+}: {
+  margins: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={margins ? margins.toFixed() : undefined}
+      onChange={(val) => {
+        setOpts({ margins: parseInt(val) });
+      }}
+      selections={[
+        { val: "50", icon: <MarginsSmall /> },
+        { val: "125", icon: <FaAlignJustify /> },
+        { val: "200", icon: <MarginsLarge /> },
+      ]}
+      title="Page Margins"
+      caption="The margins around the edge of the document"
+    />
+  );
+}
+
+const FontSizeExtraSmall = styled(FaA)`
+  transform: scale(0.7);
+`;
+const FontSizeSmall = styled(FaA)`
+  transform: scale(0.8);
+`;
+const FontSizeLarge = styled(FaA)`
+  transform: scale(1.2);
+`;
+const FontSizeExtraLarge = styled(FaA)`
+  transform: scale(1.4);
+`;
+const FontSizeHuge = styled(FaA)`
+  transform: scale(1.6);
+`;
+
+function TextScaleSelector({
+  textScale,
+  setOpts,
+}: {
+  textScale: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement | null {
+  return (
+    <ButtonSelection
+      value={textScale === undefined ? undefined : textScale.toFixed(1)}
+      onChange={(val) => {
+        setOpts({ textScale: parseFloat(val) });
+      }}
+      selections={[
+        {
+          val: "0.7",
+          icon: <FontSizeExtraSmall />,
+        },
+        {
+          val: "0.8",
+          icon: <FontSizeSmall />,
+        },
+        {
+          val: "1.0",
+          icon: <FaA />,
+        },
+        {
+          val: "1.2",
+          icon: <FontSizeLarge />,
+        },
+        {
+          val: "1.5",
+          icon: <FontSizeExtraLarge />,
+        },
+        {
+          val: "2.0",
+          icon: <FontSizeHuge />,
+        },
+      ]}
+      title="Font Size"
+      caption="The font size of the text in the document"
+    />
+  );
+}
+
+function LineHeightSelector({
+  lineHeight,
+  setOpts,
+}: {
+  lineHeight: number | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={lineHeight === undefined ? undefined : lineHeight.toFixed()}
+      onChange={(val) => {
+        setOpts({ lineHeight: parseInt(val) });
+      }}
+      selections={[
+        {
+          val: "100",
+          icon: <FaAlignJustify />,
+        },
+        {
+          val: "150",
+          icon: <FaBars />,
+        },
+        {
+          val: "200",
+          icon: <FaEquals />,
+        },
+      ]}
+      title="Line Height"
+      caption="The space between lines"
+    />
+  );
+}
+
+function TextAlignmentSelector({
+  textAlignment,
+  setOpts,
+}: {
+  textAlignment: "left" | "justify" | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={textAlignment}
+      onChange={(val) => {
+        setOpts({ textAlignment: val });
+      }}
+      selections={[
+        {
+          val: "left",
+          icon: <FaAlignLeft />,
+        },
+        {
+          val: "justify",
+          icon: <FaAlignJustify />,
+        },
+      ]}
+      title="Text Alignment"
+      caption="How text is set on each line"
+    />
+  );
+}
+
+function ViewBackgroundFilterSelector({
+  viewBackgroundFilter,
+  setOpts,
+}: {
+  // eslint-disable-next-line spellcheck/spell-checker
+  viewBackgroundFilter: "off" | "fullpage" | null | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={viewBackgroundFilter === null ? "adaptive" : viewBackgroundFilter}
+      onChange={(val) => {
+        setOpts({ viewBackgroundFilter: val === "adaptive" ? null : val });
+      }}
+      selections={[
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "fullpage",
+          icon: <FaRegFileLines />,
+        },
+        {
+          val: "adaptive",
+          icon: <FaRegFile />,
+        },
+        {
+          val: "off",
+          icon: <FaRegFileImage />,
+        },
+      ]}
+      title="Contrast Filter"
+      caption="What contrast filter to apply to pages: Full page (optimized for text), adaptive (balanced), or off (optimized for images)"
+    />
+  );
+}
+
+function FontNameSelector({
+  fontName,
+  setOpts,
+}: {
+  fontName: string | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={fontName}
+      onChange={(val) => {
+        setOpts({ fontName: val });
+      }}
+      selections={[
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "EB Garamond",
+          icon: (
+            <Typography
+              variant="caption"
+              className={ebGaramond.className}
+              sx={{ textTransform: "none" }}
+            >
+              EB Garamond
+            </Typography>
+          ),
+        },
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "Noto Sans",
+          icon: (
+            <Typography
+              variant="caption"
+              className={notoSans.className}
+              sx={{ textTransform: "none" }}
+            >
+              Noto Sans
+            </Typography>
+          ),
+        },
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "Noto Serif",
+          icon: (
+            <Typography
+              variant="caption"
+              className={notoSerif.className}
+              sx={{ textTransform: "none" }}
+            >
+              Noto Serif
+            </Typography>
+          ),
+        },
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "Noto Mono",
+          icon: (
+            <Typography
+              variant="caption"
+              className={notoMono.className}
+              sx={{ textTransform: "none" }}
+            >
+              Noto Mono
+            </Typography>
+          ),
+        },
+        {
+          // eslint-disable-next-line spellcheck/spell-checker
+          val: "Noto Sans UI",
+          icon: (
+            <Typography
+              variant="caption"
+              className={notoSans.className}
+              sx={{ textTransform: "none" }}
+            >
+              Noto Sans UI
+            </Typography>
+          ),
+        },
+      ]}
+      title="Font Name"
+      caption="The font to use"
+    />
+  );
+}
+
+function TagsSelector({
+  tags,
+  setOpts,
+}: {
+  tags: string | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <Right>
+      <Stack spacing={1}>
+        <Box>
+          <Typography>Tags</Typography>
+          <Typography variant="caption">
+            Comma separated list of tags to apply to uploaded documents
+          </Typography>
+        </Box>
+        <TextField
+          variant="standard"
+          value={tags}
+          onChange={(evt) => {
+            setOpts({ tags: evt.target.value });
+          }}
+        />
+      </Stack>
+    </Right>
+  );
+}
+
+function UploadOptions({
+  opts,
+  setOpts,
+}: {
+  opts: Partial<Options>;
+  setOpts: SetOptions;
+}): ReactElement | null {
+  return (
+    <Section
+      title="Upload Options"
+      subtitle="These are options that control how the ePub is rendered on the reMarkable when uploading. They don't affect the raw file itself."
+    >
+      <MarginSelector margins={opts.margins} setOpts={setOpts} />
+      <TextScaleSelector textScale={opts.textScale} setOpts={setOpts} />
+      <LineHeightSelector lineHeight={opts.lineHeight} setOpts={setOpts} />
+      <TextAlignmentSelector
+        textAlignment={opts.textAlignment}
+        setOpts={setOpts}
+      />
+      <ViewBackgroundFilterSelector
+        viewBackgroundFilter={opts.viewBackgroundFilter}
+        setOpts={setOpts}
+      />
+      <FontNameSelector fontName={opts.fontName} setOpts={setOpts} />
+      <TagsSelector tags={opts.tags} setOpts={setOpts} />
+      <CoverPageNumberSelector
+        coverPageNumber={opts.coverPageNumber}
+        setOpts={setOpts}
+      />
     </Section>
   );
 }
@@ -723,12 +982,9 @@ export default function OptionsPage(): ReactElement {
                 showSnack={showSnack}
               />
               <Box>
-                <ImageHandlingPicker
-                  imageHandling={opts.imageHandling}
-                  setOpts={setOpts}
-                />
                 <EpubOptions opts={opts} setOpts={setOpts} />
                 <DownloadOptions opts={opts} setOpts={setOpts} />
+                <UploadOptions opts={opts} setOpts={setOpts} />
               </Box>
               <Done />
             </Stack>

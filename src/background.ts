@@ -15,8 +15,20 @@ async function rePub(tabId: number) {
   try {
     await tab.init();
 
-    const { deviceToken, outputStyle, downloadAsk, ...opts } =
-      await getOptions();
+    const {
+      deviceToken,
+      outputStyle,
+      downloadAsk,
+      coverPageNumber,
+      fontName,
+      margins,
+      textScale,
+      lineHeight,
+      tags,
+      textAlignment,
+      viewBackgroundFilter,
+      ...opts
+    } = await getOptions();
     await tab.progress(25);
 
     const mhtml = await pageCapture(tabId);
@@ -34,7 +46,16 @@ async function rePub(tabId: number) {
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await upload(epub, title, deviceToken);
+      await upload(epub, title, deviceToken, {
+        coverPageNumber,
+        fontName,
+        margins,
+        textScale,
+        lineHeight,
+        tags,
+        textAlignment,
+        viewBackgroundFilter,
+      });
     } else {
       void chrome.runtime.openOptionsPage();
       throw new Error(

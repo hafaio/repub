@@ -43,7 +43,6 @@ export async function render(
         if (message.type === "part") {
           parts[message.index] = message.part;
           receivedParts++;
-          console.log(message.index);
           if (expectedParts === receivedParts) {
             resolve({ parts, title });
           }

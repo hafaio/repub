@@ -1,12 +1,11 @@
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { ReactElement, useCallback } from "react";
-import Right from "./right";
+import LeftRight from "./left-right";
 
-export default function ButtonSelection<T extends string>({
+export default function LeftButtonSelection<T extends string>({
   value,
   onChange,
   selections,
@@ -19,6 +18,13 @@ export default function ButtonSelection<T extends string>({
   title: string;
   caption: string;
 }): ReactElement {
+  const label = (
+    <Box>
+      <Typography>{title}</Typography>
+      <Typography variant="caption">{caption}</Typography>
+    </Box>
+  );
+
   const change = useCallback(
     (_: unknown, newVal: string | null) => {
       if (newVal !== null) {
@@ -35,22 +41,16 @@ export default function ButtonSelection<T extends string>({
   ));
 
   return (
-    <Right>
-      <Stack spacing={1}>
-        <Box>
-          <Typography>{title}</Typography>
-          <Typography variant="caption">{caption}</Typography>
-        </Box>
-        <ToggleButtonGroup
-          orientation="horizontal"
-          value={value ?? ""}
-          disabled={value === undefined}
-          exclusive
-          onChange={change}
-        >
-          {buttons}
-        </ToggleButtonGroup>
-      </Stack>
-    </Right>
+    <LeftRight label={label}>
+      <ToggleButtonGroup
+        orientation="vertical"
+        value={value ?? ""}
+        disabled={value === undefined}
+        exclusive
+        onChange={change}
+      >
+        {buttons}
+      </ToggleButtonGroup>
+    </LeftRight>
   );
 }
