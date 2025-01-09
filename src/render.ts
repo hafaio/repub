@@ -1,7 +1,8 @@
 import { fromByteArray, toByteArray } from "base64-js";
-import { Message, Response } from "./messages";
+import { InitMessage, PartMessage, Response } from "./messages";
 import { EpubOptions } from "./options";
 
+const MAX_CHUNK_SIZE = 50_000_000;
 let num = 0;
 let offscreen: null | Promise<void> = null;
 let closing: null | Promise<void> = null;
@@ -20,9 +21,17 @@ export async function render(
     });
   }
   await offscreen;
-  const msg: Message = {
-    mhtml: fromByteArray(new Uint8Array(mhtml)),
-    ...opts,
+
+  // chunk encoded in case it's too large
+  const encoded = fromByteArray(new Uint8Array(mhtml));
+  const chunks: string[] = [];
+  for (let start = 0; start < encoded.length; start += MAX_CHUNK_SIZE) {
+    chunks.push(encoded.slice(start, start + MAX_CHUNK_SIZE));
+  }
+  const initMessage: InitMessage = {
+    type: "info",
+    numParts: chunks.length,
+    options: opts,
   };
 
   try {
@@ -43,20 +52,27 @@ export async function render(
         if (message.type === "part") {
           parts[message.index] = message.part;
           receivedParts++;
-          if (expectedParts === receivedParts) {
-            resolve({ parts, title });
-          }
         } else if (message.type === "info") {
           expectedParts = message.numParts;
           title = message.title;
-          if (expectedParts === receivedParts) {
-            resolve({ parts, title });
-          }
         } else {
           reject(Error(message.err));
         }
+        if (expectedParts === receivedParts) {
+          resolve({ parts, title });
+        }
       });
-      port.postMessage(msg);
+
+      // post all parts
+      port.postMessage(initMessage);
+      for (const [index, part] of chunks.entries()) {
+        const partMessage: PartMessage = {
+          type: "part",
+          index,
+          part,
+        };
+        port.postMessage(partMessage);
+      }
     });
     return { epub: toByteArray(parts.join("")), title };
   } finally {

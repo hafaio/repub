@@ -7,10 +7,30 @@ import { EpubOptions } from "./options";
 // a little more difficult, but probably more efficient than base64 encoding as
 // we do now:
 // https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string/
-export interface Message extends EpubOptions {
-  mhtml: string;
+
+export interface InitMessage {
+  type: "info";
+  numParts: number;
+  options: EpubOptions;
 }
-export type Response =
-  | { type: "part"; index: number; part: string }
-  | { type: "info"; numParts: number; title?: string }
-  | { type: "error"; err: string };
+
+export interface InitResponse {
+  type: "info";
+  numParts: number;
+  title?: string;
+}
+
+export interface PartMessage {
+  type: "part";
+  index: number;
+  part: string;
+}
+
+export interface ErrorMessage {
+  type: "error";
+  err: string;
+}
+
+export type Message = InitMessage | PartMessage;
+
+export type Response = InitResponse | PartMessage | ErrorMessage;

@@ -40,6 +40,7 @@ export async function upload(
     ...rest,
     tags: tagList,
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
+    title,
   };
   await writeLock.acquire();
   try {
