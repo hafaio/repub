@@ -510,6 +510,13 @@ function EpubOptions({
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
+        name="tabCss"
+        title="Use table CSS"
+        caption="This renders tables with some extra markup to make them more legible."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
         name="filterLinks"
         title="Remove Links"
         caption="Links are rendered on reMarkable with an underline, but aren't navigable. Setting this to true removes the links, decluttering the resulting epub."

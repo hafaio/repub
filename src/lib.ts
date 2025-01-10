@@ -39,6 +39,20 @@ pre {
 }
 `;
 
+const tableCss = `
+table, th, td {
+  border: 1px solid;
+}
+
+td {
+  padding: 0.25rem;
+}
+  
+table {
+  border-collapse: collapse;
+}
+`;
+
 type Brighten = (
   buffer: Uint8Array,
   mime: string,
@@ -64,6 +78,7 @@ export async function generate(
     authorByline,
     rmCss,
     codeCss,
+    tabCss,
     hrefHeader,
     bylineHeader,
     coverHeader,
@@ -135,7 +150,7 @@ export async function generate(
     content: altered,
     author: byline,
     images: brightened,
-    css: (rmCss ? remarkableCss : "") + (codeCss ? codeEnvironmentCss : ""),
+    css: `${rmCss ? remarkableCss : ""} ${codeCss ? codeEnvironmentCss : ""}  ${tabCss ? tableCss : ""}`,
     href: hrefHeader ? href : undefined,
     byline: bylineHeader,
     cover: coverHeader ? cover : undefined,

@@ -109,6 +109,11 @@ void (async () => {
       type: "boolean",
       default: defaultOptions.codeCss,
     })
+    .option("tab-css", {
+      describe: "use table css",
+      type: "boolean",
+      default: defaultOptions.codeCss,
+    })
     .option("href-header", {
       describe: "add a header with the url",
       type: "boolean",
@@ -152,6 +157,7 @@ void (async () => {
       filterIframes: args.filterIframes,
       rmCss: args.rmCss,
       codeCss: args.codeCss,
+      tabCss: args.tabCss,
       hrefHeader: args.hrefHeader,
       bylineHeader: args.bylineHeader,
       coverHeader: args.coverHeader,
