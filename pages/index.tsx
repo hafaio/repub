@@ -433,8 +433,8 @@ function EpubOptions({
   return (
     <Section
       title="ePub Options"
-      subtitle={`These options alter the way the epub is generated independent of
-          whether it's uploaded to reMarkable or kept as an epub`}
+      subtitle="These options alter the way the epub is generated independent of
+      whether it's uploaded to reMarkable or kept as an epub"
     >
       <ButtonSelection
         // potentially include captions next to each option
@@ -457,7 +457,8 @@ function EpubOptions({
           },
         ]}
         title="Image Handling"
-        caption="Control how images are handled: keep everything including duplicates, keep only the first image, or remove all images."
+        caption="Control how images are handled: keep everything including
+        duplicates, keep only the first image, or remove all images."
       />
       <CloseImages
         imageHrefSimilarityThreshold={opts.imageHrefSimilarityThreshold}
@@ -470,56 +471,66 @@ function EpubOptions({
       <SimplCheckboxSelection
         name="hrefHeader"
         title="Include page URL in epub"
-        caption="Include a small header with the original page URL right above the article title when converting an article into an epub."
+        caption="Include a small header with the original page URL right above
+        the article title when converting an article into an epub."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="bylineHeader"
         title="Include byline in epub"
-        caption="Include a small byline with the extracted author right below the article title when converting an article into an epub."
+        caption="Include a small byline with the extracted author right below
+        the article title when converting an article into an epub."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="authorByline"
         title="Use article author instead of byline"
-        caption="Some articles list the publication as the byline. If this is true, also include the author if found."
+        caption="Some articles list the publication as the byline. If this is
+        true, also include the author if found."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="coverHeader"
         title="Include cover image in epub"
-        caption="Include the extracted cover image right below the article title when converting an article into an epub."
+        caption="Include the extracted cover image right below the article title
+        when converting an article into an epub."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="rmCss"
         title="Use reMarkable CSS"
-        caption="The default remarkable css adds some extra margins around paragraphs among other changes. Select this to use it."
+        caption="The default remarkable css adds some extra margins around
+        paragraphs among other changes. Select this to use it."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="codeCss"
         title="Use code environment CSS"
-        caption="This renders <pre/> and <code/> tags in a wrapped fixed-width font with a light gray background."
+        caption="This renders <pre/> and <code/> tags in a wrapped fixed-width
+        font with a light gray background."
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="tabCss"
         title="Use table CSS"
-        caption="This renders tables with some extra markup to make them more legible."
+        caption="[experimental] This renders tables with some extra markup to
+        make them more legible.  However, it's still experimental, so don't
+        expect the rendering to be consistent"
         opts={opts}
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
         name="filterLinks"
         title="Remove Links"
-        caption="Links are rendered on reMarkable with an underline, but aren't navigable. Setting this to true removes the links, decluttering the resulting epub."
+        caption="Links are rendered on reMarkable with an underline, but aren't
+        navigable.  Setting this to true removes the links, decluttering the
+        resulting epub."
         opts={opts}
         setOpts={setOpts}
       />
@@ -527,7 +538,9 @@ function EpubOptions({
         // eslint-disable-next-line spellcheck/spell-checker
         name="filterIframes"
         title="Remove IFrames"
-        caption="Some pages may include relevant information in iframes. ReMarkable doesn't natively render these, but by disabling this, we'll copy the contents of preserved iframes into the epub contents."
+        caption="Some pages may include relevant information in iframes.
+        ReMarkable doesn't natively render these, but by disabling this, we'll
+        copy the contents of preserved iframes into the epub contents."
         opts={opts}
         setOpts={setOpts}
       />
@@ -545,7 +558,8 @@ function DownloadOptions({
   return (
     <Section
       title="Download Options"
-      subtitle="These are options that are only relevant if you're downloading articles as files."
+      subtitle="These are options that are only relevant if you're downloading
+      articles as files."
     >
       <SimplCheckboxSelection
         name="downloadAsk"
@@ -572,7 +586,8 @@ function CoverPageNumberSelector({
         setOpts({ coverPageNumber: coverPageNumber === 0 ? -1 : 0 });
       }}
       title="First Page Cover"
-      caption="If checked, use the first page as cover / thumbnail on the reMarkable, otherwise use the last page visited"
+      caption="If checked, use the first page as cover / thumbnail on the
+      reMarkable, otherwise use the last page visited"
     />
   );
 }
@@ -761,7 +776,8 @@ function ViewBackgroundFilterSelector({
         },
       ]}
       title="Contrast Filter"
-      caption="What contrast filter to apply to pages: Full page (optimized for text), adaptive (balanced), or off (optimized for images)"
+      caption="What contrast filter to apply to pages: Full page (optimized for
+      text), adaptive (balanced), or off (optimized for images)"
     />
   );
 }
@@ -890,7 +906,8 @@ function UploadOptions({
   return (
     <Section
       title="Upload Options"
-      subtitle="These are options that control how the ePub is rendered on the reMarkable when uploading. They don't affect the raw file itself."
+      subtitle="These are options that control how the ePub is rendered on the
+      reMarkable when uploading. They don't affect the raw file itself."
     >
       <MarginSelector margins={opts.margins} setOpts={setOpts} />
       <TextScaleSelector textScale={opts.textScale} setOpts={setOpts} />

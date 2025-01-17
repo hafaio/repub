@@ -44,10 +44,19 @@ table, th, td {
   border: 1px solid;
 }
 
-td {
+th {
+  border-top: 3px solid;
+  border-bottom: 3px solid;
+}
+
+th, td {
   padding: 0.25rem;
 }
-  
+
+table {
+  border-bottom: 3px solid;
+}
+
 table {
   border-collapse: collapse;
 }
