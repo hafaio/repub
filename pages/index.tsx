@@ -321,7 +321,7 @@ function CloseImages({
       caption={`Due to a bug in chrome, and potentially other factors,
       capturing the page may get a different image than the ones that appear in
       the captured html. Selecting this causes the extension to do a more
-      expensive search for close image urls it has, and uses those iamges
+      expensive search for close image urls it has, and uses those images
       instead. If images you expect to be present are missing, this may help,
       if images seem out of context, consider disabling this.`}
     />
