@@ -75,8 +75,7 @@ async function rePub(tabId: number) {
     await tab.error();
     throw ex;
   } finally {
-    // handle clearing the bad if we've navigated
-
+    await tab.done();
     // NOTE leave progress around to see
     await sleep(500);
     await tab.drop();
