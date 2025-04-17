@@ -55,10 +55,8 @@ th, td {
 
 table {
   border-bottom: 3px solid;
-}
-
-table {
   border-collapse: collapse;
+  max-width: 100%;
 }
 `;
 

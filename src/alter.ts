@@ -260,13 +260,19 @@ export function alter(
     throw new Error("failed to summarize document");
   }
   const { content, title, byline } = res;
+  if (content == null) {
+    throw new Error("failed to summarize document content");
+  }
   const { seen, svgs } = new Walker(match, opts).walk(content);
 
   const serial = new XMLSerializer();
   return {
     altered: serial.serializeToString(content),
-    title,
-    byline: author && author !== byline ? `${author}. ${byline}` : byline,
+    title: title ?? "unknown title",
+    byline:
+      author && byline && author !== byline
+        ? `${author}. ${byline}`
+        : (author ?? byline ?? "unknown"),
     cover,
     seen,
     svgs,
