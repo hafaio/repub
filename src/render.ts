@@ -13,13 +13,11 @@ export async function render(
 ): Promise<{ epub: Uint8Array; title?: string }> {
   await closing;
   num++;
-  if (offscreen === null) {
-    offscreen = chrome.offscreen.createDocument({
-      url: "/offscreen.html",
-      reasons: [chrome.offscreen.Reason.DOM_PARSER],
-      justification: "Parse DOM",
-    });
-  }
+  offscreen ??= chrome.offscreen.createDocument({
+    url: "/offscreen.html",
+    reasons: [chrome.offscreen.Reason.DOM_PARSER],
+    justification: "Parse DOM",
+  });
   await offscreen;
 
   // chunk encoded in case it's too large
