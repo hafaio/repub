@@ -162,7 +162,11 @@ void (async () => {
       bylineHeader: args.bylineHeader,
       coverHeader: args.coverHeader,
       authorByline: args.authorByline,
-      imageBrightness: 1, // unused
+      // below are unused
+      imageBrightness: 1,
+      convertTables: false,
+      rotateTables: false,
+      tableResolution: 1,
     },
   );
 
