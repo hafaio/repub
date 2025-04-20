@@ -1,6 +1,7 @@
 import { Readability } from "@mozilla/readability";
 import leven from "leven";
-import { ImageHandling } from "./options";
+import type { ImageMime } from "./epub";
+import type { ImageHandling } from "./options";
 
 /** a generic "file" */
 export interface MimeData {
@@ -72,7 +73,7 @@ export interface Altered {
   byline: string;
   cover?: string | undefined;
   seen: Set<string>;
-  svgs: Map<string, string>;
+  images: [string, Uint8Array, ImageMime][];
 }
 
 function* parseSrcset(srcset: string): IterableIterator<string> {
@@ -101,6 +102,10 @@ function* getSrcs(nodes: Iterable<Node>): IterableIterator<string> {
 interface WalkOptions {
   filterLinks: boolean;
   imageHandling: ImageHandling;
+  convertTables: boolean;
+  rotateTables: boolean;
+  tableResolution: number;
+  tableCss: string;
 }
 
 interface Options extends WalkOptions {
@@ -112,13 +117,14 @@ interface Options extends WalkOptions {
 class Walker {
   readonly seen = new Set<string>();
   readonly svgs = new Map<string, string>();
+  readonly pngs: [string, Uint8Array][] = [];
 
   constructor(
     private match: UrlMatcher,
     private options: WalkOptions,
   ) {}
 
-  *#walk(node: Node): IterableIterator<Node> {
+  async *#walk(node: Node): AsyncIterableIterator<Node> {
     // istanbul ignore if
     if (node instanceof DocumentType) {
       // <!doctype ...> node should never actually find
@@ -135,15 +141,86 @@ class Walker {
       /* remarkable can't seem to handle inline svgs, so we remap them to
        * "external" svgs */
       const serial = new XMLSerializer();
-      const rep = `<?xml version="1.0" encoding="utf-8"?>${serial.serializeToString(
-        node,
-      )}`;
+      const encoded = serial.serializeToString(node);
+      const rep = `<?xml version="1.0" encoding="utf-8"?>${encoded}`;
       let url = this.svgs.get(rep);
       if (url === undefined) {
         // eslint-disable-next-line spellcheck/spell-checker
         url = `inlinesvg://${this.svgs.size}.svg`;
         this.svgs.set(rep, url);
       }
+      const img = new Image();
+      img.src = url;
+      yield img;
+    } else if (node instanceof HTMLTableElement && this.options.convertTables) {
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+      // we attach a shadow dom to prevent styles from affecting rendering
+      const shadow = div.attachShadow({ mode: "closed" }); // ultimately make closed?
+
+      const style = document.createElement("style");
+      style.innerHTML = `
+table {
+  font-size: initial;
+  font-family: sans-serif;
+}
+    
+${this.options.tableCss}`;
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      shadow.appendChild(svg);
+      svg.appendChild(style);
+      const fo = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "foreignObject",
+      );
+      fo.setAttribute("width", "100%");
+      fo.setAttribute("height", "100%");
+      svg.appendChild(fo);
+      const xhtmldiv = document.createElement("div");
+      fo.appendChild(xhtmldiv);
+      xhtmldiv.appendChild(node);
+      const { width, height } = node.getBoundingClientRect();
+      document.body.removeChild(div);
+
+      svg.setAttribute("width", width.toFixed());
+      svg.setAttribute("height", height.toFixed());
+
+      const serial = new XMLSerializer();
+      const render = new Image();
+      await new Promise((resolve) => {
+        render.addEventListener("load", resolve);
+        render.src = `data:image/svg+xml,${serial.serializeToString(svg)}`;
+      });
+
+      const canvasWidth = width * this.options.tableResolution;
+      const canvasHeight = height * this.options.tableResolution;
+      const rotate = this.options.rotateTables && width > height;
+      const canvas = new OffscreenCanvas(
+        rotate ? canvasHeight : canvasWidth,
+        rotate ? canvasWidth : canvasHeight,
+      );
+      const ctx = canvas.getContext("2d")!;
+      if (rotate) {
+        ctx.translate(canvasHeight / 2, canvasWidth / 2);
+        ctx.rotate(-Math.PI / 2);
+      } else {
+        ctx.translate(canvasWidth / 2, canvasHeight / 2);
+      }
+      ctx.drawImage(
+        render,
+        -canvasWidth / 2,
+        -canvasHeight / 2,
+        canvasWidth,
+        canvasHeight,
+      );
+
+      const blob = await canvas.convertToBlob({ type: "image/png" });
+      const bytes = await blob.arrayBuffer();
+
+      // eslint-disable-next-line spellcheck/spell-checker
+      const url = `tableimage://${this.pngs.length}.png`;
+      this.pngs.push([url, new Uint8Array(bytes)]);
+
       const img = new Image();
       img.src = url;
       yield img;
@@ -198,7 +275,9 @@ class Walker {
       // all others
       const newChildren = [];
       for (const child of node.childNodes) {
-        newChildren.push(...this.#walk(child));
+        for await (const walked of this.#walk(child)) {
+          newChildren.push(walked);
+        }
       }
 
       if (
@@ -218,8 +297,8 @@ class Walker {
     }
   }
 
-  walk(node: Node): this {
-    for (const _ of this.#walk(node)) {
+  async walk(node: Node): Promise<this> {
+    for await (const _ of this.#walk(node)) {
       void _;
     }
     return this;
@@ -238,11 +317,11 @@ function* coverUrls(doc: Document): IterableIterator<string> {
 }
 
 /** update img src's with srcset information */
-export function alter(
+export async function alter(
   doc: Document,
   match: UrlMatcher,
   { summarizeCharThreshold, authorByline, filterIframes, ...opts }: Options,
-): Altered {
+): Promise<Altered> {
   const [cover] = match(coverUrls(doc)) ?? [];
   const allowedVideoRegex = filterIframes ? /(?!)/ : /(?:)/;
   const articleAuthor = doc.querySelector(`meta[property="article:author"]`);
@@ -263,7 +342,15 @@ export function alter(
   if (content == null) {
     throw new Error("failed to summarize document content");
   }
-  const { seen, svgs } = new Walker(match, opts).walk(content);
+  const { seen, svgs, pngs } = await new Walker(match, opts).walk(content);
+  const images: [string, Uint8Array, ImageMime][] = [];
+  const enc = new TextEncoder();
+  for (const [data, url] of svgs) {
+    images.push([url, enc.encode(data), "image/svg+xml"]);
+  }
+  for (const [url, data] of pngs) {
+    images.push([url, data, "image/png"]);
+  }
 
   const serial = new XMLSerializer();
   return {
@@ -275,6 +362,6 @@ export function alter(
         : (author ?? byline ?? "unknown"),
     cover,
     seen,
-    svgs,
+    images,
   };
 }

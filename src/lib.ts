@@ -39,7 +39,7 @@ pre {
 }
 `;
 
-const tableCss = `
+const baseTableCss = `
 table, th, td {
   border: 1px solid;
 }
@@ -56,6 +56,13 @@ th, td {
 table {
   border-bottom: 3px solid;
   border-collapse: collapse;
+}
+`;
+
+const tableCss = `
+${baseTableCss}
+
+table {
   max-width: 100%;
 }
 `;
@@ -89,6 +96,9 @@ export async function generate(
     hrefHeader,
     bylineHeader,
     coverHeader,
+    convertTables,
+    rotateTables,
+    tableResolution,
   }: EpubOptions,
 ): Promise<Result> {
   const { href, content, assets } = await parse(mhtml);
@@ -114,13 +124,21 @@ export async function generate(
     imageHrefSimilarityThreshold > 0
       ? closeMatch(assetData, imageHrefSimilarityThreshold)
       : exactMatch(assetData);
-  const { altered, title, byline, cover, seen, svgs } = alter(doc, matcher, {
-    filterLinks,
-    imageHandling,
-    summarizeCharThreshold: 0,
-    authorByline,
-    filterIframes,
-  });
+  const { altered, title, byline, cover, seen, images } = await alter(
+    doc,
+    matcher,
+    {
+      filterLinks,
+      imageHandling,
+      summarizeCharThreshold: 0,
+      authorByline,
+      filterIframes,
+      convertTables,
+      rotateTables,
+      tableResolution,
+      tableCss: tabCss ? baseTableCss : "",
+    },
+  );
 
   if (cover && coverHeader) {
     seen.add(cover);
@@ -147,9 +165,8 @@ export async function generate(
       brightened.set(decodeURIComponent(href), { data, mime });
     }
   }
-  const encoder = new TextEncoder();
-  for (const [svg, url] of svgs) {
-    brightened.set(url, { data: encoder.encode(svg), mime: "image/svg+xml" });
+  for (const [url, data, mime] of images) {
+    brightened.set(url, { data, mime });
   }
 
   const buffer = await epub({

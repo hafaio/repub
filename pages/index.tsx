@@ -42,6 +42,9 @@ import {
   FaRegImage,
   FaRegImages,
   FaRegRectangleXmark,
+  FaRegSquare,
+  FaTableCells,
+  FaTableCellsLarge,
 } from "react-icons/fa6";
 import { register } from "rmapi-js";
 import ButtonSelection from "../components/button-selection";
@@ -277,12 +280,14 @@ function SimplCheckboxSelection({
   caption,
   opts,
   setOpts,
+  disabled,
 }: {
   name: BooleanKeys;
   title: string;
   caption: string;
   opts: Partial<Options>;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   const val = opts[name];
   const onToggle = useCallback(() => {
@@ -294,6 +299,7 @@ function SimplCheckboxSelection({
       onToggle={onToggle}
       title={title}
       caption={caption}
+      disabled={disabled}
     />
   );
 }
@@ -423,6 +429,36 @@ function SignInOptions({
   );
 }
 
+function ResolutionSelector({
+  resolution,
+  setOpts,
+  disabled,
+}: {
+  resolution: number | undefined;
+  setOpts: SetOptions;
+  disabled?: boolean;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={resolution ? resolution.toFixed() : undefined}
+      onChange={(val) => {
+        setOpts({ tableResolution: parseInt(val) });
+      }}
+      selections={[
+        { val: "1", icon: <FaRegSquare /> },
+        { val: "3", icon: <FaTableCellsLarge /> },
+        { val: "9", icon: <FaTableCells /> },
+      ]}
+      title="Table Resolution"
+      caption="When converting tables to images, higher resolution tables will
+      look better on devices, but will take longer to render, and will create
+      large epub files. You must enable converting tables to images in order to
+      alter this option."
+      disabled={disabled}
+    />
+  );
+}
+
 function EpubOptions({
   opts,
   setOpts,
@@ -519,9 +555,9 @@ function EpubOptions({
       <SimplCheckboxSelection
         name="tabCss"
         title="Use table CSS"
-        caption="[experimental] This renders tables with some extra markup to
-        make them more legible.  However, it's still experimental, so don't
-        expect the rendering to be consistent"
+        caption="This renders tables with some extra markup to make them more
+        legible.  However, it's still experimental, so don't expect the
+        rendering to be consistent"
         opts={opts}
         setOpts={setOpts}
       />
@@ -543,6 +579,29 @@ function EpubOptions({
         copy the contents of preserved iframes into the epub contents."
         opts={opts}
         setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="convertTables"
+        title="Convert Tables to Images"
+        caption="Some devices don't render tables well. Enabling this will
+        convert the tables to images before rendering."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
+        name="rotateTables"
+        title="Rotate Tables"
+        caption="If the rendered tables are wider than they are high, rotate
+        them so they're rendered in portrait. You must enable converting tables
+        to images in order to alter this option."
+        opts={opts}
+        setOpts={setOpts}
+        disabled={opts.convertTables !== true}
+      />
+      <ResolutionSelector
+        resolution={opts.tableResolution}
+        setOpts={setOpts}
+        disabled={opts.convertTables !== true}
       />
     </Section>
   );

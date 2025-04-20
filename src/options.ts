@@ -50,6 +50,9 @@ export interface EpubOptions {
   filterLinks: boolean;
   filterIframes: boolean;
   authorByline: boolean;
+  convertTables: boolean;
+  rotateTables: boolean;
+  tableResolution: number;
 }
 
 export interface UploadOptions {
@@ -95,6 +98,9 @@ export const defaultOptions: Options = {
   filterLinks: true,
   filterIframes: true,
   authorByline: true,
+  convertTables: false,
+  rotateTables: false,
+  tableResolution: 1,
   // ------ //
   // Upload //
   // ------ //

@@ -9,16 +9,18 @@ export default function CheckboxSelection({
   onToggle,
   title,
   caption,
+  disabled = false,
 }: {
   value: boolean | undefined;
   onToggle: () => void;
   title: string;
   caption: string;
+  disabled?: boolean;
 }): ReactElement {
   const checkbox = (
     <Checkball
       checked={!!value}
-      disabled={value === undefined}
+      disabled={disabled || value === undefined}
       onClick={onToggle}
     />
   );

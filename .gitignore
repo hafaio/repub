@@ -9,6 +9,7 @@ node_modules
 # Artifacts #
 #############
 /*.js
+/*.js.map
 !/*.config.js
 /*.d.ts
 /*.epub
