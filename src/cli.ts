@@ -49,7 +49,7 @@ global.Element = dom.window.Element;
 global.SVGElement = dom.window.SVGElement;
 global.Image = dom.window["Image"] as typeof Image;
 
-void (async () => {
+(async () => {
   const args = await yargs(argv.slice(2))
     .scriptName("repub")
     .usage(
@@ -211,4 +211,7 @@ void (async () => {
     proms.push(Bun.write(args.epubOutput, epub));
   }
   await Promise.all(proms);
-})();
+})().catch((ex: unknown) => {
+  const message = ex instanceof Error ? ex.message : "unknown error";
+  console.error(`problem with cli: ${message}`);
+});

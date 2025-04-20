@@ -1,5 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
+import { TitleRequest } from "./messages";
 import { getOptions } from "./options";
 import { render } from "./render";
 import { getTab } from "./status";
@@ -9,7 +10,12 @@ import { safeFilename, sleep } from "./utils";
 /**
  * create and upload epub
  */
-async function rePub(tabId: number) {
+async function rePub(
+  tabId: number,
+  action: boolean,
+  initTitle?: string,
+  initAuthor?: string,
+) {
   // get active state for clearing badge with navigation
   const tab = getTab(tabId);
   try {
@@ -27,14 +33,33 @@ async function rePub(tabId: number) {
       tags,
       textAlignment,
       viewBackgroundFilter,
+      promptTitle,
       ...opts
     } = await getOptions();
+
+    if (action && promptTitle) {
+      await Promise.all([
+        chrome.action.setBadgeText({
+          tabId,
+          text: "",
+        }),
+        chrome.action.setPopup({ popup: "popup.html" }),
+      ]);
+      await chrome.action.openPopup();
+      return;
+    }
+
     await tab.progress(25);
 
     const mhtml = await pageCapture(tabId);
     await tab.progress(50);
 
-    const { epub, title = "missing title" } = await render(mhtml, opts);
+    const { epub, title = "missing title" } = await render(
+      mhtml,
+      opts,
+      initTitle,
+      initAuthor,
+    );
     await tab.progress(75);
 
     // upload
@@ -57,7 +82,10 @@ async function rePub(tabId: number) {
         viewBackgroundFilter,
       });
     } else {
-      void chrome.runtime.openOptionsPage();
+      chrome.runtime.openOptionsPage().catch((ex: unknown) => {
+        const message = ex instanceof Error ? ex.message : "unknown error";
+        console.error(`couldn't open option page: ${message}`);
+      });
       throw new Error(
         "must be authenticated to upload documents to reMarkable",
       );
@@ -86,6 +114,18 @@ async function rePub(tabId: number) {
 // watch for clicks
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id !== undefined) {
-    void rePub(tab.id);
+    rePub(tab.id, true).catch((ex: unknown) => {
+      console.error(ex);
+    });
   }
 });
+
+// watch for messages from popup
+chrome.runtime.onMessage.addListener(
+  ({ tabId, title, author }: TitleRequest, _, response) => {
+    response(undefined);
+    rePub(tabId, false, title, author).catch((ex: unknown) => {
+      console.error(ex);
+    });
+  },
+);

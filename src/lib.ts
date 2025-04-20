@@ -100,6 +100,8 @@ export async function generate(
     rotateTables,
     tableResolution,
   }: EpubOptions,
+  initTitle?: string,
+  initAuthor?: string,
 ): Promise<Result> {
   const { href, content, assets } = await parse(mhtml);
   const parser = new DOMParser();
@@ -170,9 +172,9 @@ export async function generate(
   }
 
   const buffer = await epub({
-    title,
+    title: initTitle ?? title,
     content: altered,
-    author: byline,
+    author: initAuthor ?? byline,
     images: brightened,
     css: `${rmCss ? remarkableCss : ""} ${codeCss ? codeEnvironmentCss : ""}  ${tabCss ? tableCss : ""}`,
     href: hrefHeader ? href : undefined,
@@ -181,7 +183,7 @@ export async function generate(
   });
   return {
     epub: buffer,
-    title,
+    title: initTitle ?? title,
     initial: content,
     altered,
     brightened,

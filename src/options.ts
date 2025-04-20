@@ -74,6 +74,8 @@ export interface Options extends EpubOptions, UploadOptions {
   downloadAsk: boolean;
   // did we notify about remarkable breaking
   didNotify: boolean;
+  // if to prompt for title
+  promptTitle: boolean;
 }
 
 export const defaultOptions: Options = {
@@ -113,6 +115,7 @@ export const defaultOptions: Options = {
   tags: "",
   textAlignment: "justify",
   viewBackgroundFilter: null,
+  promptTitle: false,
 };
 
 export async function getOptions({

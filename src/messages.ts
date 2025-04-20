@@ -12,6 +12,8 @@ export interface InitMessage {
   type: "info";
   numParts: number;
   options: EpubOptions;
+  title?: string;
+  author?: string;
 }
 
 export interface InitResponse {
@@ -34,3 +36,9 @@ export interface ErrorMessage {
 export type Message = InitMessage | PartMessage;
 
 export type Response = InitResponse | PartMessage | ErrorMessage;
+
+export interface TitleRequest {
+  tabId: number;
+  title?: string;
+  author?: string;
+}

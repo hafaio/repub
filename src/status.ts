@@ -1,3 +1,6 @@
+// store active state for navigation
+const activeTabs = new Map<number, Tab>();
+
 class Tab {
   #tabId: number;
   nav: boolean = false;
@@ -18,7 +21,7 @@ class Tab {
         tabId: this.#tabId,
         text: "0%",
       });
-    } finally {
+    } catch {
       // ignore
     }
   }
@@ -29,7 +32,7 @@ class Tab {
         tabId: this.#tabId,
         text: `${perc.toFixed()}%`,
       });
-    } finally {
+    } catch {
       // ignore
     }
   }
@@ -40,7 +43,7 @@ class Tab {
         tabId: this.#tabId,
         text: message,
       });
-    } finally {
+    } catch {
       // ignore
     }
   }
@@ -57,7 +60,7 @@ class Tab {
           color: "#d62626",
         }),
       ]);
-    } finally {
+    } catch {
       // ignore
     }
   }
@@ -65,10 +68,14 @@ class Tab {
   async done(): Promise<void> {
     this.precount -= 1;
     if (!this.precount && this.nav) {
-      await chrome.action.setBadgeText({
-        tabId: this.#tabId,
-        text: "",
-      });
+      try {
+        await chrome.action.setBadgeText({
+          tabId: this.#tabId,
+          text: "",
+        });
+      } catch {
+        // ignore
+      }
     }
   }
 
@@ -77,17 +84,18 @@ class Tab {
     if (!this.count) {
       activeTabs.delete(this.#tabId);
       if (this.nav) {
-        await chrome.action.setBadgeText({
-          tabId: this.#tabId,
-          text: "",
-        });
+        try {
+          await chrome.action.setBadgeText({
+            tabId: this.#tabId,
+            text: "",
+          });
+        } catch {
+          // ignore
+        }
       }
     }
   }
 }
-
-// store active state for navigation
-const activeTabs = new Map<number, Tab>();
 
 export function getTab(tabId: number): Tab {
   const tab = activeTabs.get(tabId);
@@ -111,10 +119,15 @@ chrome.webNavigation.onCommitted.addListener(({ tabId, frameId }) => {
     if (active?.precount) {
       active.nav = true;
     } else {
-      void chrome.action.setBadgeText({
-        tabId,
-        text: "",
-      });
+      chrome.action
+        .setBadgeText({
+          tabId,
+          text: "",
+        })
+        .catch((ex: unknown) => {
+          const message = ex instanceof Error ? ex.message : "unknown error";
+          console.error(`error setting badge text: ${message}`);
+        });
     }
   }
 });

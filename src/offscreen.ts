@@ -12,6 +12,8 @@ chrome.runtime.onConnect.addListener((port) => {
   let receivedParts = 0;
   let expectedParts: number | undefined;
   let options: EpubOptions | undefined;
+  let initTitle: string | undefined;
+  let initAuthor: string | undefined;
 
   port.onMessage.addListener((message: Message) => {
     if (message.type === "part") {
@@ -20,6 +22,8 @@ chrome.runtime.onConnect.addListener((port) => {
     } else {
       expectedParts = message.numParts;
       options = message.options;
+      initTitle = message.title;
+      initAuthor = message.author;
     }
     if (expectedParts === receivedParts && options !== undefined) {
       const opts = options;
@@ -31,6 +35,8 @@ chrome.runtime.onConnect.addListener((port) => {
           toByteArray(mhtml),
           bright,
           opts,
+          initTitle,
+          initAuthor,
         );
         const encoded = fromByteArray(epub);
 
