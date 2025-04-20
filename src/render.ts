@@ -10,6 +10,8 @@ let closing: null | Promise<void> = null;
 export async function render(
   mhtml: ArrayBuffer,
   opts: EpubOptions,
+  title?: string,
+  author?: string,
 ): Promise<{ epub: Uint8Array; title?: string }> {
   await closing;
   num++;
@@ -30,6 +32,8 @@ export async function render(
     type: "info",
     numParts: chunks.length,
     options: opts,
+    title,
+    author,
   };
 
   try {

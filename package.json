@@ -9,12 +9,12 @@
   "scripts": {
     "cli": "bun run src/cli.ts",
     "dev": "next dev",
-    "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.{json,conifg.js}'",
+    "fmt": "prettier --cache --write 'src/*.ts' 'pages/*.tsx' 'components/*.tsx' '*.{json,conifg.js}' '*.html'",
     "lint": "tsc && eslint --cache 'src/*.ts' 'pages/*.tsx' 'components/*.tsx'",
     "export:images": "<<< $'16\n32\n48\n128' xargs -I@ magick public/repub.svg -background none -resize @x@ images/repub_@.png && magick images/repub_*.png favicon.ico",
-    "export:bundle": "bun build src/background.ts src/offscreen.ts --outdir . --sourcemap=linked",
+    "export:bundle": "bun build src/background.ts src/offscreen.ts src/popup.ts --outdir . --sourcemap=linked",
     "export:options": "next build",
-    "export:pack": "zip -r --filesync repub.zip background.js background.js.map favicon.ico images/*.png manifest.json offscreen.html offscreen.js offscreen.js.map out",
+    "export:pack": "zip -r --filesync repub.zip background.js background.js.map favicon.ico images/*.png manifest.json offscreen.html popup.html popup.js popup.js.map offscreen.js offscreen.js.map ",
     "export": "bun export:images && bun export:bundle && bun export:options && bun export:pack",
     "pack": "bun lint && bun test --coverage && bun export"
   },

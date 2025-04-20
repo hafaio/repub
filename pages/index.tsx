@@ -159,61 +159,60 @@ function SignIn({
   const [registering, setRegistering] = useState(false);
 
   const changeAuth = useCallback(
-    (evt: ChangeEvent<HTMLInputElement>) =>
-      void (async () => {
+    (evt: ChangeEvent<HTMLInputElement>) => {
+      (async () => {
         const val = evt.target.value;
         setIncCode(val);
         if (val.length !== 8) return;
         setRegistering(true);
-        try {
-          const deviceToken = await getToken(val);
-          setOpts({ deviceToken });
-          showSnack({
-            key: "login",
-            severity: "success",
-            message: "linked reMarkable account successfully",
-          });
-        } catch {
+        const deviceToken = await getToken(val);
+        setOpts({ deviceToken });
+        showSnack({
+          key: "login",
+          severity: "success",
+          message: "linked reMarkable account successfully",
+        });
+      })()
+        .catch(() => {
           showSnack({
             key: "login error",
             severity: "error",
             message: "problem trying to link reMarkable account",
           });
-        } finally {
+        })
+        .finally(() => {
           setIncCode("");
           setRegistering(false);
-        }
-      })(),
+        });
+    },
     [setIncCode, setRegistering, setOpts],
   );
-  const clipboard = useCallback(
-    () =>
-      void (async () => {
-        setRegistering(true);
-        try {
-          const content = await navigator.clipboard.readText();
-          if (content.length !== 8) return;
-          setIncCode(content);
-          const deviceToken = await getToken(content);
-          setOpts({ deviceToken });
-          showSnack({
-            key: "login",
-            severity: "success",
-            message: "linked reMarkable account successfully",
-          });
-        } catch {
-          showSnack({
-            key: "login error",
-            severity: "error",
-            message: "problem trying to link reMarkable account",
-          });
-        } finally {
-          setIncCode("");
-          setRegistering(false);
-        }
-      })(),
-    [setRegistering, setIncCode, setOpts],
-  );
+  const clipboard = useCallback(() => {
+    (async () => {
+      setRegistering(true);
+      const content = await navigator.clipboard.readText();
+      if (content.length !== 8) return;
+      setIncCode(content);
+      const deviceToken = await getToken(content);
+      setOpts({ deviceToken });
+      showSnack({
+        key: "login",
+        severity: "success",
+        message: "linked reMarkable account successfully",
+      });
+    })()
+      .catch(() => {
+        showSnack({
+          key: "login error",
+          severity: "error",
+          message: "problem trying to link reMarkable account",
+        });
+      })
+      .finally(() => {
+        setIncCode("");
+        setRegistering(false);
+      });
+  }, [setRegistering, setIncCode, setOpts]);
 
   if (show) {
     const pasteAdornment = (
@@ -281,6 +280,7 @@ function SimplCheckboxSelection({
   opts,
   setOpts,
   disabled,
+  onChange,
 }: {
   name: BooleanKeys;
   title: string;
@@ -288,10 +288,15 @@ function SimplCheckboxSelection({
   opts: Partial<Options>;
   setOpts: SetOptions;
   disabled?: boolean;
+  onChange?: (val: boolean) => void;
 }): ReactElement {
   const val = opts[name];
   const onToggle = useCallback(() => {
-    setOpts({ [name]: !val });
+    const newVal = !val;
+    setOpts({ [name]: newVal });
+    if (onChange) {
+      onChange(newVal);
+    }
   }, [setOpts, val]);
   return (
     <CheckboxSelection
@@ -602,6 +607,21 @@ function EpubOptions({
         resolution={opts.tableResolution}
         setOpts={setOpts}
         disabled={opts.convertTables !== true}
+      />
+      <SimplCheckboxSelection
+        name="promptTitle"
+        title="Prompt for Title and Author"
+        caption="If enabled, instead of automatically rendering the page, this
+        extension will first prompt for the title and author you want to set."
+        opts={opts}
+        setOpts={setOpts}
+        onChange={(val) => {
+          chrome.action
+            .setPopup({ popup: val ? "popup.html" : "" })
+            .catch(() => {
+              console.error("couldn't set popup");
+            });
+        }}
       />
     </Section>
   );
@@ -1020,7 +1040,13 @@ export default function OptionsPage(): ReactElement {
   const setOpts = useCallback(
     (options: Partial<Options>) => {
       setOptsState({ ...opts, ...options });
-      void setOptions(options);
+      setOptions(options).catch(() => {
+        showSnack({
+          key: "set opts",
+          severity: "error",
+          message: "couldn't set options",
+        });
+      });
     },
     [opts, setOptsState],
   );

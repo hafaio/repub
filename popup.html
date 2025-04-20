@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Set EPub Metadata</title>
+  </head>
+  <style>
+    body {
+      background-color: rgb(250, 246, 240);
+    }
+
+    #flex {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 10rem;
+    }
+
+    input {
+      outline: 0;
+      border-radius: 0;
+      padding: 0.25rem 0 0.35rem 0;
+      border: 0;
+      border-bottom: 0.1rem solid black;
+      background-color: transparent;
+      transition: border ease-in-out;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-bottom-width: 0.2rem;
+      padding: 0.25rem 0;
+    }
+
+    #submit {
+      background-color: black;
+      padding: 0.2rem;
+      color: white;
+      width: 100%;
+      text-transform: uppercase;
+    }
+  </style>
+  <body>
+    <div id="flex">
+      <div>
+        <label for="title-input">Title</label>
+        <input id="title-input" />
+      </div>
+      <div>
+        <label for="author-input">Author</label>
+        <input id="author-input" />
+      </div>
+      <button id="submit">Capture</button>
+    </div>
+    <span id="error"></span>
+  </body>
+  <script src="popup.js" type="module"></script>
+</html>
