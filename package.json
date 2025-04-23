@@ -14,7 +14,7 @@
     "export:images": "<<< $'16\n32\n48\n128' xargs -I@ magick public/repub.svg -background none -resize @x@ images/repub_@.png && magick images/repub_*.png favicon.ico",
     "export:bundle": "bun build src/background.ts src/offscreen.ts src/popup.ts --outdir . --sourcemap=linked",
     "export:options": "next build",
-    "export:pack": "zip -r --filesync repub.zip background.js background.js.map favicon.ico images/*.png manifest.json offscreen.html popup.html popup.js popup.js.map offscreen.js offscreen.js.map ",
+    "export:pack": "zip -r --filesync repub.zip background.js background.js.map favicon.ico images/*.png manifest.json offscreen.html popup.html popup.js popup.js.map offscreen.js offscreen.js.map out",
     "export": "bun export:images && bun export:bundle && bun export:options && bun export:pack",
     "pack": "bun lint && bun test --coverage && bun export"
   },
