@@ -348,8 +348,7 @@ function ImageBrightness({
 }): ReactElement {
   const onToggle = useCallback(() => {
     setOpts({
-      imageBrightness:
-        imageBrightness === 1 ? defaultOptions.imageBrightness : 1,
+      imageBrightness: imageBrightness === 1 ? 1.2 : 1,
     });
   }, [setOpts, imageBrightness]);
   return (
