@@ -29,7 +29,7 @@ test("safeFilename()", () => {
   expect(safeFilename("L.A. info.png")).toBe("L.A. info.png");
   expect(
     safeFilename("KI: Führen uns Algorithmen ins posttheoretische Zeitalter?"),
-  ).toBe("KI_ F%C3%BChren uns Algorithmen ins posttheoretische Zeitalter_");
+  ).toBe("KI_ Führen uns Algorithmen ins posttheoretische Zeitalter_");
 });
 
 test("assert()", () => {
