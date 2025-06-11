@@ -4,7 +4,7 @@ import { TitleRequest } from "./messages";
 import { getOptions } from "./options";
 import { render } from "./render";
 import { getTab } from "./status";
-import { upload } from "./upload";
+import { uploadEpub } from "./upload";
 import { safeFilename, sleep } from "./utils";
 
 /**
@@ -71,7 +71,7 @@ async function rePub(
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await upload(epub, title, deviceToken, {
+      await uploadEpub(epub, title, deviceToken, {
         coverPageNumber,
         fontName,
         margins,

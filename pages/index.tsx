@@ -13,6 +13,7 @@ import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import { marked } from "marked";
 import Head from "next/head";
 import {
   ChangeEvent,
@@ -21,6 +22,9 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useDropzone } from "react-dropzone";
+import { toMhtml } from "../src/mhtml";
+import { uploadEpub, uploadPdf } from "../src/upload";
 // NOTE import from cjs here due to the way that nextjs handles internal es6 modules
 import styled from "@emotion/styled";
 import TextField from "@mui/material/TextField";
@@ -62,6 +66,7 @@ import {
   setOptions,
   SetOptions,
 } from "../src/options";
+import { render } from "../src/render";
 import { sleep } from "../src/utils";
 
 const ebGaramond = EB_Garamond({
@@ -146,12 +151,118 @@ function OutputStylePicker({
   );
 }
 
+async function uploadFile(deviceToken: string, file: File): Promise<void> {
+  const [buff, opts] = await Promise.all([file.arrayBuffer(), getOptions()]);
+  if (file.type === "application/epub+zip") {
+    await uploadEpub(new Uint8Array(buff), file.name, deviceToken, opts);
+  } else if (file.type === "application/pdf") {
+    await uploadPdf(new Uint8Array(buff), file.name, deviceToken, opts);
+  } else if (file.type === "multipart/related") {
+    const { epub, title } = await render(buff, opts);
+    await uploadEpub(epub, title ?? file.name, deviceToken, opts);
+  } else if (file.type === "text/markdown") {
+    // convert markdown to html and extract image URLs
+    const dec = new TextDecoder();
+    const images: string[] = [];
+    const html = marked.parse(dec.decode(new Uint8Array(buff)), {
+      gfm: true,
+      walkTokens: (token) => {
+        if (token.type === "image") {
+          images.push(token.href as string);
+        }
+      },
+    }) as string;
+    // convert html and images into mhtml to utilize the same rendering code
+    const mhtml = await toMhtml(file.name, html, images);
+    const { epub, title } = await render(mhtml.buffer as ArrayBuffer, opts);
+    await uploadEpub(epub, title ?? file.name, deviceToken, opts);
+  } else {
+    throw new Error(`unknown file type: ${file.type}`);
+  }
+}
+
+function FileUpload({
+  deviceToken,
+  showSnack,
+}: {
+  deviceToken: string;
+  showSnack: (snk: Snack) => void;
+}): ReactElement {
+  const [uploading, setUploading] = useState(false);
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const [file] = acceptedFiles;
+    if (file) {
+      setUploading(true);
+      uploadFile(deviceToken, file)
+        .then(() => {
+          showSnack({
+            key: "upload success",
+            severity: "success",
+            message: `uploaded ${file.name} successfully`,
+          });
+        })
+        .catch((ex: unknown) => {
+          console.error(ex);
+          showSnack({
+            key: "upload error",
+            severity: "error",
+            message: "problem uploading file",
+          });
+        })
+        .finally(() => {
+          setUploading(false);
+        });
+    } else {
+      showSnack({
+        key: "no files",
+        severity: "error",
+        message: "can only upload epub or pdf files",
+      });
+    }
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/epub+zip": [".epub"],
+      "application/pdf": [".pdf"],
+      "text/markdown": [".md"],
+      "multipart/related": [".mhtml"],
+    },
+    multiple: false,
+    disabled: uploading,
+  });
+  return (
+    <div {...getRootProps()}>
+      <input
+        type="file"
+        // eslint-disable-next-line spellcheck/spell-checker
+        accept="application/epub+zip,application/pdf,text/markdown,multipart/related"
+        style={{ display: "none" }}
+        {...getInputProps()}
+      />
+      <Button
+        variant="outlined"
+        fullWidth
+        style={{
+          borderStyle: isDragActive ? "dashed" : "solid",
+        }}
+        loading={uploading}
+        loadingPosition="end"
+      >
+        {isDragActive ? "Drop file to upload" : "Upload to reMarkable"}
+      </Button>
+    </div>
+  );
+}
+
 function SignIn({
-  show,
+  deviceToken,
+  outputStyle,
   setOpts,
   showSnack,
 }: {
-  show: boolean | undefined;
+  deviceToken?: string;
+  outputStyle?: OutputStyle;
   setOpts: SetOptions;
   showSnack: (snk: Snack) => void;
 }): ReactElement | null {
@@ -214,7 +325,15 @@ function SignIn({
       });
   }, [setRegistering, setIncCode, setOpts]);
 
-  if (show) {
+  if (deviceToken) {
+    return (
+      <Right>
+        <FileUpload showSnack={showSnack} deviceToken={deviceToken} />
+      </Right>
+    );
+  } else if (outputStyle === "download" || outputStyle === undefined) {
+    return null;
+  } else {
     const pasteAdornment = (
       <InputAdornment position="end">
         <Tooltip title="paste code from clipboard">
@@ -264,8 +383,6 @@ function SignIn({
         </Stack>
       </Right>
     );
-  } else {
-    return null;
   }
 }
 
@@ -377,13 +494,16 @@ export function SignOut({
 
   if (deviceToken ?? true) {
     return (
-      <Button
-        variant="outlined"
-        disabled={deviceToken === undefined}
-        onClick={signout}
-      >
-        Disconnect from your reMarkable account
-      </Button>
+      <Right>
+        <Button
+          variant="outlined"
+          disabled={deviceToken === undefined}
+          onClick={signout}
+          fullWidth
+        >
+          Disconnect from your reMarkable account
+        </Button>
+      </Right>
     );
   } else {
     return null;
@@ -397,7 +517,7 @@ function close(): void {
 function Done(): ReactElement {
   return (
     <Right>
-      <Button variant="contained" onClick={close} fullWidth={true}>
+      <Button variant="contained" onClick={close} fullWidth>
         Done
       </Button>
     </Right>
@@ -414,13 +534,6 @@ function SignInOptions({
   showSnack: (snk: Snack) => void;
 }): ReactElement {
   const { deviceToken, outputStyle } = opts;
-  const showSignIn =
-    outputStyle === "download"
-      ? false
-      : deviceToken === undefined
-        ? undefined
-        : !deviceToken;
-
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (
     <Stack spacing={2}>
@@ -428,7 +541,12 @@ function SignInOptions({
         <StaticImage alt="repub" src={`repub.svg`} width={48} height={48} />
       </LeftRight>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
-      <SignIn show={showSignIn} setOpts={setOpts} showSnack={showSnack} />
+      <SignIn
+        deviceToken={deviceToken}
+        outputStyle={outputStyle}
+        setOpts={setOpts}
+        showSnack={showSnack}
+      />
     </Stack>
   );
 }
