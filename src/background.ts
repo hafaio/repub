@@ -95,13 +95,15 @@ async function rePub(
   } catch (ex) {
     console.trace(ex);
     const msg = ex instanceof Error ? ex.toString() : "unknown error";
-    chrome.notifications.create({
-      type: "basic",
-      iconUrl: "images/repub_128.png",
-      title: "Conversion to epub failed",
-      message: msg,
-    });
-    await tab.error();
+    await Promise.all([
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: "images/repub_128.png",
+        title: "Conversion to epub failed",
+        message: msg,
+      }),
+      tab.error(),
+    ]);
     throw ex;
   } finally {
     await tab.done();
