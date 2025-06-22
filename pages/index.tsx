@@ -174,7 +174,11 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
     }) as string;
     // convert html and images into mhtml to utilize the same rendering code
     const mhtml = await toMhtml(file.name, html, images);
-    const { epub, title } = await render(mhtml.buffer as ArrayBuffer, opts);
+    const { epub, title } = await render(
+      mhtml.buffer as ArrayBuffer,
+      opts,
+      file.name,
+    );
     await uploadEpub(epub, title ?? file.name, deviceToken, opts);
   } else {
     throw new Error(`unknown file type: ${file.type}`);
