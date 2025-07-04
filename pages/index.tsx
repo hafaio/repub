@@ -152,14 +152,16 @@ function OutputStylePicker({
 }
 
 async function uploadFile(deviceToken: string, file: File): Promise<void> {
+  // strip extension up to 4 characters
+  const file_title = file.name.replace(/\.[^/.]{0,4}$/, "");
   const [buff, opts] = await Promise.all([file.arrayBuffer(), getOptions()]);
   if (file.type === "application/epub+zip") {
-    await uploadEpub(new Uint8Array(buff), file.name, deviceToken, opts);
+    await uploadEpub(new Uint8Array(buff), file_title, deviceToken, opts);
   } else if (file.type === "application/pdf") {
-    await uploadPdf(new Uint8Array(buff), file.name, deviceToken, opts);
+    await uploadPdf(new Uint8Array(buff), file_title, deviceToken, opts);
   } else if (file.type === "multipart/related") {
-    const { epub, title } = await render(buff, opts);
-    await uploadEpub(epub, title ?? file.name, deviceToken, opts);
+    const { epub, title = file_title } = await render(buff, opts);
+    await uploadEpub(epub, title, deviceToken, opts);
   } else if (file.type === "text/markdown") {
     // convert markdown to html and extract image URLs
     const dec = new TextDecoder();
@@ -174,12 +176,12 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
     }) as string;
     // convert html and images into mhtml to utilize the same rendering code
     const mhtml = await toMhtml(file.name, html, images);
-    const { epub, title } = await render(
+    const { epub, title = file_title } = await render(
       mhtml.buffer as ArrayBuffer,
       opts,
-      file.name,
+      file_title,
     );
-    await uploadEpub(epub, title ?? file.name, deviceToken, opts);
+    await uploadEpub(epub, title, deviceToken, opts);
   } else {
     throw new Error(`unknown file type: ${file.type}`);
   }
