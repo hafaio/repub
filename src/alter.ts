@@ -70,7 +70,7 @@ export function closeMatch(
 export interface Altered {
   altered: string;
   title: string;
-  byline: string;
+  byline?: string;
   cover?: string | undefined;
   seen: Set<string>;
   images: [string, Uint8Array, ImageMime][];
@@ -362,7 +362,7 @@ export async function alter(
     byline:
       author && byline && author !== byline
         ? `${author}. ${byline}`
-        : (author ?? byline ?? "unknown"),
+        : (author ?? byline ?? undefined),
     cover,
     seen,
     images,
