@@ -12,6 +12,7 @@ export async function render(
   opts: EpubOptions,
   title?: string,
   author?: string,
+  summarize: boolean = true,
 ): Promise<{ epub: Uint8Array; title?: string }> {
   await closing;
   num++;
@@ -34,6 +35,7 @@ export async function render(
     options: opts,
     title,
     author,
+    summarize,
   };
 
   try {

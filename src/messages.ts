@@ -14,6 +14,7 @@ export interface InitMessage {
   options: EpubOptions;
   title?: string;
   author?: string;
+  summarize: boolean;
 }
 
 export interface InitResponse {
