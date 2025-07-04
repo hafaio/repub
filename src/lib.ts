@@ -100,6 +100,7 @@ export async function generate(
     rotateTables,
     tableResolution,
   }: EpubOptions,
+  summarize: boolean,
   initTitle?: string,
   initAuthor?: string,
 ): Promise<Result> {
@@ -140,6 +141,7 @@ export async function generate(
       tableResolution,
       tableCss: tabCss ? baseTableCss : "",
     },
+    summarize,
   );
 
   if (cover && coverHeader) {

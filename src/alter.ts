@@ -321,6 +321,7 @@ export async function alter(
   doc: Document,
   match: UrlMatcher,
   { summarizeCharThreshold, authorByline, filterIframes, ...opts }: Options,
+  summarize: boolean = true,
 ): Promise<Altered> {
   const [cover] = match(coverUrls(doc)) ?? [];
   const allowedVideoRegex = filterIframes ? /(?!)/ : /(?:)/;
@@ -330,11 +331,13 @@ export async function alter(
       ? articleAuthor.content
       : null;
 
-  const res = new Readability<Node>(doc, {
-    charThreshold: summarizeCharThreshold,
-    allowedVideoRegex,
-    serializer: (v: Node) => v,
-  }).parse();
+  const res = summarize
+    ? new Readability<Node>(doc, {
+        charThreshold: summarizeCharThreshold,
+        allowedVideoRegex,
+        serializer: (v: Node) => v,
+      }).parse()
+    : { content: doc.body, title: undefined, byline: undefined };
   if (!res) {
     throw new Error("failed to summarize document");
   }

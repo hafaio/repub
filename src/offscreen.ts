@@ -14,6 +14,7 @@ chrome.runtime.onConnect.addListener((port) => {
   let options: EpubOptions | undefined;
   let initTitle: string | undefined;
   let initAuthor: string | undefined;
+  let summarize: boolean | undefined;
 
   port.onMessage.addListener((message: Message) => {
     if (message.type === "part") {
@@ -24,8 +25,13 @@ chrome.runtime.onConnect.addListener((port) => {
       options = message.options;
       initTitle = message.title;
       initAuthor = message.author;
+      summarize = message.summarize;
     }
-    if (expectedParts === receivedParts && options !== undefined) {
+    if (
+      expectedParts === receivedParts &&
+      options !== undefined &&
+      summarize !== undefined
+    ) {
       const opts = options;
       const mhtml = parts.join("");
       const bright = (buffer: Uint8Array, mime: string) =>
@@ -35,6 +41,7 @@ chrome.runtime.onConnect.addListener((port) => {
           toByteArray(mhtml),
           bright,
           opts,
+          summarize,
           initTitle,
           initAuthor,
         );
