@@ -5,14 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 async function loadImage(
   url: string,
 ): Promise<{ url: string; mime: string; content: Uint8Array } | null> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    console.log(`Failed to load image from ${url}: ${response.statusText}`);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.log(`Failed to load image from ${url}: ${response.statusText}`);
+      return null;
+    }
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    return { url, mime: blob.type, content: new Uint8Array(arrayBuffer) };
+  } catch (ex) {
+    console.error("failed to load resource", ex);
     return null;
   }
-  const blob = await response.blob();
-  const arrayBuffer = await blob.arrayBuffer();
-  return { url, mime: blob.type, content: new Uint8Array(arrayBuffer) };
 }
 
 function encodePart(
