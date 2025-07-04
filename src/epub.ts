@@ -14,7 +14,7 @@ export async function epub({
 }: {
   title: string;
   content: string;
-  author: string;
+  author?: string;
   images: Map<string, ImageData>;
   css: string | undefined;
   uid?: string;
@@ -27,7 +27,7 @@ export async function epub({
     components.push('<a href="', href, '">', href, "</a>");
   }
   components.push("<h1>", title, "</h1>");
-  if (byline) {
+  if (byline && author) {
     components.push(
       '<address style="font-style: italic">',
       author,
