@@ -40,6 +40,7 @@ export type Cover = "first" | "visited";
 export interface EpubOptions {
   imageHandling: ImageHandling;
   imageBrightness: number;
+  imageShrink: boolean;
   imageHrefSimilarityThreshold: number;
   hrefHeader: boolean;
   bylineHeader: boolean;
@@ -91,6 +92,7 @@ export const defaultOptions: Options = {
   imageHandling: "filter",
   imageHrefSimilarityThreshold: 0.2,
   imageBrightness: 1,
+  imageShrink: true,
   hrefHeader: false,
   bylineHeader: true,
   coverHeader: true,

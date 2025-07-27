@@ -35,7 +35,7 @@ chrome.runtime.onConnect.addListener((port) => {
       const opts = options;
       const mhtml = parts.join("");
       const bright = (buffer: Uint8Array, mime: string) =>
-        brighten(buffer, mime, opts.imageBrightness, false);
+        brighten(buffer, mime, opts.imageBrightness, false, opts.imageShrink);
       (async () => {
         const { epub, title } = await generate(
           toByteArray(mhtml),

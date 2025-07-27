@@ -164,6 +164,7 @@ global.Image = dom.window["Image"] as typeof Image;
       authorByline: args.authorByline,
       // below are unused
       imageBrightness: 1,
+      imageShrink: true,
       convertTables: false,
       rotateTables: false,
       tableResolution: 1,
