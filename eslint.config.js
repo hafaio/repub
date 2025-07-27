@@ -48,6 +48,7 @@ export default tseslint.config(
           skipWords: [
             "doctype",
             "epub",
+            "epubs",
             "hacky",
             "href",
             "latin",
