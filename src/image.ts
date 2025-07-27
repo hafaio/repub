@@ -8,6 +8,7 @@ export async function brighten(
   mime: string,
   brightness: number,
   grayscale: boolean,
+  shrink: boolean,
 ): Promise<readonly [Uint8Array, "image/png" | "image/svg+xml"]> {
   if (mime === "image/svg+xml") {
     // don't alter svgs
@@ -23,7 +24,7 @@ export async function brighten(
   const widthFact = bitmap.width * maxHeight;
 
   let width, height;
-  if (fact > heightFact && fact > widthFact) {
+  if (!shrink || (fact > heightFact && fact > widthFact)) {
     ({ width, height } = bitmap);
   } else if (widthFact > heightFact) {
     width = maxWidth;

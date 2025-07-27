@@ -633,6 +633,15 @@ function EpubOptions({
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
+        name="imageShrink"
+        title="Shrink images in epub"
+        caption="Shrink images to the approximate resolution of the reMarkable.
+        Enabling this will reduce the size of the generated epubs, but zooming
+        in will not render with the same detail."
+        opts={opts}
+        setOpts={setOpts}
+      />
+      <SimplCheckboxSelection
         name="hrefHeader"
         title="Include page URL in epub"
         caption="Include a small header with the original page URL right above
