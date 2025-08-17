@@ -16,7 +16,7 @@ export async function brighten(
   }
 
   // get into a bitmap
-  const blob = new Blob([buffer], { type: mime });
+  const blob = new Blob([buffer as unknown as ArrayBuffer], { type: mime });
   const bitmap = await createImageBitmap(blob);
 
   // scale down
