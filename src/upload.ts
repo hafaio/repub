@@ -53,7 +53,7 @@ export async function uploadEpub(
   epub: Uint8Array,
   title: string,
   deviceToken: string,
-  { tags, viewBackgroundFilter, ...rest }: UploadOptions,
+  { tags, viewBackgroundFilter, legacyUpload, ...rest }: UploadOptions,
 ): Promise<void> {
   const tagList = [
     ...Iterator.from(tags.split(","))
@@ -66,9 +66,22 @@ export async function uploadEpub(
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
     title,
   };
-  await uploadBase(deviceToken, async (api) => {
-    await api.putEpub(title, epub, opts);
-  });
+  try {
+    await uploadBase(deviceToken, async (api: RemarkableApi) => {
+      await api.putEpub(title, epub, opts);
+    });
+  } catch (ex) {
+    if (
+      legacyUpload &&
+      ex instanceof Error &&
+      /schema version \d+ not supported/.exec(ex.message)
+    ) {
+      // if we've enabled legacy fall back, and we get a schema version error, then fall back
+      await uploadBase(deviceToken, async (api: RemarkableApi) => {
+        await api.uploadEpub(title, epub);
+      });
+    }
+  }
 }
 
 export async function uploadPdf(
