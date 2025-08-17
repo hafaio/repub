@@ -66,6 +66,7 @@ export interface UploadOptions {
   textAlignment: "left" | "justify";
   // eslint-disable-next-line spellcheck/spell-checker
   viewBackgroundFilter: "off" | "fullpage" | null;
+  legacyUpload: boolean;
 }
 
 export interface Options extends EpubOptions, UploadOptions {
@@ -118,6 +119,7 @@ export const defaultOptions: Options = {
   textAlignment: "justify",
   viewBackgroundFilter: null,
   promptTitle: false,
+  legacyUpload: true,
 };
 
 export async function getOptions({

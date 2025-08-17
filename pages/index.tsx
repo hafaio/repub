@@ -27,6 +27,7 @@ import { toMhtml } from "../src/mhtml";
 import { uploadEpub, uploadPdf } from "../src/upload";
 // NOTE import from cjs here due to the way that nextjs handles internal es6 modules
 import styled from "@emotion/styled";
+import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import {
   EB_Garamond,
@@ -53,6 +54,7 @@ import {
 import { register } from "rmapi-js";
 import ButtonSelection from "../components/button-selection";
 import CheckboxSelection from "../components/checkbox-selection";
+import FormControlLabel from "../components/form-control-label";
 import LeftRight from "../components/left-right";
 import RadioSelection from "../components/radio-selection";
 import Right from "../components/right";
@@ -187,6 +189,39 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
   }
 }
 
+function LegacyUpload({
+  legacyUpload,
+  setOpts,
+}: {
+  legacyUpload?: boolean;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <Alert
+      severity="warning"
+      action={
+        <Switch
+          checked={legacyUpload ?? false}
+          disabled={legacyUpload === undefined}
+          onChange={(evt) => {
+            setOpts({ legacyUpload: evt.target.checked });
+          }}
+        />
+      }
+    >
+      Enable legacy uploads as fallback. reMarkable uploads are broken while
+      waiting for support for schema version 4. In order for the extension to
+      work, if we detect a schema 4 failure, we'll fall back to the legacy
+      upload, which still works, but doesn't enable any upload options.
+      Disabling this will instead just fail if you're current on schema 4. [
+      <Link href="https://github.com/hafaio/repub/issues/23" target="_blank">
+        more details
+      </Link>
+      ]
+    </Alert>
+  );
+}
+
 function FileUpload({
   deviceToken,
   showSnack,
@@ -262,11 +297,13 @@ function FileUpload({
 }
 
 function SignIn({
+  legacyUpload,
   deviceToken,
   outputStyle,
   setOpts,
   showSnack,
 }: {
+  legacyUpload?: boolean;
   deviceToken?: string;
   outputStyle?: OutputStyle;
   setOpts: SetOptions;
@@ -334,7 +371,10 @@ function SignIn({
   if (deviceToken) {
     return (
       <Right>
-        <FileUpload showSnack={showSnack} deviceToken={deviceToken} />
+        <Stack spacing={1}>
+          <LegacyUpload legacyUpload={legacyUpload} setOpts={setOpts} />
+          <FileUpload showSnack={showSnack} deviceToken={deviceToken} />
+        </Stack>
       </Right>
     );
   } else if (outputStyle === "download" || outputStyle === undefined) {
@@ -539,7 +579,7 @@ function SignInOptions({
   setOpts: SetOptions;
   showSnack: (snk: Snack) => void;
 }): ReactElement {
-  const { deviceToken, outputStyle } = opts;
+  const { deviceToken, outputStyle, legacyUpload } = opts;
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (
     <Stack spacing={2}>
@@ -548,6 +588,7 @@ function SignInOptions({
       </LeftRight>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn
+        legacyUpload={legacyUpload}
         deviceToken={deviceToken}
         outputStyle={outputStyle}
         setOpts={setOpts}
@@ -786,9 +827,11 @@ function DownloadOptions({
 function CoverPageNumberSelector({
   coverPageNumber,
   setOpts,
+  disabled,
 }: {
   coverPageNumber: number | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <CheckboxSelection
@@ -799,6 +842,7 @@ function CoverPageNumberSelector({
       title="First Page Cover"
       caption="If checked, use the first page as cover / thumbnail on the
       reMarkable, otherwise use the last page visited"
+      disabled={disabled}
     />
   );
 }
@@ -813,9 +857,11 @@ const MarginsLarge = styled(FaAlignJustify)`
 function MarginSelector({
   margins,
   setOpts,
+  disabled,
 }: {
   margins: number | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <ButtonSelection
@@ -830,6 +876,7 @@ function MarginSelector({
       ]}
       title="Page Margins"
       caption="The margins around the edge of the document"
+      disabled={disabled}
     />
   );
 }
@@ -853,9 +900,11 @@ const FontSizeHuge = styled(FaA)`
 function TextScaleSelector({
   textScale,
   setOpts,
+  disabled,
 }: {
   textScale: number | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement | null {
   return (
     <ButtonSelection
@@ -891,6 +940,7 @@ function TextScaleSelector({
       ]}
       title="Font Size"
       caption="The font size of the text in the document"
+      disabled={disabled}
     />
   );
 }
@@ -898,9 +948,11 @@ function TextScaleSelector({
 function LineHeightSelector({
   lineHeight,
   setOpts,
+  disabled,
 }: {
   lineHeight: number | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <ButtonSelection
@@ -924,6 +976,7 @@ function LineHeightSelector({
       ]}
       title="Line Height"
       caption="The space between lines"
+      disabled={disabled}
     />
   );
 }
@@ -931,9 +984,11 @@ function LineHeightSelector({
 function TextAlignmentSelector({
   textAlignment,
   setOpts,
+  disabled,
 }: {
   textAlignment: "left" | "justify" | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <ButtonSelection
@@ -953,6 +1008,7 @@ function TextAlignmentSelector({
       ]}
       title="Text Alignment"
       caption="How text is set on each line"
+      disabled={disabled}
     />
   );
 }
@@ -960,10 +1016,12 @@ function TextAlignmentSelector({
 function ViewBackgroundFilterSelector({
   viewBackgroundFilter,
   setOpts,
+  disabled,
 }: {
   // eslint-disable-next-line spellcheck/spell-checker
   viewBackgroundFilter: "off" | "fullpage" | null | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <ButtonSelection
@@ -989,6 +1047,7 @@ function ViewBackgroundFilterSelector({
       title="Contrast Filter"
       caption="What contrast filter to apply to pages: Full page (optimized for
       text), adaptive (balanced), or off (optimized for images)"
+      disabled={disabled}
     />
   );
 }
@@ -996,9 +1055,11 @@ function ViewBackgroundFilterSelector({
 function FontNameSelector({
   fontName,
   setOpts,
+  disabled,
 }: {
   fontName: string | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
   return (
     <ButtonSelection
@@ -1075,6 +1136,7 @@ function FontNameSelector({
       ]}
       title="Font Name"
       caption="The font to use"
+      disabled={disabled}
     />
   );
 }
@@ -1082,27 +1144,39 @@ function FontNameSelector({
 function TagsSelector({
   tags,
   setOpts,
+  disabled,
 }: {
   tags: string | undefined;
   setOpts: SetOptions;
+  disabled?: boolean;
 }): ReactElement {
+  const control = (
+    <TextField
+      variant="standard"
+      fullWidth
+      value={tags}
+      onChange={(evt) => {
+        setOpts({ tags: evt.target.value });
+      }}
+      disabled={disabled}
+    />
+  );
+  const label = (
+    <Box>
+      <Typography>Tags</Typography>
+      <Typography variant="caption">
+        Comma separated list of tags to apply to uploaded documents
+      </Typography>
+    </Box>
+  );
   return (
     <Right>
-      <Stack spacing={1}>
-        <Box>
-          <Typography>Tags</Typography>
-          <Typography variant="caption">
-            Comma separated list of tags to apply to uploaded documents
-          </Typography>
-        </Box>
-        <TextField
-          variant="standard"
-          value={tags}
-          onChange={(evt) => {
-            setOpts({ tags: evt.target.value });
-          }}
-        />
-      </Stack>
+      <FormControlLabel
+        control={control}
+        label={label}
+        labelPlacement="top"
+        slotProps={{ typography: { width: "100%" } }}
+      />
     </Right>
   );
 }
