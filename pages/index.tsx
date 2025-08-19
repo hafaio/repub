@@ -209,11 +209,11 @@ function LegacyUpload({
         />
       }
     >
-      Enable legacy uploads as fallback. reMarkable uploads are broken while
-      waiting for support for schema version 4. In order for the extension to
-      work, if we detect a schema 4 failure, we'll fall back to the legacy
-      upload, which still works, but doesn't enable any upload options.
-      Disabling this will instead just fail if you're current on schema 4. [
+      Enable legacy uploads as a fallback. reMarkable uploads are broken while
+      waiting for support for schema version 4. In order for this extension to
+      work properly, if we detect a schema 4 failure, we'll fall back to the
+      legacy upload, which does work, but doesn't enable any upload options.
+      Disabling this will instead just fail if you're currently on schema 4. [
       <Link href="https://github.com/hafaio/repub/issues/23" target="_blank">
         more details
       </Link>
