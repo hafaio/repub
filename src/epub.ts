@@ -1,4 +1,4 @@
-import { ImageData, ImageMime, render } from "teapub/dist";
+import { type ImageData, type ImageMime, render } from "teapub/dist";
 export type { ImageData, ImageMime };
 
 export async function epub({

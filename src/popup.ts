@@ -1,4 +1,4 @@
-import { TitleRequest } from "./messages";
+import type { TitleRequest } from "./messages";
 
 const title = document.getElementById("title-input")! as HTMLInputElement;
 const author = document.getElementById("author-input")! as HTMLInputElement;

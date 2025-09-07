@@ -1,6 +1,6 @@
 import { fromByteArray, toByteArray } from "base64-js";
-import { InitMessage, PartMessage, Response } from "./messages";
-import { EpubOptions } from "./options";
+import type { InitMessage, PartMessage, Response } from "./messages";
+import type { EpubOptions } from "./options";
 
 const MAX_CHUNK_SIZE = 50_000_000;
 let num = 0;

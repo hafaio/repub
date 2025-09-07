@@ -1,4 +1,4 @@
-import MuiRadio, { RadioProps } from "@mui/material/Radio";
+import MuiRadio, { type RadioProps } from "@mui/material/Radio";
 import { styled } from "@mui/material/styles";
 
 const Radio = styled(MuiRadio)<RadioProps>(() => ({

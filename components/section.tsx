@@ -1,15 +1,15 @@
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
+import MuiAccordion, { type AccordionProps } from "@mui/material/Accordion";
 import MuiAccordionDetails, {
-  AccordionDetailsProps,
+  type AccordionDetailsProps,
 } from "@mui/material/AccordionDetails";
 import MuiAccordionSummary, {
-  AccordionSummaryProps,
+  type AccordionSummaryProps,
 } from "@mui/material/AccordionSummary";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import { PropsWithChildren, ReactElement } from "react";
+import Typography from "@mui/material/Typography";
+import type { PropsWithChildren, ReactElement } from "react";
 import Right from "./right";
 
 const Accordion = styled(MuiAccordion)<AccordionProps>(() => ({

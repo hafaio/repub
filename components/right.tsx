@@ -1,4 +1,4 @@
-import Box, { BoxProps } from "@mui/material/Box";
+import Box, { type BoxProps } from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 
 const Right = styled(Box)<BoxProps>(() => ({

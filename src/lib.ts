@@ -1,6 +1,6 @@
-import { MimeData, alter, closeMatch, exactMatch } from "./alter";
-import { ImageData, ImageMime, epub } from "./epub";
-import { EpubOptions } from "./options";
+import { alter, closeMatch, exactMatch, type MimeData } from "./alter";
+import { epub, type ImageData, type ImageMime } from "./epub";
+import type { EpubOptions } from "./options";
 import { parse } from "./parse";
 
 // eslint-disable-next-line spellcheck/spell-checker
