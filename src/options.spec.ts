@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { Storage, defaultOptions, getOptions, setOptions } from "./options";
+import {
+  defaultOptions,
+  getOptions,
+  type Storage,
+  setOptions,
+} from "./options";
 
 class MapStorage implements Storage {
   #backing = new Map<string, string>();

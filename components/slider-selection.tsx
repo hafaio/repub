@@ -1,6 +1,6 @@
 import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
-import { ReactElement, useCallback } from "react";
+import { type ReactElement, useCallback } from "react";
 import Right from "./right";
 
 export default function SliderSelection({

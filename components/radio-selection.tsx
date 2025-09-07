@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import RadioGroup from "@mui/material/RadioGroup";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { ReactElement, useCallback } from "react";
+import { type ReactElement, useCallback } from "react";
 import FormControlLabel from "./form-control-label";
 import Radio from "./radio";
 

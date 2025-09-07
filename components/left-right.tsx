@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
-import Stack, { StackProps } from "@mui/material/Stack";
-import { ReactElement } from "react";
+import Stack, { type StackProps } from "@mui/material/Stack";
+import type { ReactElement } from "react";
 
 interface Props extends StackProps {
   label: ReactElement;

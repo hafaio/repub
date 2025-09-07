@@ -1,6 +1,6 @@
 import { fromByteArray } from "base64-js";
 import { pageCapture } from "./capture";
-import { TitleRequest } from "./messages";
+import type { TitleRequest } from "./messages";
 import { getOptions } from "./options";
 import { render } from "./render";
 import { getTab } from "./status";

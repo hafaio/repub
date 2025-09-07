@@ -253,7 +253,7 @@ ${this.options.tableCss}`;
       // picture element, find best source and set pictures source
       const { imageHandling } = this.options;
       const [href] = this.match(getSrcs(node.childNodes)) ?? [];
-      let img;
+      let img: HTMLImageElement | undefined;
       for (const child of node.childNodes) {
         if (child instanceof HTMLImageElement) {
           img = child;
@@ -284,7 +284,7 @@ ${this.options.tableCss}`;
         newChildren.length !== node.childNodes.length ||
         newChildren.some((child, i) => child !== node.childNodes[i])
       ) {
-        let child;
+        let child: Node | null;
         while ((child = node.firstChild)) {
           node.removeChild(child);
         }
