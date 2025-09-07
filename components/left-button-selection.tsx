@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import { ReactElement, useCallback } from "react";
+import { type ReactElement, useCallback } from "react";
 import LeftRight from "./left-right";
 
 export default function LeftButtonSelection<T extends string>({

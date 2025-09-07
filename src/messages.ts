@@ -1,4 +1,4 @@
-import { EpubOptions } from "./options";
+import type { EpubOptions } from "./options";
 
 // NOTE in order to pass messages we need to convert ArrayBuffers to strings.
 // The most straightforward way is to encode the arrays as 16 bit elements, and

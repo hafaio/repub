@@ -1,7 +1,7 @@
 import { argv } from "bun";
 import { JSDOM } from "jsdom";
 import yargs from "yargs";
-import { ImageMime } from "./epub";
+import type { ImageMime } from "./epub";
 import { generate } from "./lib";
 import { defaultOptions } from "./options";
 
@@ -47,6 +47,7 @@ global.HTMLPictureElement = dom.window.HTMLPictureElement;
 global.HTMLIFrameElement = dom.window.HTMLIFrameElement;
 global.Element = dom.window.Element;
 global.SVGElement = dom.window.SVGElement;
+// biome-ignore lint/complexity/useLiteralKeys: part of index expression
 global.Image = dom.window["Image"] as typeof Image;
 
 (async () => {

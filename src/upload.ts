@@ -1,6 +1,6 @@
-import { GenerationError, remarkable, RemarkableApi } from "rmapi-js/dist";
+import { GenerationError, type RemarkableApi, remarkable } from "rmapi-js/dist";
 import { lock } from "./lock";
-import { UploadOptions } from "./options";
+import type { UploadOptions } from "./options";
 
 const CACHE_KEY = "rmCache";
 const writeLock = lock();

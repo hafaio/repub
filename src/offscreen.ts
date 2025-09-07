@@ -1,8 +1,8 @@
 import { fromByteArray, toByteArray } from "base64-js";
 import { brighten } from "./image";
 import { generate } from "./lib";
-import { Message, Response } from "./messages";
-import { EpubOptions } from "./options";
+import type { Message, Response } from "./messages";
+import type { EpubOptions } from "./options";
 import { errString } from "./utils";
 
 const MAX_CHUNK_SIZE = 50_000_000;
