@@ -125,7 +125,9 @@ export const defaultOptions: Options = {
 export async function getOptions({
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   storage = globalThis.chrome?.storage?.local ?? mockStorage,
-}: { storage?: Storage } = {}): Promise<Options> {
+}: {
+  storage?: Storage;
+} = {}): Promise<Options> {
   const loaded = await storage.get(defaultOptions);
   return loaded as Options;
 }

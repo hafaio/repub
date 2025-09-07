@@ -1,12 +1,12 @@
 import Box from "@mui/material/Box";
 import MuiFormControlLabel, {
-  FormControlLabelProps,
+  type FormControlLabelProps,
 } from "@mui/material/FormControlLabel";
 import { styled } from "@mui/material/styles";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import { ReactElement, useCallback } from "react";
+import { type ReactElement, useCallback } from "react";
 import Right from "./right";
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(

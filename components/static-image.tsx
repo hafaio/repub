@@ -1,5 +1,5 @@
-import Image, { ImageLoaderProps, ImageProps } from "next/image";
-import { ReactElement } from "react";
+import Image, { type ImageLoaderProps, type ImageProps } from "next/image";
+import type { ReactElement } from "react";
 
 function staticLoader({ src }: ImageLoaderProps): string {
   return src;

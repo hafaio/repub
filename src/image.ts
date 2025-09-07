@@ -23,7 +23,7 @@ export async function brighten(
   const heightFact = bitmap.height * maxWidth;
   const widthFact = bitmap.width * maxHeight;
 
-  let width, height;
+  let width: number, height: number;
   if (!shrink || (fact > heightFact && fact > widthFact)) {
     ({ width, height } = bitmap);
   } else if (widthFact > heightFact) {

@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import Checkball from "./checkball";
 import FormControlLabel from "./form-control-label";
 

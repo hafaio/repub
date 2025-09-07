@@ -1,5 +1,7 @@
+// NOTE import from cjs here due to the way that nextjs handles internal es6 modules
+import styled from "@emotion/styled";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import Alert, { AlertColor } from "@mui/material/Alert";
+import Alert, { type AlertColor } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -10,31 +12,27 @@ import Link from "@mui/material/Link";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { marked } from "marked";
-import Head from "next/head";
-import {
-  ChangeEvent,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-import { useDropzone } from "react-dropzone";
-import { toMhtml } from "../src/mhtml";
-import { uploadEpub, uploadPdf } from "../src/upload";
-// NOTE import from cjs here due to the way that nextjs handles internal es6 modules
-import styled from "@emotion/styled";
-import Switch from "@mui/material/Switch";
-import TextField from "@mui/material/TextField";
 import {
   EB_Garamond,
   Noto_Sans,
   Noto_Sans_Mono,
   Noto_Serif,
 } from "next/font/google";
+import Head from "next/head";
+import {
+  type ChangeEvent,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { useDropzone } from "react-dropzone";
 import {
   FaA,
   FaAlignJustify,
@@ -60,15 +58,17 @@ import RadioSelection from "../components/radio-selection";
 import Right from "../components/right";
 import Section from "../components/section";
 import StaticImage from "../components/static-image";
+import { toMhtml } from "../src/mhtml";
 import {
   defaultOptions,
   getOptions,
-  Options,
-  OutputStyle,
+  type Options,
+  type OutputStyle,
+  type SetOptions,
   setOptions,
-  SetOptions,
 } from "../src/options";
 import { render } from "../src/render";
+import { uploadEpub, uploadPdf } from "../src/upload";
 import { sleep } from "../src/utils";
 
 const ebGaramond = EB_Garamond({
@@ -230,37 +230,40 @@ function FileUpload({
   showSnack: (snk: Snack) => void;
 }): ReactElement {
   const [uploading, setUploading] = useState(false);
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const [file] = acceptedFiles;
-    if (file) {
-      setUploading(true);
-      uploadFile(deviceToken, file)
-        .then(() => {
-          showSnack({
-            key: "upload success",
-            severity: "success",
-            message: `uploaded ${file.name} successfully`,
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const [file] = acceptedFiles;
+      if (file) {
+        setUploading(true);
+        uploadFile(deviceToken, file)
+          .then(() => {
+            showSnack({
+              key: "upload success",
+              severity: "success",
+              message: `uploaded ${file.name} successfully`,
+            });
+          })
+          .catch((ex: unknown) => {
+            console.error(ex);
+            showSnack({
+              key: "upload error",
+              severity: "error",
+              message: "problem uploading file",
+            });
+          })
+          .finally(() => {
+            setUploading(false);
           });
-        })
-        .catch((ex: unknown) => {
-          console.error(ex);
-          showSnack({
-            key: "upload error",
-            severity: "error",
-            message: "problem uploading file",
-          });
-        })
-        .finally(() => {
-          setUploading(false);
+      } else {
+        showSnack({
+          key: "no files",
+          severity: "error",
+          message: "can only upload epub or pdf files",
         });
-    } else {
-      showSnack({
-        key: "no files",
-        severity: "error",
-        message: "can only upload epub or pdf files",
-      });
-    }
-  }, []);
+      }
+    },
+    [showSnack, deviceToken],
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -339,7 +342,7 @@ function SignIn({
           setRegistering(false);
         });
     },
-    [setIncCode, setRegistering, setOpts],
+    [setOpts, showSnack],
   );
   const clipboard = useCallback(() => {
     (async () => {
@@ -366,7 +369,7 @@ function SignIn({
         setIncCode("");
         setRegistering(false);
       });
-  }, [setRegistering, setIncCode, setOpts]);
+  }, [setOpts, showSnack]);
 
   if (deviceToken) {
     return (
@@ -460,7 +463,7 @@ function SimplCheckboxSelection({
     if (onChange) {
       onChange(newVal);
     }
-  }, [setOpts, val]);
+  }, [setOpts, val, onChange, name]);
   return (
     <CheckboxSelection
       value={val}
@@ -611,7 +614,7 @@ function ResolutionSelector({
     <ButtonSelection
       value={resolution ? resolution.toFixed() : undefined}
       onChange={(val) => {
-        setOpts({ tableResolution: parseInt(val) });
+        setOpts({ tableResolution: parseInt(val, 10) });
       }}
       selections={[
         { val: "1", icon: <FaRegSquare /> },
@@ -867,7 +870,7 @@ function MarginSelector({
     <ButtonSelection
       value={margins ? margins.toFixed() : undefined}
       onChange={(val) => {
-        setOpts({ margins: parseInt(val) });
+        setOpts({ margins: parseInt(val, 10) });
       }}
       selections={[
         { val: "50", icon: <MarginsSmall /> },
@@ -958,7 +961,7 @@ function LineHeightSelector({
     <ButtonSelection
       value={lineHeight === undefined ? undefined : lineHeight.toFixed()}
       onChange={(val) => {
-        setOpts({ lineHeight: parseInt(val) });
+        setOpts({ lineHeight: parseInt(val, 10) });
       }}
       selections={[
         {
@@ -1231,14 +1234,11 @@ export default function OptionsPage(): ReactElement {
   });
   const close = useCallback(() => {
     setOpen(false);
-  }, [setOpen]);
-  const showSnack = useCallback(
-    (snk: Snack) => {
-      setSnack(snk);
-      setOpen(true);
-    },
-    [setOpen, setSnack],
-  );
+  }, []);
+  const showSnack = useCallback((snk: Snack) => {
+    setSnack(snk);
+    setOpen(true);
+  }, []);
 
   // options
   const [opts, setOptsState] = useState(unknownOpts);
@@ -1254,7 +1254,7 @@ export default function OptionsPage(): ReactElement {
         });
       });
     },
-    [opts, setOptsState],
+    [opts, showSnack],
   );
 
   useEffect(() => {
@@ -1268,7 +1268,7 @@ export default function OptionsPage(): ReactElement {
         setOpts(defaultOptions);
       });
     }
-  }, [opts === unknownOpts]);
+  }, [opts, setOpts, showSnack]);
 
   const { deviceToken } = opts;
 
