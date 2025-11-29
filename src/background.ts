@@ -95,7 +95,6 @@ async function rePub(
 
     await tab.complete(outputStyle === "download" ? "done" : "sent");
   } catch (ex) {
-    console.trace(ex);
     const msg = ex instanceof Error ? ex.toString() : "unknown error";
     await Promise.all([
       chrome.notifications.create({
