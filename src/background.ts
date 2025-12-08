@@ -26,7 +26,6 @@ async function rePub(
       outputStyle,
       downloadAsk,
       coverPageNumber,
-      legacyUpload,
       fontName,
       margins,
       textScale,
@@ -73,7 +72,6 @@ async function rePub(
       });
     } else if (deviceToken) {
       await uploadEpub(epub, title, deviceToken, {
-        legacyUpload,
         coverPageNumber,
         fontName,
         margins,
