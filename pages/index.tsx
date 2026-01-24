@@ -12,7 +12,6 @@ import Link from "@mui/material/Link";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
-import Switch from "@mui/material/Switch";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
@@ -189,39 +188,6 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
   }
 }
 
-function LegacyUpload({
-  legacyUpload,
-  setOpts,
-}: {
-  legacyUpload?: boolean;
-  setOpts: SetOptions;
-}): ReactElement {
-  return (
-    <Alert
-      severity="warning"
-      action={
-        <Switch
-          checked={legacyUpload ?? false}
-          disabled={legacyUpload === undefined}
-          onChange={(evt) => {
-            setOpts({ legacyUpload: evt.target.checked });
-          }}
-        />
-      }
-    >
-      Enable legacy uploads as a fallback. reMarkable uploads are broken while
-      waiting for support for schema version 4. In order for this extension to
-      work properly, if we detect a schema 4 failure, we'll fall back to the
-      legacy upload, which does work, but doesn't enable any upload options.
-      Disabling this will instead just fail if you're currently on schema 4. [
-      <Link href="https://github.com/hafaio/repub/issues/23" target="_blank">
-        more details
-      </Link>
-      ]
-    </Alert>
-  );
-}
-
 function FileUpload({
   deviceToken,
   showSnack,
@@ -300,13 +266,11 @@ function FileUpload({
 }
 
 function SignIn({
-  legacyUpload,
   deviceToken,
   outputStyle,
   setOpts,
   showSnack,
 }: {
-  legacyUpload?: boolean;
   deviceToken?: string;
   outputStyle?: OutputStyle;
   setOpts: SetOptions;
@@ -375,7 +339,6 @@ function SignIn({
     return (
       <Right>
         <Stack spacing={1}>
-          <LegacyUpload legacyUpload={legacyUpload} setOpts={setOpts} />
           <FileUpload showSnack={showSnack} deviceToken={deviceToken} />
         </Stack>
       </Right>
@@ -582,7 +545,7 @@ function SignInOptions({
   setOpts: SetOptions;
   showSnack: (snk: Snack) => void;
 }): ReactElement {
-  const { deviceToken, outputStyle, legacyUpload } = opts;
+  const { deviceToken, outputStyle } = opts;
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (
     <Stack spacing={2}>
@@ -591,7 +554,6 @@ function SignInOptions({
       </LeftRight>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn
-        legacyUpload={legacyUpload}
         deviceToken={deviceToken}
         outputStyle={outputStyle}
         setOpts={setOpts}
