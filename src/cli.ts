@@ -36,17 +36,18 @@ function brighten(
 
 // patch global with dom
 const dom = new JSDOM();
-global.DOMParser = dom.window.DOMParser;
-global.XMLSerializer = dom.window.XMLSerializer;
-global.HTMLMetaElement = dom.window.HTMLMetaElement;
 global.DocumentType = dom.window.DocumentType;
-global.Text = dom.window.Text;
-global.HTMLAnchorElement = dom.window.HTMLAnchorElement;
-global.HTMLImageElement = dom.window.HTMLImageElement;
-global.HTMLPictureElement = dom.window.HTMLPictureElement;
-global.HTMLIFrameElement = dom.window.HTMLIFrameElement;
+global.DOMParser = dom.window.DOMParser;
 global.Element = dom.window.Element;
+global.HTMLAnchorElement = dom.window.HTMLAnchorElement;
+global.HTMLIFrameElement = dom.window.HTMLIFrameElement;
+global.HTMLImageElement = dom.window.HTMLImageElement;
+global.HTMLMetaElement = dom.window.HTMLMetaElement;
+global.HTMLPictureElement = dom.window.HTMLPictureElement;
+global.HTMLTableElement = dom.window.HTMLTableElement;
 global.SVGElement = dom.window.SVGElement;
+global.Text = dom.window.Text;
+global.XMLSerializer = dom.window.XMLSerializer;
 // biome-ignore lint/complexity/useLiteralKeys: part of index expression
 global.Image = dom.window["Image"] as typeof Image;
 
