@@ -549,8 +549,13 @@ function SignInOptions({
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (
     <Stack spacing={2}>
-      <LeftRight sx={{ mt: "80px" }} label={title}>
-        <StaticImage alt="repub" src={`repub.svg`} width={48} height={48} />
+      <LeftRight label={title}>
+        <StaticImage
+          alt="repub"
+          src={`repub-plain.svg`}
+          width={32}
+          height={32}
+        />
       </LeftRight>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn
