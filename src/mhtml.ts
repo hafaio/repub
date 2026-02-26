@@ -14,7 +14,7 @@ async function loadImage(
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     return { url, mime: blob.type, content: new Uint8Array(arrayBuffer) };
-  } catch (ex) {
+  } catch (ex: unknown) {
     console.error("failed to load resource", ex);
     return null;
   }
