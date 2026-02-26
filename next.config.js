@@ -2,5 +2,5 @@
 export default {
   assetPrefix: process.env.NODE_ENV === "production" ? "/out" : "/",
   images: { loader: "custom" },
-  output : "export",
-}
+  output: "export",
+};

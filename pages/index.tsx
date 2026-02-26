@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
+import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -37,7 +38,9 @@ import {
   FaAlignJustify,
   FaAlignLeft,
   FaBars,
+  FaCheck,
   FaEquals,
+  FaQuestion,
   FaRegFile,
   FaRegFileImage,
   FaRegFileLines,
@@ -47,6 +50,8 @@ import {
   FaRegSquare,
   FaTableCells,
   FaTableCellsLarge,
+  FaTriangleExclamation,
+  FaXmark,
 } from "react-icons/fa6";
 import { register } from "rmapi-js";
 import ButtonSelection from "../components/button-selection";
@@ -102,11 +107,11 @@ const unknownOpts: Partial<Options> = Object.fromEntries(
   Object.entries(defaultOptions).map(([key]) => [key, undefined]),
 );
 
-async function getToken(code: string): Promise<string> {
+async function getToken(code: string, authHost: string): Promise<string> {
   // This is for testing in dev mode
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (window.chrome?.runtime?.id) {
-    return await register(code);
+    return await register(code, { authHost });
   } else {
     await sleep(1000);
     return "fake token";
@@ -270,11 +275,15 @@ function SignIn({
   outputStyle,
   setOpts,
   showSnack,
+  authHost,
+  tokenUrl,
 }: {
   deviceToken?: string;
   outputStyle?: OutputStyle;
   setOpts: SetOptions;
   showSnack: (snk: Snack) => void;
+  authHost: string;
+  tokenUrl: string;
 }): ReactElement | null {
   const [incCode, setIncCode] = useState("");
   const [registering, setRegistering] = useState(false);
@@ -286,7 +295,7 @@ function SignIn({
         setIncCode(val);
         if (val.length !== 8) return;
         setRegistering(true);
-        const deviceToken = await getToken(val);
+        const deviceToken = await getToken(val, authHost);
         setOpts({ deviceToken });
         showSnack({
           key: "login",
@@ -294,7 +303,8 @@ function SignIn({
           message: "linked reMarkable account successfully",
         });
       })()
-        .catch(() => {
+        .catch((err) => {
+          console.error(err);
           showSnack({
             key: "login error",
             severity: "error",
@@ -306,7 +316,7 @@ function SignIn({
           setRegistering(false);
         });
     },
-    [setOpts, showSnack],
+    [setOpts, showSnack, authHost],
   );
   const clipboard = useCallback(() => {
     (async () => {
@@ -314,7 +324,7 @@ function SignIn({
       const content = await navigator.clipboard.readText();
       if (content.length !== 8) return;
       setIncCode(content);
-      const deviceToken = await getToken(content);
+      const deviceToken = await getToken(content, authHost);
       setOpts({ deviceToken });
       showSnack({
         key: "login",
@@ -322,7 +332,8 @@ function SignIn({
         message: "linked reMarkable account successfully",
       });
     })()
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         showSnack({
           key: "login error",
           severity: "error",
@@ -333,7 +344,7 @@ function SignIn({
         setIncCode("");
         setRegistering(false);
       });
-  }, [setOpts, showSnack]);
+  }, [setOpts, showSnack, authHost]);
 
   if (deviceToken) {
     return (
@@ -372,10 +383,7 @@ function SignIn({
             If choosing to upload documents, you must link this extension to
             your reMarkable account
           </Alert>
-          <Link
-            href="https://my.remarkable.com/device/browser/connect"
-            target="_blank"
-          >
+          <Link href={tokenUrl} target="_blank">
             <Button variant="contained" fullWidth={true}>
               Get one-time code
             </Button>
@@ -545,7 +553,12 @@ function SignInOptions({
   setOpts: SetOptions;
   showSnack: (snk: Snack) => void;
 }): ReactElement {
-  const { deviceToken, outputStyle } = opts;
+  const {
+    deviceToken,
+    outputStyle,
+    authHost = defaultOptions.authHost,
+    tokenUrl = defaultOptions.tokenUrl,
+  } = opts;
   const title = <Typography variant="h4">reMarkable ePub Options</Typography>;
   return (
     <Stack spacing={2}>
@@ -563,6 +576,8 @@ function SignInOptions({
         outputStyle={outputStyle}
         setOpts={setOpts}
         showSnack={showSnack}
+        authHost={authHost}
+        tokenUrl={tokenUrl}
       />
     </Stack>
   );
@@ -761,8 +776,8 @@ function EpubOptions({
         onChange={(val) => {
           chrome.action
             .setPopup({ popup: val ? "popup.html" : "" })
-            .catch(() => {
-              console.error("couldn't set popup");
+            .catch((err) => {
+              console.error("couldn't set popup", err);
             });
         }}
       />
@@ -1185,6 +1200,217 @@ function UploadOptions({
   );
 }
 
+type ApiUrlKey =
+  | "authHost"
+  | "syncHost"
+  | "uploadHost"
+  | "rawHost"
+  | "tokenUrl";
+
+const apiUrlFields = new Map<ApiUrlKey, string>([
+  ["authHost", "Auth Host"],
+  ["syncHost", "Sync Host"],
+  ["uploadHost", "Upload Host"],
+  ["rawHost", "Raw Host"],
+  ["tokenUrl", "Token URL"],
+]);
+
+function UrlField({
+  label,
+  value,
+  defaultValue,
+  onChange,
+  permitted,
+}: {
+  label: string;
+  value: string | undefined;
+  defaultValue: string;
+  onChange: (val: string) => void;
+  permitted: boolean | null;
+}): ReactElement {
+  const modified = value !== undefined && value !== defaultValue;
+  const permIcon = !modified ? null : permitted === null ? (
+    <FaQuestion />
+  ) : permitted ? (
+    <FaCheck />
+  ) : (
+    <FaTriangleExclamation />
+  );
+  const control = (
+    <Input
+      fullWidth
+      value={value ?? ""}
+      onChange={(evt) => {
+        onChange(evt.target.value);
+      }}
+      endAdornment={
+        modified ? (
+          <InputAdornment position="end">
+            {permIcon}
+            <IconButton
+              size="small"
+              onClick={() => onChange(defaultValue)}
+              edge="end"
+            >
+              <FaXmark />
+            </IconButton>
+          </InputAdornment>
+        ) : undefined
+      }
+    />
+  );
+  const header = (
+    <Box>
+      <Typography>{label}</Typography>
+    </Box>
+  );
+  return (
+    <Right>
+      <FormControlLabel
+        control={control}
+        label={header}
+        labelPlacement="top"
+        slotProps={{ typography: { width: "100%" } }}
+      />
+    </Right>
+  );
+}
+
+function ApiUrlsSection({
+  opts,
+  setOpts,
+  showSnack,
+}: {
+  opts: Partial<Options>;
+  setOpts: SetOptions;
+  showSnack: (snk: Snack) => void;
+}): ReactElement {
+  const [permissions, setPermissions] = useState(new Map<ApiUrlKey, boolean>());
+
+  // check permissions for each non-default URL individually
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!globalThis.chrome?.permissions) return;
+    let stale = false;
+    // deduplicate origins so we only call contains once per unique origin
+    const originToKeys = new Map<string, ApiUrlKey[]>();
+    for (const [key] of apiUrlFields) {
+      const val = opts[key];
+      if (val && val !== defaultOptions[key]) {
+        try {
+          const origin = `${new URL(val).origin}/`;
+          const keys = originToKeys.get(origin);
+          if (keys) {
+            keys.push(key);
+          } else {
+            originToKeys.set(origin, [key]);
+          }
+        } catch {
+          // ignore invalid URLs
+        }
+      }
+    }
+    for (const [origin, keys] of originToKeys) {
+      chrome.permissions
+        .contains({ origins: [origin] })
+        .then((granted) => {
+          if (stale) return;
+          setPermissions((prev) => {
+            const next = new Map(prev);
+            for (const key of keys) {
+              next.set(key, granted);
+            }
+            return next;
+          });
+        })
+        .catch(console.error);
+    }
+    return () => {
+      stale = true;
+    };
+  }, [opts]);
+
+  const needsGrant = [...apiUrlFields.keys()].some((key) => {
+    const val = opts[key];
+    return val && val !== defaultOptions[key] && permissions.get(key) === false;
+  });
+
+  const grantPermissions = useCallback(() => {
+    const origins = new Set<string>();
+    for (const [key] of apiUrlFields) {
+      const val = opts[key];
+      if (val && val !== defaultOptions[key]) {
+        try {
+          origins.add(`${new URL(val).origin}/`);
+        } catch {
+          // ignore invalid URLs
+        }
+      }
+    }
+    if (origins.size === 0) return;
+    chrome.permissions
+      .request({ origins: [...origins] })
+      .then((granted) => {
+        if (granted) {
+          setPermissions((prev) => {
+            const next = new Map(prev);
+            for (const [key] of apiUrlFields) {
+              const val = opts[key];
+              if (val && val !== defaultOptions[key]) {
+                next.set(key, true);
+              }
+            }
+            return next;
+          });
+          showSnack({
+            key: "permissions granted",
+            severity: "success",
+            message: "host permissions granted",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        showSnack({
+          key: "permissions error",
+          severity: "error",
+          message: "could not grant host permissions",
+        });
+      });
+  }, [opts, showSnack]);
+
+  return (
+    <Section
+      title="Advanced"
+      subtitle="Only change these if you know what you're doing. Custom API URLs are for self-hosted or alternate reMarkable backends."
+    >
+      {[...apiUrlFields.entries()].map(([key, label]) => (
+        <UrlField
+          key={key}
+          label={label}
+          value={opts[key]}
+          defaultValue={defaultOptions[key]}
+          onChange={(val) => {
+            setOpts({ [key]: val });
+          }}
+          permitted={
+            opts[key] && opts[key] !== defaultOptions[key]
+              ? (permissions.get(key) ?? null)
+              : null
+          }
+        />
+      ))}
+      {needsGrant && (
+        <Right>
+          <Button variant="contained" onClick={grantPermissions}>
+            Grant Host Permissions
+          </Button>
+        </Right>
+      )}
+    </Section>
+  );
+}
+
 interface Snack {
   key: string;
   severity: AlertColor;
@@ -1212,8 +1438,9 @@ export default function OptionsPage(): ReactElement {
 
   const setOpts = useCallback(
     (options: Partial<Options>) => {
-      setOptsState({ ...opts, ...options });
-      setOptions(options).catch(() => {
+      setOptsState((prev) => ({ ...prev, ...options }));
+      setOptions(options).catch((err) => {
+        console.error(err);
         showSnack({
           key: "set opts",
           severity: "error",
@@ -1221,7 +1448,7 @@ export default function OptionsPage(): ReactElement {
         });
       });
     },
-    [opts, showSnack],
+    [showSnack],
   );
 
   useEffect(() => {
@@ -1267,6 +1494,11 @@ export default function OptionsPage(): ReactElement {
                 <EpubOptions opts={opts} setOpts={setOpts} />
                 <DownloadOptions opts={opts} setOpts={setOpts} />
                 <UploadOptions opts={opts} setOpts={setOpts} />
+                <ApiUrlsSection
+                  opts={opts}
+                  setOpts={setOpts}
+                  showSnack={showSnack}
+                />
               </Box>
               <Done />
             </Stack>

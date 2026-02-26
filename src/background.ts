@@ -21,21 +21,8 @@ async function rePub(
   try {
     await tab.init();
 
-    const {
-      deviceToken,
-      outputStyle,
-      downloadAsk,
-      coverPageNumber,
-      fontName,
-      margins,
-      textScale,
-      lineHeight,
-      tags,
-      textAlignment,
-      viewBackgroundFilter,
-      promptTitle,
-      ...opts
-    } = await getOptions();
+    const { deviceToken, outputStyle, downloadAsk, promptTitle, ...opts } =
+      await getOptions();
 
     if (action && promptTitle) {
       await Promise.all([
@@ -71,16 +58,7 @@ async function rePub(
         saveAs: downloadAsk,
       });
     } else if (deviceToken) {
-      await uploadEpub(epub, title, deviceToken, {
-        coverPageNumber,
-        fontName,
-        margins,
-        textScale,
-        lineHeight,
-        tags,
-        textAlignment,
-        viewBackgroundFilter,
-      });
+      await uploadEpub(epub, title, deviceToken, opts);
     } else {
       chrome.runtime.openOptionsPage().catch((ex: unknown) => {
         const message = ex instanceof Error ? ex.message : "unknown error";

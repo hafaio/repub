@@ -66,6 +66,11 @@ export interface UploadOptions {
   textAlignment: "left" | "justify";
   // eslint-disable-next-line spellcheck/spell-checker
   viewBackgroundFilter: "off" | "fullpage" | null;
+  authHost: string;
+  syncHost: string;
+  uploadHost: string;
+  rawHost: string;
+  tokenUrl: string;
 }
 
 export interface Options extends EpubOptions, UploadOptions {
@@ -118,6 +123,14 @@ export const defaultOptions: Options = {
   textAlignment: "justify",
   viewBackgroundFilter: null,
   promptTitle: false,
+  // -------- //
+  // API URLs //
+  // -------- //
+  authHost: "https://webapp-prod.cloud.remarkable.engineering",
+  syncHost: "https://web.eu.tectonic.remarkable.com",
+  uploadHost: "https://internal.cloud.remarkable.com",
+  rawHost: "https://eu.tectonic.remarkable.com",
+  tokenUrl: "https://my.remarkable.com/device/browser/connect",
 };
 
 export async function getOptions({
