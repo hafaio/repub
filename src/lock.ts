@@ -10,20 +10,25 @@ interface Lock {
 }
 
 class AsyncLock implements Lock {
-  #queue: (() => void)[] = [];
+  #queue: Record<number, () => void> = {};
+  #next: number = 0;
+  #last: number = 0;
   #locked: boolean = false;
 
   async acquire(): Promise<void> {
     if (this.#locked) {
-      await new Promise<void>((resolve) => this.#queue.push(resolve));
+      await new Promise<void>((resolve) => {
+        this.#queue[this.#last++] = resolve;
+      });
     } else {
       this.#locked = true;
     }
   }
 
   release(): void {
-    const next = this.#queue.pop();
-    if (next) {
+    if (this.#next !== this.#last) {
+      const next = this.#queue[this.#next]!;
+      delete this.#queue[this.#next++];
       next();
     } else {
       this.#locked = false;
