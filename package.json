@@ -11,7 +11,7 @@
     "dev": "next dev",
     "fmt": "biome format --write",
     "lint": "tsc && biome check",
-    "export:images": "<<< $'16\n32\n48\n128' xargs -I@ magick -background none public/repub.svg -resize @x@ images/repub_@.png && magick images/repub_*.png favicon.ico",
+    "export:images": "<<< $'16\n32\n48\n128' xargs -I@ rsvg-convert -w @ -h @ public/repub.svg -o images/repub_@.png && magick images/repub_*.png favicon.ico",
     "export:bundle": "bun build src/background.ts src/offscreen.ts src/popup.ts --outdir . --sourcemap=linked",
     "export:options": "next build",
     "export:pack": "zip -r --filesync repub.zip background.js background.js.map favicon.ico images/*.png manifest.json offscreen.html popup.html popup.js popup.js.map offscreen.js offscreen.js.map out",
