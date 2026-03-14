@@ -20,4 +20,5 @@ node_modules
 /scripts
 /target
 /pkg
+/images
 /favicon.ico
