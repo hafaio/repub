@@ -186,6 +186,8 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
       mhtml.buffer as ArrayBuffer,
       opts,
       file_title,
+      undefined,
+      false,
     );
     await uploadEpub(epub, title, deviceToken, opts);
   } else {
