@@ -1,7 +1,7 @@
 {
   "name": "rePub",
   "description": "reMarkable ePub",
-  "version": "5.7.2",
+  "version": "5.7.3",
   "manifest_version": 3,
   "permissions": [
     "downloads",
