@@ -1,4 +1,4 @@
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutlined";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import Checkbox, { type CheckboxProps } from "@mui/material/Checkbox";
 import { styled } from "@mui/material/styles";
