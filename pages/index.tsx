@@ -1162,7 +1162,7 @@ function TagsSelector({
         control={control}
         label={label}
         labelPlacement="top"
-        slotProps={{ typography: { width: "100%" } }}
+        slotProps={{ typography: { sx: { width: "100%" } } }}
       />
     </Right>
   );
@@ -1272,7 +1272,7 @@ function UrlField({
         control={control}
         label={header}
         labelPlacement="top"
-        slotProps={{ typography: { width: "100%" } }}
+        slotProps={{ typography: { sx: { width: "100%" } } }}
       />
     </Right>
   );
@@ -1484,7 +1484,7 @@ export default function OptionsPage(): ReactElement {
         }}
       >
         {/* eslint-disable-next-line spellcheck/spell-checker */}
-        <Stack justifyContent="space-between" sx={{ minHeight: "100vh" }}>
+        <Stack sx={{ justifyContent: "space-between", minHeight: "100vh" }}>
           <Container maxWidth="sm" sx={{ padding: 4 }}>
             <Stack spacing={4}>
               <SignInOptions

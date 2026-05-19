@@ -1,4 +1,4 @@
-import { GenerationError, type RemarkableApi, remarkable } from "rmapi-js/dist";
+import { GenerationError, type RemarkableApi, remarkable } from "rmapi-js";
 import { lock } from "./lock";
 import type { UploadOptions } from "./options";
 
