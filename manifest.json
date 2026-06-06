@@ -19,7 +19,7 @@
     "https://eu.tectonic.remarkable.com/"
   ],
   "optional_host_permissions": ["https://*/"],
-  "options_page": "out/index.html",
+  "options_page": "out/options.html",
   "action": {
     "default_title": "convert page to epub"
   },
