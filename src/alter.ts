@@ -26,7 +26,6 @@ export function exactMatch(assetData: Map<string, MimeData>): UrlMatcher {
   };
 }
 
-// eslint-disable-next-line spellcheck/spell-checker
 /**
  * looks for close matches
  *
@@ -145,7 +144,6 @@ class Walker {
       const rep = `<?xml version="1.0" encoding="utf-8"?>${encoded}`;
       let url = this.svgs.get(rep);
       if (url === undefined) {
-        // eslint-disable-next-line spellcheck/spell-checker
         url = `inlinesvg://${this.svgs.size}.svg`;
         this.svgs.set(rep, url);
       }
@@ -217,7 +215,6 @@ ${this.options.tableCss}`;
       const blob = await canvas.convertToBlob({ type: "image/png" });
       const bytes = await blob.arrayBuffer();
 
-      // eslint-disable-next-line spellcheck/spell-checker
       const url = `tableimage://${this.pngs.length}.png`;
       this.pngs.push([url, new Uint8Array(bytes)]);
 

@@ -9,7 +9,7 @@
     "incremental": true,
     "target": "esnext",
     "moduleResolution": "bundler",
-    "types": ["chrome", "bun", "node", "next"],
+    "types": ["chrome", "bun", "node"],
     "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -17,20 +17,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "skipLibCheck": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "skipLibCheck": true
   },
-  "include": [
-    "src",
-    "content",
-    "pages",
-    "components",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["src", "components"],
   "exclude": ["node_modules"]
 }

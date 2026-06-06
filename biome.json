@@ -8,7 +8,7 @@
   "files": {
     "includes": [
       "src/*.ts",
-      "pages/*.tsx",
+      "src/*.tsx",
       "components/*.tsx",
       "*.{json,config.js}",
       "*.html"

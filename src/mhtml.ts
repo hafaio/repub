@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { fromByteArray } from "base64-js";
 import { v4 as uuidv4 } from "uuid";
 

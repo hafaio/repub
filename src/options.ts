@@ -64,7 +64,6 @@ export interface UploadOptions {
   lineHeight: number;
   tags: string;
   textAlignment: "left" | "justify";
-  // eslint-disable-next-line spellcheck/spell-checker
   viewBackgroundFilter: "off" | "fullpage" | null;
   authHost: string;
   syncHost: string;
@@ -114,7 +113,6 @@ export const defaultOptions: Options = {
   // Upload //
   // ------ //
   coverPageNumber: -1,
-  // eslint-disable-next-line spellcheck/spell-checker
   fontName: "EB Garamond",
   margins: 125,
   textScale: 1,
@@ -134,7 +132,6 @@ export const defaultOptions: Options = {
 };
 
 export async function getOptions({
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   storage = globalThis.chrome?.storage?.local ?? mockStorage,
 }: {
   storage?: Storage;
@@ -148,7 +145,6 @@ export type SetOptions = (options: Partial<Options>) => void;
 export async function setOptions(
   opts: Partial<Options>,
   {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     storage = globalThis.chrome?.storage?.local ?? mockStorage,
   }: { storage?: Storage } = {},
 ): Promise<void> {
