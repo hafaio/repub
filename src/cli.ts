@@ -78,7 +78,6 @@ global.Image = dom.window["Image"] as typeof Image;
       type: "string",
     })
     .option("img-sim-thresh", {
-      // eslint-disable-next-line spellcheck/spell-checker
       describe: "how similar image urls need to be to use them",
       type: "number",
       default: defaultOptions.imageHrefSimilarityThreshold,
@@ -94,9 +93,7 @@ global.Image = dom.window["Image"] as typeof Image;
       type: "boolean",
       default: defaultOptions.filterLinks,
     })
-    // eslint-disable-next-line spellcheck/spell-checker
     .option("filter-iframes", {
-      // eslint-disable-next-line spellcheck/spell-checker
       describe: "filter iframes from generated results",
       type: "boolean",
       default: defaultOptions.filterIframes,

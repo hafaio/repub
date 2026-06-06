@@ -17,7 +17,6 @@ export interface ParsedWebpage {
   readonly assets: AsyncIterableIterator<Asset>;
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 async function* asIterable(
   data: Uint8Array,
 ): AsyncIterableIterator<Uint8Array> {

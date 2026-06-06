@@ -3,7 +3,6 @@ import { epub, type ImageData, type ImageMime } from "./epub";
 import type { EpubOptions } from "./options";
 import { parse } from "./parse";
 
-// eslint-disable-next-line spellcheck/spell-checker
 const remarkableCss = `
 p {
   margin-top: 1em;

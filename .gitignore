@@ -3,8 +3,6 @@
 coverage
 node_modules
 *.tsbuildinfo
-.eslintcache
-.next
 
 # Artifacts #
 #############
@@ -21,4 +19,3 @@ node_modules
 /target
 /pkg
 /images
-/favicon.ico

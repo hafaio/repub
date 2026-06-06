@@ -16,4 +16,3 @@ jobs:
       - run: bun lint
       - run: bun test
       - run: bun export:bundle
-      - run: bun export:options
