@@ -1,4 +1,3 @@
-// NOTE import from cjs here due to the way that nextjs handles internal es6 modules
 import styled from "@emotion/styled";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import Alert, { type AlertColor } from "@mui/material/Alert";
@@ -18,13 +17,6 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { marked } from "marked";
-import {
-  EB_Garamond,
-  Noto_Sans,
-  Noto_Sans_Mono,
-  Noto_Serif,
-} from "next/font/google";
-import Head from "next/head";
 import {
   type ChangeEvent,
   type ReactElement,
@@ -54,14 +46,7 @@ import {
   FaXmark,
 } from "react-icons/fa6";
 import { register } from "rmapi-js";
-import ButtonSelection from "../components/button-selection";
-import CheckboxSelection from "../components/checkbox-selection";
-import FormControlLabel from "../components/form-control-label";
-import LeftRight from "../components/left-right";
-import RadioSelection from "../components/radio-selection";
-import Right from "../components/right";
-import Section from "../components/section";
-import StaticImage from "../components/static-image";
+import repubPlain from "../public/repub-plain.svg";
 import { toMhtml } from "../src/mhtml";
 import {
   defaultOptions,
@@ -74,23 +59,13 @@ import {
 import { render } from "../src/render";
 import { uploadEpub, uploadPdf } from "../src/upload";
 import { sleep } from "../src/utils";
-
-const ebGaramond = EB_Garamond({
-  weight: "400",
-  subsets: ["latin"],
-});
-const notoSans = Noto_Sans({
-  weight: "400",
-  subsets: ["latin"],
-});
-const notoSerif = Noto_Serif({
-  weight: "400",
-  subsets: ["latin"],
-});
-const notoMono = Noto_Sans_Mono({
-  weight: "400",
-  subsets: ["latin"],
-});
+import ButtonSelection from "./button-selection";
+import CheckboxSelection from "./checkbox-selection";
+import FormControlLabel from "./form-control-label";
+import LeftRight from "./left-right";
+import RadioSelection from "./radio-selection";
+import Right from "./right";
+import Section from "./section";
 
 const theme = createTheme({
   palette: {
@@ -109,7 +84,6 @@ const unknownOpts: Partial<Options> = Object.fromEntries(
 
 async function getToken(code: string, authHost: string): Promise<string> {
   // This is for testing in dev mode
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (window.chrome?.runtime?.id) {
     return await register(code, { authHost });
   } else {
@@ -252,7 +226,6 @@ function FileUpload({
     <div {...getRootProps()}>
       <input
         type="file"
-        // eslint-disable-next-line spellcheck/spell-checker
         accept="application/epub+zip,application/pdf,text/markdown,multipart/related"
         style={{ display: "none" }}
         {...getInputProps()}
@@ -565,12 +538,7 @@ function SignInOptions({
   return (
     <Stack spacing={2}>
       <LeftRight label={title}>
-        <StaticImage
-          alt="repub"
-          src={`repub-plain.svg`}
-          width={32}
-          height={32}
-        />
+        <img alt="repub" src={repubPlain} width={32} height={32} />
       </LeftRight>
       <OutputStylePicker outputStyle={outputStyle} setOpts={setOpts} />
       <SignIn
@@ -736,7 +704,6 @@ function EpubOptions({
         setOpts={setOpts}
       />
       <SimplCheckboxSelection
-        // eslint-disable-next-line spellcheck/spell-checker
         name="filterIframes"
         title="Remove IFrames"
         caption="Some pages may include relevant information in iframes.
@@ -1005,7 +972,6 @@ function ViewBackgroundFilterSelector({
   setOpts,
   disabled,
 }: {
-  // eslint-disable-next-line spellcheck/spell-checker
   viewBackgroundFilter: "off" | "fullpage" | null | undefined;
   setOpts: SetOptions;
   disabled?: boolean;
@@ -1018,7 +984,6 @@ function ViewBackgroundFilterSelector({
       }}
       selections={[
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "fullpage",
           icon: <FaRegFileLines />,
         },
@@ -1056,65 +1021,55 @@ function FontNameSelector({
       }}
       selections={[
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "EB Garamond",
           icon: (
             <Typography
               variant="caption"
-              className={ebGaramond.className}
-              sx={{ textTransform: "none" }}
+              sx={{ fontFamily: "'EB Garamond'", textTransform: "none" }}
             >
               EB Garamond
             </Typography>
           ),
         },
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "Noto Sans",
           icon: (
             <Typography
               variant="caption"
-              className={notoSans.className}
-              sx={{ textTransform: "none" }}
+              sx={{ fontFamily: "'Noto Sans'", textTransform: "none" }}
             >
               Noto Sans
             </Typography>
           ),
         },
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "Noto Serif",
           icon: (
             <Typography
               variant="caption"
-              className={notoSerif.className}
-              sx={{ textTransform: "none" }}
+              sx={{ fontFamily: "'Noto Serif'", textTransform: "none" }}
             >
               Noto Serif
             </Typography>
           ),
         },
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "Noto Mono",
           icon: (
             <Typography
               variant="caption"
-              className={notoMono.className}
-              sx={{ textTransform: "none" }}
+              sx={{ fontFamily: "'Noto Sans Mono'", textTransform: "none" }}
             >
               Noto Mono
             </Typography>
           ),
         },
         {
-          // eslint-disable-next-line spellcheck/spell-checker
           val: "Noto Sans UI",
           icon: (
             <Typography
               variant="caption"
-              className={notoSans.className}
-              sx={{ textTransform: "none" }}
+              sx={{ fontFamily: "'Noto Sans'", textTransform: "none" }}
             >
               Noto Sans UI
             </Typography>
@@ -1291,7 +1246,6 @@ function ApiUrlsSection({
 
   // check permissions for each non-default URL individually
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!globalThis.chrome?.permissions) return;
     let stale = false;
     // deduplicate origins so we only call contains once per unique origin
@@ -1470,11 +1424,6 @@ export default function OptionsPage(): ReactElement {
 
   return (
     <ThemeProvider theme={theme}>
-      <Head>
-        <title>reMarkable ePub Options</title>
-        {/* eslint-disable-next-line spellcheck/spell-checker */}
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <Box
         sx={{
           maxWidth: "700px",
@@ -1483,7 +1432,6 @@ export default function OptionsPage(): ReactElement {
           margin: "0 auto",
         }}
       >
-        {/* eslint-disable-next-line spellcheck/spell-checker */}
         <Stack sx={{ justifyContent: "space-between", minHeight: "100vh" }}>
           <Container maxWidth="sm" sx={{ padding: 4 }}>
             <Stack spacing={4}>

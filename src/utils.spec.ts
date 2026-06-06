@@ -20,7 +20,6 @@ async function mySleep(seconds: number): Promise<null> {
 
 test("timeout()", async () => {
   expect(await timeout(mySleep(1), 10)).toBeNull();
-  // eslint-disable-next-line @typescript-eslint/await-thenable,@typescript-eslint/no-confusing-void-expression
   await expect(timeout(mySleep(10), 1)).rejects.toThrow("timeout");
 });
 
