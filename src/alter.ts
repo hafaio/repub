@@ -133,7 +133,7 @@ class Walker {
       yield node;
     } else if (node instanceof HTMLAnchorElement && this.options.filterLinks) {
       // remove link leaving just children
-      for (const child of node.childNodes) {
+      for (const child of [...node.childNodes]) {
         yield* this.#walk(child);
       }
     } else if (node instanceof SVGElement) {
@@ -271,7 +271,8 @@ ${this.options.tableCss}`;
     } else {
       // all others
       const newChildren = [];
-      for (const child of node.childNodes) {
+      // snapshot: #walk may reparent a child
+      for (const child of [...node.childNodes]) {
         for await (const walked of this.#walk(child)) {
           newChildren.push(walked);
         }
