@@ -38,6 +38,7 @@
     "base64-js": "^1.5.1",
     "entities": "^8.0.0",
     "jsdom": "^29.1.1",
+    "jszip": "^3.10.1",
     "leven": "^4.1.0",
     "marked": "^18.0.5",
     "mhtml-stream": "^3.0.1",
