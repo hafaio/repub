@@ -111,7 +111,7 @@ global.Image = dom.window["Image"] as typeof Image;
     .option("tab-css", {
       describe: "use table css",
       type: "boolean",
-      default: defaultOptions.codeCss,
+      default: defaultOptions.tabCss,
     })
     .option("href-header", {
       describe: "add a header with the url",
