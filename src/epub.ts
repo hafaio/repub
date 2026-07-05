@@ -42,15 +42,7 @@ export async function epub({
       `"/></div>`,
     );
   }
-  // NOTE we shouldn't have to do this unescape here, but empirically we do...
-  components.push(
-    content
-      .replaceAll("&amp;", "&")
-      .replaceAll("&lt;", "<")
-      .replaceAll("&gt;", ">")
-      .replaceAll("&quot;", '"')
-      .replaceAll("&#39;", "'"),
-  );
+  components.push(content);
 
   return await render({
     title,
