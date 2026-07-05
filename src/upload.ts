@@ -58,6 +58,7 @@ async function uploadBase(
       uploadHost,
       rawHost,
     );
+    let lastError: GenerationError | undefined;
     for (let i = 0; i < 3; i++) {
       try {
         await put(api);
@@ -68,8 +69,12 @@ async function uploadBase(
         if (!(ex instanceof GenerationError)) {
           throw ex;
         }
+        lastError = ex;
       }
     }
+    // every attempt raised a GenerationError; surface it instead of silently
+    // reporting success and losing the upload
+    throw lastError;
   } finally {
     writeLock.release();
   }
