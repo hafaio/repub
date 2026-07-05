@@ -1,4 +1,4 @@
-import { type ImageData, type ImageMime, render } from "teapub/dist";
+import { type ImageData, type ImageMime, render } from "teapub";
 
 export type { ImageData, ImageMime };
 
