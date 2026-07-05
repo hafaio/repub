@@ -24,8 +24,6 @@ async function getApi(
   ) {
     return cachedApi;
   } else {
-    cachedToken = deviceToken;
-    cachedUrlKey = urlKey;
     const { [CACHE_KEY]: cache } = await chrome.storage.local.get(CACHE_KEY);
     const api = await remarkable(deviceToken, {
       maxCacheSize,
@@ -35,6 +33,9 @@ async function getApi(
       uploadHost,
       rawHost,
     });
+    // only populate the cache once the api has been built
+    cachedToken = deviceToken;
+    cachedUrlKey = urlKey;
     cachedApi = api;
     return api;
   }
