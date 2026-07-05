@@ -12,11 +12,10 @@ async function getApi(
   deviceToken: string,
   maxCacheSize: number,
   authHost: string,
-  syncHost: string,
   uploadHost: string,
   rawHost: string,
 ): Promise<RemarkableApi> {
-  const urlKey = `${authHost}|${syncHost}|${uploadHost}|${rawHost}`;
+  const urlKey = `${authHost}|${uploadHost}|${rawHost}`;
   if (
     cachedApi !== undefined &&
     cachedToken === deviceToken &&
@@ -29,7 +28,6 @@ async function getApi(
       maxCacheSize,
       cache: cache as string,
       authHost,
-      syncHost,
       uploadHost,
       rawHost,
     });
@@ -44,7 +42,6 @@ async function getApi(
 async function uploadBase(
   deviceToken: string,
   authHost: string,
-  syncHost: string,
   uploadHost: string,
   rawHost: string,
   put: (api: RemarkableApi) => Promise<void>,
@@ -55,7 +52,6 @@ async function uploadBase(
       deviceToken,
       1_000_000,
       authHost,
-      syncHost,
       uploadHost,
       rawHost,
     );
@@ -89,7 +85,6 @@ export async function uploadEpub(
     tags,
     viewBackgroundFilter,
     authHost,
-    syncHost,
     uploadHost,
     rawHost,
     tokenUrl: _,
@@ -110,7 +105,6 @@ export async function uploadEpub(
   await uploadBase(
     deviceToken,
     authHost,
-    syncHost,
     uploadHost,
     rawHost,
     async (api: RemarkableApi) => {
@@ -127,7 +121,6 @@ export async function uploadPdf(
     tags,
     viewBackgroundFilter,
     authHost,
-    syncHost,
     uploadHost,
     rawHost,
     tokenUrl: _,
@@ -145,14 +138,7 @@ export async function uploadPdf(
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
     title,
   };
-  await uploadBase(
-    deviceToken,
-    authHost,
-    syncHost,
-    uploadHost,
-    rawHost,
-    async (api) => {
-      await api.putPdf(title, pdf, opts);
-    },
-  );
+  await uploadBase(deviceToken, authHost, uploadHost, rawHost, async (api) => {
+    await api.putPdf(title, pdf, opts);
+  });
 }
