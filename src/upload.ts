@@ -1,4 +1,9 @@
-import { GenerationError, type RemarkableApi, remarkable } from "rmapi-js";
+import {
+  GenerationError,
+  type PutOptions,
+  type RemarkableApi,
+  remarkable,
+} from "rmapi-js";
 import { lock } from "./lock";
 import type { UploadOptions } from "./options";
 
@@ -44,7 +49,7 @@ async function uploadBase(
   authHost: string,
   uploadHost: string,
   rawHost: string,
-  put: (api: RemarkableApi) => Promise<void>,
+  put: (api: RemarkableApi) => Promise<unknown>,
 ): Promise<void> {
   await writeLock.acquire();
   try {
@@ -77,8 +82,8 @@ async function uploadBase(
   }
 }
 
-export async function uploadEpub(
-  epub: Uint8Array,
+async function upload(
+  payload: Uint8Array,
   title: string,
   deviceToken: string,
   {
@@ -90,6 +95,12 @@ export async function uploadEpub(
     tokenUrl: _,
     ...rest
   }: UploadOptions,
+  put: (
+    api: RemarkableApi,
+    name: string,
+    buffer: Uint8Array,
+    opts: PutOptions,
+  ) => Promise<unknown>,
 ): Promise<void> {
   const tagList = [
     ...Iterator.from(tags.split(","))
@@ -102,43 +113,29 @@ export async function uploadEpub(
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
     title,
   };
-  await uploadBase(
-    deviceToken,
-    authHost,
-    uploadHost,
-    rawHost,
-    async (api: RemarkableApi) => {
-      await api.putEpub(title, epub, opts);
-    },
+  await uploadBase(deviceToken, authHost, uploadHost, rawHost, (api) =>
+    put(api, title, payload, opts),
   );
 }
 
-export async function uploadPdf(
+export function uploadEpub(
+  epub: Uint8Array,
+  title: string,
+  deviceToken: string,
+  options: UploadOptions,
+): Promise<void> {
+  return upload(epub, title, deviceToken, options, (api, name, buffer, opts) =>
+    api.putEpub(name, buffer, opts),
+  );
+}
+
+export function uploadPdf(
   pdf: Uint8Array,
   title: string,
   deviceToken: string,
-  {
-    tags,
-    viewBackgroundFilter,
-    authHost,
-    uploadHost,
-    rawHost,
-    tokenUrl: _,
-    ...rest
-  }: UploadOptions,
+  options: UploadOptions,
 ): Promise<void> {
-  const tagList = [
-    ...Iterator.from(tags.split(","))
-      .map((tag) => tag.trim())
-      .filter((tag) => !!tag.length),
-  ];
-  const opts = {
-    ...rest,
-    tags: tagList,
-    viewBackgroundFilter: viewBackgroundFilter ?? undefined,
-    title,
-  };
-  await uploadBase(deviceToken, authHost, uploadHost, rawHost, async (api) => {
-    await api.putPdf(title, pdf, opts);
-  });
+  return upload(pdf, title, deviceToken, options, (api, name, buffer, opts) =>
+    api.putPdf(name, buffer, opts),
+  );
 }
