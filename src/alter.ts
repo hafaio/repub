@@ -129,7 +129,7 @@ class Walker {
       // <!doctype ...> node should never actually find
       throw new Error("internal error: should never get a doctype element");
     } else if (node instanceof Text) {
-      // preserve these these
+      // preserve these
       yield node;
     } else if (node instanceof HTMLAnchorElement && this.options.filterLinks) {
       // remove link leaving just children
@@ -154,7 +154,7 @@ class Walker {
       const div = document.createElement("div");
       document.body.appendChild(div);
       // we attach a shadow dom to prevent styles from affecting rendering
-      const shadow = div.attachShadow({ mode: "closed" }); // ultimately make closed?
+      const shadow = div.attachShadow({ mode: "closed" });
 
       const style = document.createElement("style");
       style.innerHTML = `
