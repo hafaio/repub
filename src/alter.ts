@@ -185,9 +185,14 @@ ${this.options.tableCss}`;
 
       const serial = new XMLSerializer();
       const render = new Image();
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         render.addEventListener("load", resolve);
-        render.src = `data:image/svg+xml,${serial.serializeToString(svg)}`;
+        render.addEventListener("error", () => {
+          reject(new Error("failed to render table image"));
+        });
+        render.src = `data:image/svg+xml,${encodeURIComponent(
+          serial.serializeToString(svg),
+        )}`;
       });
 
       const canvasWidth = width * this.options.tableResolution;
