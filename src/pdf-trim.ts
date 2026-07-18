@@ -15,10 +15,21 @@ const MAX_PAGES = 32;
 const TARGET_PX = 1000;
 // give up on a wedged pdf.js worker so the upload falls back to no trim
 const LOAD_TIMEOUT_MS = 20_000;
+// generous per-page cap: a heavy page still renders, but a wedged one gives up
+// and is skipped rather than hanging the whole upload
+const RENDER_TIMEOUT_MS = 120_000;
 
-function rejectAfter(ms: number): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error("pdf analysis timed out")), ms);
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    clearTimeout(timer);
   });
 }
 
@@ -63,11 +74,12 @@ export async function analyzePdfMargins(
     useWorkerFetch: false,
     useWasm: false,
   });
-  const doc = await Promise.race([
-    loadingTask.promise,
-    rejectAfter(LOAD_TIMEOUT_MS),
-  ]);
   try {
+    const doc = await withTimeout(
+      loadingTask.promise,
+      LOAD_TIMEOUT_MS,
+      "pdf load timed out",
+    );
     const canvas = new OffscreenCanvas(1, 1);
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("could not get a 2d context for pdf analysis");
@@ -84,12 +96,16 @@ export async function analyzePdfMargins(
         });
         canvas.width = Math.ceil(viewport.width);
         canvas.height = Math.ceil(viewport.height);
-        await page.render({
-          canvas: null,
-          canvasContext: ctx as unknown as CanvasRenderingContext2D,
-          viewport,
-          background: "white",
-        }).promise;
+        await withTimeout(
+          page.render({
+            canvas: null,
+            canvasContext: ctx as unknown as CanvasRenderingContext2D,
+            viewport,
+            background: "white",
+          }).promise,
+          RENDER_TIMEOUT_MS,
+          `pdf page ${pageNum} render timed out`,
+        );
         const box = contentBox(
           ctx.getImageData(0, 0, canvas.width, canvas.height),
         );
