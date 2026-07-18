@@ -328,11 +328,16 @@ export async function alter(
 ): Promise<Altered> {
   const [cover] = match(coverUrls(doc)) ?? [];
   const allowedVideoRegex = filterIframes ? /(?!)/ : /(?:)/;
-  const articleAuthor = doc.querySelector(`meta[property="article:author"]`);
-  const author =
-    authorByline && articleAuthor instanceof HTMLMetaElement
-      ? articleAuthor.content
-      : null;
+  const authors = authorByline
+    ? [...doc.querySelectorAll(`meta[property="article:author"]`)]
+        .filter(
+          (meta): meta is HTMLMetaElement => meta instanceof HTMLMetaElement,
+        )
+        .map((meta) => meta.content.trim())
+        .filter((content) => content.length && !URL.canParse(content))
+        .map((content) => content.replace(/,\s*/g, ", "))
+    : [];
+  const author = authors.length ? authors.join(", ") : null;
 
   const res = summarize
     ? new Readability<Node>(doc, {
