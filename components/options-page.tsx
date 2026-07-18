@@ -19,8 +19,10 @@ import Typography from "@mui/material/Typography";
 import { marked } from "marked";
 import {
   type ChangeEvent,
+  createContext,
   type ReactElement,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from "react";
@@ -180,79 +182,57 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
   }
 }
 
-function FileUpload({
-  deviceToken,
-  showSnack,
-}: {
-  deviceToken: string;
-  showSnack: (snk: Snack) => void;
-}): ReactElement {
-  const [uploading, setUploading] = useState(false);
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const [file] = acceptedFiles;
-      if (file) {
-        setUploading(true);
-        uploadFile(deviceToken, file)
-          .then(() => {
-            showSnack({
-              key: "upload success",
-              severity: "success",
-              message: `uploaded ${file.name} successfully`,
-            });
-          })
-          .catch((ex: unknown) => {
-            console.error(ex);
-            showSnack({
-              key: "upload error",
-              severity: "error",
-              message: "problem uploading file",
-            });
-          })
-          .finally(() => {
-            setUploading(false);
-          });
-      } else {
-        showSnack({
-          key: "no files",
-          severity: "error",
-          message: "can only upload epub or pdf files",
-        });
-      }
-    },
-    [showSnack, deviceToken],
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      "application/epub+zip": [".epub"],
-      "application/pdf": [".pdf"],
-      "text/markdown": [".md"],
-      "multipart/related": [".mhtml"],
-    },
-    multiple: false,
-    disabled: uploading,
-  });
+// the page-level dropzone (in OptionsPage) opens the file dialog and tracks the
+// in-flight upload; the button just triggers and reflects them
+const UploadControl = createContext<{ open: () => void; uploading: boolean }>({
+  open: () => {},
+  uploading: false,
+});
+
+function FileUpload(): ReactElement {
+  const { open, uploading } = useContext(UploadControl);
   return (
-    <div {...getRootProps()}>
-      <input
-        type="file"
-        accept="application/epub+zip,application/pdf,text/markdown,multipart/related"
-        style={{ display: "none" }}
-        {...getInputProps()}
-      />
-      <Button
-        variant="outlined"
-        fullWidth
-        style={{
-          borderStyle: isDragActive ? "dashed" : "solid",
-        }}
-        loading={uploading}
-        loadingPosition="end"
-      >
-        {isDragActive ? "Drop file to upload" : "Upload to reMarkable"}
-      </Button>
-    </div>
+    <Button
+      variant="outlined"
+      fullWidth
+      onClick={open}
+      loading={uploading}
+      loadingPosition="end"
+    >
+      Upload to reMarkable
+    </Button>
+  );
+}
+
+// muted brick red, toned down to sit with the page's sepia rather than a stark
+// signal red
+const DROP_REJECT_COLOR = "#a15749";
+
+function DropOverlay({ reject }: { reject: boolean }): ReactElement {
+  const accent = reject ? DROP_REJECT_COLOR : "#000";
+  return (
+    <Box
+      sx={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 2000,
+        pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: accent,
+        bgcolor: "rgba(250, 246, 240, 0.94)",
+        border: "1px dashed",
+        borderColor: accent,
+      }}
+    >
+      <Stack spacing={2} sx={{ alignItems: "center" }}>
+        {reject ? <FaBan size={36} /> : <FaRegFile size={36} />}
+        <Typography variant="h5">
+          {reject ? "Unsupported file type" : "Drop to upload to reMarkable"}
+        </Typography>
+      </Stack>
+    </Box>
   );
 }
 
@@ -336,7 +316,7 @@ function SignIn({
     return (
       <Right>
         <Stack spacing={1}>
-          <FileUpload showSnack={showSnack} deviceToken={deviceToken} />
+          <FileUpload />
         </Stack>
       </Right>
     );
@@ -1504,56 +1484,124 @@ export default function OptionsPage(): ReactElement {
 
   const { deviceToken } = opts;
 
+  // whole-page dropzone: uploads go to reMarkable, so it's live only once linked
+  const [uploading, setUploading] = useState(false);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const [file] = acceptedFiles;
+      if (!file) {
+        showSnack({
+          key: "no files",
+          severity: "error",
+          message: "can only upload epub or pdf files",
+        });
+        return;
+      }
+      if (!deviceToken) return;
+      setUploading(true);
+      uploadFile(deviceToken, file)
+        .then(() => {
+          showSnack({
+            key: "upload success",
+            severity: "success",
+            message: `uploaded ${file.name} successfully`,
+          });
+        })
+        .catch((ex: unknown) => {
+          console.error(ex);
+          showSnack({
+            key: "upload error",
+            severity: "error",
+            message: "problem uploading file",
+          });
+        })
+        .finally(() => {
+          setUploading(false);
+        });
+    },
+    [showSnack, deviceToken],
+  );
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragReject,
+    open: openPicker,
+  } = useDropzone({
+    onDrop,
+    accept: {
+      "application/epub+zip": [".epub"],
+      "application/pdf": [".pdf"],
+      "text/markdown": [".md"],
+      "multipart/related": [".mhtml"],
+    },
+    multiple: false,
+    noClick: true,
+    noKeyboard: true,
+    disabled: uploading || !deviceToken,
+  });
+
   return (
     <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          maxWidth: "700px",
-          width: "100%",
-          padding: 0,
-          margin: "0 auto",
-        }}
-      >
-        <Stack sx={{ justifyContent: "space-between", minHeight: "100vh" }}>
-          <Container maxWidth="sm" sx={{ padding: 4 }}>
-            <Stack spacing={4}>
-              <SignInOptions
-                opts={opts}
-                setOpts={setOpts}
-                showSnack={showSnack}
-              />
+      <UploadControl.Provider value={{ open: openPicker, uploading }}>
+        <div {...getRootProps()} style={{ minHeight: "100vh" }}>
+          <input
+            type="file"
+            accept="application/epub+zip,application/pdf,text/markdown,multipart/related"
+            style={{ display: "none" }}
+            {...getInputProps()}
+          />
+          <Box
+            sx={{
+              maxWidth: "700px",
+              width: "100%",
+              padding: 0,
+              margin: "0 auto",
+            }}
+          >
+            <Stack sx={{ justifyContent: "space-between", minHeight: "100vh" }}>
+              <Container maxWidth="sm" sx={{ padding: 4 }}>
+                <Stack spacing={4}>
+                  <SignInOptions
+                    opts={opts}
+                    setOpts={setOpts}
+                    showSnack={showSnack}
+                  />
+                  <Box>
+                    <EpubOptions opts={opts} setOpts={setOpts} />
+                    <DownloadOptions opts={opts} setOpts={setOpts} />
+                    <UploadOptions opts={opts} setOpts={setOpts} />
+                    <ApiUrlsSection
+                      opts={opts}
+                      setOpts={setOpts}
+                      showSnack={showSnack}
+                    />
+                  </Box>
+                  <Done />
+                </Stack>
+              </Container>
               <Box>
-                <EpubOptions opts={opts} setOpts={setOpts} />
-                <DownloadOptions opts={opts} setOpts={setOpts} />
-                <UploadOptions opts={opts} setOpts={setOpts} />
-                <ApiUrlsSection
-                  opts={opts}
-                  setOpts={setOpts}
-                  showSnack={showSnack}
-                />
+                <Container maxWidth="sm" sx={{ padding: 4 }}>
+                  <Stack>
+                    <SignOut deviceToken={deviceToken} setOpts={setOpts} />
+                  </Stack>
+                </Container>
               </Box>
-              <Done />
             </Stack>
-          </Container>
-          <Box>
-            <Container maxWidth="sm" sx={{ padding: 4 }}>
-              <Stack>
-                <SignOut deviceToken={deviceToken} setOpts={setOpts} />
-              </Stack>
-            </Container>
           </Box>
-        </Stack>
-      </Box>
-      <Snackbar open={open} autoHideDuration={6000} onClose={close}>
-        <Alert
-          onClose={close}
-          key={snack.key}
-          severity={snack.severity}
-          sx={{ width: "100%" }}
-        >
-          {snack.message}
-        </Alert>
-      </Snackbar>
+        </div>
+        {isDragActive && <DropOverlay reject={isDragReject} />}
+        <Snackbar open={open} autoHideDuration={6000} onClose={close}>
+          <Alert
+            onClose={close}
+            key={snack.key}
+            severity={snack.severity}
+            sx={{ width: "100%" }}
+          >
+            {snack.message}
+          </Alert>
+        </Snackbar>
+      </UploadControl.Provider>
     </ThemeProvider>
   );
 }
