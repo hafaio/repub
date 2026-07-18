@@ -29,6 +29,7 @@ import {
   FaA,
   FaAlignJustify,
   FaAlignLeft,
+  FaBan,
   FaBars,
   FaCheck,
   FaEquals,
@@ -45,7 +46,7 @@ import {
   FaTriangleExclamation,
   FaXmark,
 } from "react-icons/fa6";
-import { register } from "rmapi-js";
+import { type DeviceModel, type PutOptions, register } from "rmapi-js";
 import repubPlain from "../public/repub-plain.svg";
 import { toMhtml } from "../src/mhtml";
 import {
@@ -56,6 +57,7 @@ import {
   type SetOptions,
   setOptions,
 } from "../src/options";
+import { analyzePdfMargins } from "../src/pdf-trim";
 import { render } from "../src/render";
 import { uploadEpub, uploadPdf } from "../src/upload";
 import { sleep } from "../src/utils";
@@ -138,7 +140,16 @@ async function uploadFile(deviceToken: string, file: File): Promise<void> {
   if (file.type === "application/epub+zip") {
     await uploadEpub(new Uint8Array(buff), file_title, deviceToken, opts);
   } else if (file.type === "application/pdf") {
-    await uploadPdf(new Uint8Array(buff), file_title, deviceToken, opts);
+    const pdf = new Uint8Array(buff);
+    let zoom: Partial<PutOptions> = {};
+    if (opts.pdfTrimDevice) {
+      try {
+        zoom = await analyzePdfMargins(pdf, opts.pdfTrimDevice);
+      } catch (ex) {
+        console.error("failed to analyze pdf margins", ex);
+      }
+    }
+    await uploadPdf(pdf, file_title, deviceToken, opts, zoom);
   } else if (file.type === "multipart/related") {
     const { epub, title = file_title } = await render(buff, opts);
     await uploadEpub(epub, title, deviceToken, opts);
@@ -1140,6 +1151,65 @@ function TagsSelector({
   );
 }
 
+function DeviceIcon({
+  width,
+  height,
+}: {
+  width: number;
+  height: number;
+}): ReactElement {
+  return (
+    <Box
+      sx={{
+        width,
+        height,
+        border: "2px solid currentColor",
+        borderRadius: "3px",
+      }}
+    />
+  );
+}
+
+function PdfTrimSelector({
+  pdfTrimDevice,
+  setOpts,
+}: {
+  pdfTrimDevice: DeviceModel | null | undefined;
+  setOpts: SetOptions;
+}): ReactElement {
+  return (
+    <ButtonSelection
+      value={pdfTrimDevice ?? "off"}
+      onChange={(val) => {
+        setOpts({ pdfTrimDevice: val === "off" ? null : val });
+      }}
+      selections={[
+        { val: "off", icon: <FaBan />, label: "Off" },
+        {
+          val: "RM110",
+          icon: <DeviceIcon width={15} height={20} />,
+          label: "reMarkable",
+        },
+        {
+          val: "RM02A",
+          icon: <DeviceIcon width={18} height={24} />,
+          label: "Paper Pro",
+        },
+        {
+          val: "RM03A",
+          icon: <DeviceIcon width={13} height={23} />,
+          label: "Paper Pro Move",
+        },
+      ]}
+      title="Trim PDF Margins"
+      caption="Crop predominantly white margins from uploaded PDFs and zoom the
+      content to fill the selected reMarkable's screen (reMarkable, Paper Pro, or
+      Paper Pro Move). Best for academic papers like arXiv. Applies one
+      document-wide fit and only affects uploaded PDFs."
+    />
+  );
+}
+
 function UploadOptions({
   opts,
   setOpts,
@@ -1170,6 +1240,7 @@ function UploadOptions({
         coverPageNumber={opts.coverPageNumber}
         setOpts={setOpts}
       />
+      <PdfTrimSelector pdfTrimDevice={opts.pdfTrimDevice} setOpts={setOpts} />
     </Section>
   );
 }
