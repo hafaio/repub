@@ -1113,7 +1113,7 @@ function TagsSelector({
     <TextField
       variant="standard"
       fullWidth
-      value={tags}
+      value={tags ?? ""}
       onChange={(evt) => {
         setOpts({ tags: evt.target.value });
       }}
