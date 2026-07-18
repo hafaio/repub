@@ -93,6 +93,7 @@ async function upload(
     uploadHost,
     rawHost,
     tokenUrl: _,
+    pdfTrimDevice: __,
     ...rest
   }: UploadOptions,
   put: (
@@ -101,6 +102,7 @@ async function upload(
     buffer: Uint8Array,
     opts: PutOptions,
   ) => Promise<unknown>,
+  extra: Partial<PutOptions> = {},
 ): Promise<void> {
   const tagList = [
     ...Iterator.from(tags.split(","))
@@ -109,6 +111,7 @@ async function upload(
   ];
   const opts = {
     ...rest,
+    ...extra,
     tags: tagList,
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
     title,
@@ -134,8 +137,14 @@ export function uploadPdf(
   title: string,
   deviceToken: string,
   options: UploadOptions,
+  extra: Partial<PutOptions> = {},
 ): Promise<void> {
-  return upload(pdf, title, deviceToken, options, (api, name, buffer, opts) =>
-    api.putPdf(name, buffer, opts),
+  return upload(
+    pdf,
+    title,
+    deviceToken,
+    options,
+    (api, name, buffer, opts) => api.putPdf(name, buffer, opts),
+    extra,
   );
 }

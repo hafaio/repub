@@ -1,3 +1,5 @@
+import type { DeviceModel } from "rmapi-js";
+
 type Awaitable<T> = T | Promise<T>;
 
 export interface Storage {
@@ -65,6 +67,8 @@ export interface UploadOptions {
   tags: string;
   textAlignment: "left" | "justify";
   viewBackgroundFilter: "off" | "fullpage" | null;
+  // reMarkable model to trim uploaded pdf margins for, or null to leave as-is
+  pdfTrimDevice: DeviceModel | null;
   authHost: string;
   uploadHost: string;
   rawHost: string;
@@ -119,6 +123,7 @@ export const defaultOptions: Options = {
   tags: "",
   textAlignment: "justify",
   viewBackgroundFilter: null,
+  pdfTrimDevice: null,
   promptTitle: false,
   // -------- //
   // API URLs //

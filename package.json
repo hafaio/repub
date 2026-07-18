@@ -12,7 +12,7 @@
     "fmt": "biome format --write",
     "lint": "tsc && biome check",
     "export:images": "mkdir -p images && <<< $'16\n32\n48\n128' xargs -I@ rsvg-convert -w @ -h @ public/repub.svg -o images/repub_@.png",
-    "export:bundle": "bun build src/background.ts src/offscreen.ts src/popup.ts --outdir . --sourcemap=linked && bun build ./options.html --outdir out --sourcemap=linked --chunk-naming \"[name].[ext]\" --asset-naming \"[name].[ext]\"",
+    "export:bundle": "bun build src/background.ts src/offscreen.ts src/popup.ts --outdir . --sourcemap=linked && bun build ./options.html --outdir out --sourcemap=linked --chunk-naming \"[name].[ext]\" --asset-naming \"[name].[ext]\" && bun build src/pdf.worker.ts --outdir out --sourcemap=linked",
     "export:pack": "zip -r --filesync repub.zip background.js background.js.map images/*.png manifest.json offscreen.html popup.html popup.js popup.js.map offscreen.js offscreen.js.map out",
     "export": "bun export:images && bun export:bundle && bun export:pack",
     "pack": "bun lint && bun test --coverage && bun export && publint"
@@ -47,10 +47,13 @@
     "react-dom": "^19.2.7",
     "react-dropzone": "^19.0.2",
     "react-icons": "^5.7.0",
-    "rmapi-js": "^11.1.0",
+    "rmapi-js": "^11.1.2",
     "teapub": "^4.1.0",
     "typescript": "~7.0.2",
     "uuid": "^14.0.1",
     "yargs": "^18.0.0"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^6.1.200"
   }
 }
