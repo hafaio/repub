@@ -569,9 +569,9 @@ function ResolutionSelector({
         setOpts({ tableResolution: parseInt(val, 10) });
       }}
       selections={[
-        { val: "1", icon: <FaRegSquare /> },
-        { val: "3", icon: <FaTableCellsLarge /> },
-        { val: "9", icon: <FaTableCells /> },
+        { val: "1", icon: <FaRegSquare />, label: "1×" },
+        { val: "3", icon: <FaTableCellsLarge />, label: "3×" },
+        { val: "9", icon: <FaTableCells />, label: "9×" },
       ]}
       title="Table Resolution"
       caption="When converting tables to images, higher resolution tables will
@@ -606,14 +606,17 @@ function EpubOptions({
           {
             val: "keep",
             icon: <FaRegImages />,
+            label: "Keep all",
           },
           {
             val: "filter",
             icon: <FaRegImage />,
+            label: "First only",
           },
           {
             val: "strip",
             icon: <FaRegRectangleXmark />,
+            label: "Remove all",
           },
         ]}
         title="Image Handling"
@@ -824,9 +827,9 @@ function MarginSelector({
         setOpts({ margins: parseInt(val, 10) });
       }}
       selections={[
-        { val: "50", icon: <MarginsSmall /> },
-        { val: "125", icon: <FaAlignJustify /> },
-        { val: "200", icon: <MarginsLarge /> },
+        { val: "50", icon: <MarginsSmall />, label: "Small" },
+        { val: "125", icon: <FaAlignJustify />, label: "Medium" },
+        { val: "200", icon: <MarginsLarge />, label: "Large" },
       ]}
       title="Page Margins"
       caption="The margins around the edge of the document"
@@ -870,26 +873,32 @@ function TextScaleSelector({
         {
           val: "0.7",
           icon: <FontSizeExtraSmall />,
+          label: "70%",
         },
         {
           val: "0.8",
           icon: <FontSizeSmall />,
+          label: "80%",
         },
         {
           val: "1.0",
           icon: <FaA />,
+          label: "100%",
         },
         {
           val: "1.2",
           icon: <FontSizeLarge />,
+          label: "120%",
         },
         {
           val: "1.5",
           icon: <FontSizeExtraLarge />,
+          label: "150%",
         },
         {
           val: "2.0",
           icon: <FontSizeHuge />,
+          label: "200%",
         },
       ]}
       title="Font Size"
@@ -918,14 +927,17 @@ function LineHeightSelector({
         {
           val: "100",
           icon: <FaAlignJustify />,
+          label: "100%",
         },
         {
           val: "150",
           icon: <FaBars />,
+          label: "150%",
         },
         {
           val: "200",
           icon: <FaEquals />,
+          label: "200%",
         },
       ]}
       title="Line Height"
@@ -954,10 +966,12 @@ function TextAlignmentSelector({
         {
           val: "left",
           icon: <FaAlignLeft />,
+          label: "Left",
         },
         {
           val: "justify",
           icon: <FaAlignJustify />,
+          label: "Justify",
         },
       ]}
       title="Text Alignment"
@@ -986,14 +1000,17 @@ function ViewBackgroundFilterSelector({
         {
           val: "fullpage",
           icon: <FaRegFileLines />,
+          label: "Full page",
         },
         {
           val: "adaptive",
           icon: <FaRegFile />,
+          label: "Adaptive",
         },
         {
           val: "off",
           icon: <FaRegFileImage />,
+          label: "Off",
         },
       ]}
       title="Contrast Filter"
