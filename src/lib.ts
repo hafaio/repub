@@ -132,9 +132,9 @@ export async function generate(
     {
       filterLinks,
       imageHandling,
-      summarizeCharThreshold: 0,
       authorByline,
       filterIframes,
+      url: href,
       convertTables,
       rotateTables,
       tableResolution,
