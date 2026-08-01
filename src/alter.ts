@@ -1,4 +1,4 @@
-import { Readability } from "@mozilla/readability";
+import Defuddle from "defuddle";
 import leven from "leven";
 import type { ImageMime } from "./epub";
 import type { ImageHandling } from "./options";
@@ -100,6 +100,7 @@ function* getSrcs(nodes: Iterable<Node>): IterableIterator<string> {
 
 interface WalkOptions {
   filterLinks: boolean;
+  filterIframes: boolean;
   imageHandling: ImageHandling;
   convertTables: boolean;
   rotateTables: boolean;
@@ -108,9 +109,9 @@ interface WalkOptions {
 }
 
 interface Options extends WalkOptions {
-  summarizeCharThreshold: number;
   authorByline: boolean;
-  filterIframes: boolean;
+  // the document's original url, used to resolve relative hrefs
+  url: string;
 }
 
 class Walker {
@@ -227,7 +228,9 @@ ${this.options.tableCss}`;
       img.src = url;
       yield img;
     } else if (node instanceof HTMLIFrameElement) {
-      const match = this.match([node.src]);
+      const match = this.options.filterIframes
+        ? undefined
+        : this.match([node.src]);
       if (match) {
         const [, { data, mime }] = match;
         const decoder = new TextDecoder();
@@ -319,15 +322,31 @@ function* coverUrls(doc: Document): IterableIterator<string> {
   }
 }
 
+interface Summary {
+  content: HTMLElement;
+  title: string | undefined;
+  byline: string | undefined;
+}
+
+/** extract the main content of a document as a detached element */
+function summarizeDoc(doc: Document, url: string): Summary {
+  const { content, title, author } = new Defuddle(doc, { url }).parse();
+  const parser = new DOMParser();
+  return {
+    content: parser.parseFromString(content, "text/html").body,
+    title: title || undefined,
+    byline: author || undefined,
+  };
+}
+
 /** update img src's with srcset information */
 export async function alter(
   doc: Document,
   match: UrlMatcher,
-  { summarizeCharThreshold, authorByline, filterIframes, ...opts }: Options,
+  { authorByline, url, ...opts }: Options,
   summarize: boolean = true,
 ): Promise<Altered> {
   const [cover] = match(coverUrls(doc)) ?? [];
-  const allowedVideoRegex = filterIframes ? /(?!)/ : /(?:)/;
   const authors = authorByline
     ? [...doc.querySelectorAll(`meta[property="article:author"]`)]
         .filter(
@@ -339,20 +358,9 @@ export async function alter(
     : [];
   const author = authors.length ? authors.join(", ") : null;
 
-  const res = summarize
-    ? new Readability<Node>(doc, {
-        charThreshold: summarizeCharThreshold,
-        allowedVideoRegex,
-        serializer: (v: Node) => v,
-      }).parse()
+  const { content, title, byline } = summarize
+    ? summarizeDoc(doc, url)
     : { content: doc.body, title: undefined, byline: undefined };
-  if (!res) {
-    throw new Error("failed to summarize document");
-  }
-  const { content, title, byline } = res;
-  if (content == null) {
-    throw new Error("failed to summarize document content");
-  }
   const { seen, svgs, pngs } = await new Walker(match, opts).walk(content);
   const images: [string, Uint8Array, ImageMime][] = [];
   const enc = new TextEncoder();
