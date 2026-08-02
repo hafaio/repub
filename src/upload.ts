@@ -1,85 +1,41 @@
-import {
-  GenerationError,
-  type PutOptions,
-  type RemarkableApi,
-  remarkable,
-} from "rmapi-js";
-import { lock } from "./lock";
+import { type PutOptions, type RemarkableApi, remarkable } from "rmapi-js";
 import type { UploadOptions } from "./options";
 
 const CACHE_KEY = "rmCache";
-const writeLock = lock();
-let cachedToken = "";
-let cachedUrlKey = "";
-let cachedApi: RemarkableApi | undefined;
+let cachedKey = "";
+let cachedApi: Promise<RemarkableApi> | undefined;
 
-async function getApi(
+function getApi(
   deviceToken: string,
   maxCacheSize: number,
   authHost: string,
   uploadHost: string,
   rawHost: string,
 ): Promise<RemarkableApi> {
-  const urlKey = `${authHost}|${uploadHost}|${rawHost}`;
-  if (
-    cachedApi !== undefined &&
-    cachedToken === deviceToken &&
-    cachedUrlKey === urlKey
-  ) {
-    return cachedApi;
-  } else {
-    const { [CACHE_KEY]: cache } = await chrome.storage.local.get(CACHE_KEY);
-    const api = await remarkable(deviceToken, {
-      maxCacheSize,
-      cache: cache as string,
-      authHost,
-      uploadHost,
-      rawHost,
-    });
-    // only populate the cache once the api has been built
-    cachedToken = deviceToken;
-    cachedUrlKey = urlKey;
-    cachedApi = api;
-    return api;
-  }
-}
-
-async function uploadBase(
-  deviceToken: string,
-  authHost: string,
-  uploadHost: string,
-  rawHost: string,
-  put: (api: RemarkableApi) => Promise<unknown>,
-): Promise<void> {
-  await writeLock.acquire();
-  try {
-    const api = await getApi(
-      deviceToken,
-      1_000_000,
-      authHost,
-      uploadHost,
-      rawHost,
-    );
-    let lastError: GenerationError | undefined;
-    for (let i = 0; i < 3; i++) {
-      try {
-        await put(api);
-        const cache = api.dumpCache();
-        await chrome.storage.local.set({ [CACHE_KEY]: cache });
-        return; // wrote successfully
-      } catch (ex) {
-        if (!(ex instanceof GenerationError)) {
-          throw ex;
-        }
-        lastError = ex;
+  const key = `${deviceToken}|${authHost}|${uploadHost}|${rawHost}`;
+  if (cachedApi === undefined || cachedKey !== key) {
+    // caching the promise, not the api, keeps concurrent uploads on a single
+    // instance, whose mutex then serializes their root updates
+    const pending = (async () => {
+      const { [CACHE_KEY]: cache } = await chrome.storage.local.get(CACHE_KEY);
+      return await remarkable(deviceToken, {
+        maxCacheSize,
+        cache: cache as string,
+        authHost,
+        uploadHost,
+        rawHost,
+      });
+    })();
+    pending.catch(() => {
+      // a failed auth shouldn't poison every later upload
+      if (cachedApi === pending) {
+        cachedApi = undefined;
       }
-    }
-    // every attempt raised a GenerationError; surface it instead of silently
-    // reporting success and losing the upload
-    throw lastError;
-  } finally {
-    writeLock.release();
+    });
+    cachedKey = key;
+    cachedApi = pending;
   }
+  return cachedApi;
 }
 
 async function upload(
@@ -116,9 +72,15 @@ async function upload(
     viewBackgroundFilter: viewBackgroundFilter ?? undefined,
     title,
   };
-  await uploadBase(deviceToken, authHost, uploadHost, rawHost, (api) =>
-    put(api, title, payload, opts),
+  const api = await getApi(
+    deviceToken,
+    1_000_000,
+    authHost,
+    uploadHost,
+    rawHost,
   );
+  await put(api, title, payload, opts);
+  await chrome.storage.local.set({ [CACHE_KEY]: api.dumpCache() });
 }
 
 export function uploadEpub(
