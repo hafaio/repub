@@ -75,7 +75,7 @@ export interface Altered {
   images: [string, Uint8Array, ImageMime][];
 }
 
-function* parseSrcset(srcset: string): IterableIterator<string> {
+export function* parseSrcset(srcset: string): IterableIterator<string> {
   for (const field of srcset.split(",")) {
     const match = /\S+/.exec(field);
     if (!match) continue;
@@ -311,7 +311,7 @@ ${this.options.tableCss}`;
   }
 }
 
-function* coverUrls(doc: Document): IterableIterator<string> {
+export function* coverUrls(doc: Document): IterableIterator<string> {
   const coverMeta = doc.querySelectorAll(
     `meta[property="og:image"], meta[property="og:image:url"], meta[property="twitter:image"]`,
   );
@@ -361,7 +361,7 @@ function inProse(elem: Element): boolean {
 }
 
 /** unwrap links so defuddle can't strip or pad the text inside them */
-function unwrapLinks(doc: Document, filterLinks: boolean): void {
+export function unwrapLinks(doc: Document, filterLinks: boolean): void {
   for (const anchor of doc.querySelectorAll("a")) {
     const sponsored = anchor.matches(`[rel="sponsored" i]`);
     if (
