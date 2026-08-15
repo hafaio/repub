@@ -360,18 +360,14 @@ function inProse(elem: Element): boolean {
   );
 }
 
-/**
- * unwrap links so defuddle can't strip or pad the text inside them
- *
- * Fragment links are kept for defuddle's footnote handling, and standalone
- * sponsored links are left for it to remove as ads.
- */
+/** unwrap links so defuddle can't strip or pad the text inside them */
 function unwrapLinks(doc: Document, filterLinks: boolean): void {
   for (const anchor of doc.querySelectorAll("a")) {
     const sponsored = anchor.matches(`[rel="sponsored" i]`);
     if (
       (filterLinks || sponsored) &&
       (!sponsored || inProse(anchor)) &&
+      // defuddle reconstructs footnotes from these
       !(anchor.getAttribute("href") ?? "").startsWith("#")
     ) {
       anchor.replaceWith(...anchor.childNodes);
@@ -393,6 +389,37 @@ function summarizeDoc(
     title: title || undefined,
     byline: author || undefined,
   };
+}
+
+/** drop authors already named in `author` from a byline */
+function trimByline(byline: string, author: string): string {
+  const names = author
+    .split(",")
+    .map((name) => name.replace(/\s+/g, " ").trim())
+    .filter((name) => name.length)
+    .sort((left, right) => right.length - left.length);
+  let trimmed = byline.replace(/\s+/g, " ");
+  for (const name of names) {
+    trimmed = trimmed.replace(new RegExp(RegExp.escape(name), "gi"), "");
+  }
+  return trimmed
+    .replace(/\s+/g, " ")
+    .replace(/(?:\s*,)+/g, ", ")
+    .replace(/^[\s,]+/, "")
+    .replace(/[\s,]+$/, "");
+}
+
+/** combine declared authors with whatever the byline adds beyond them */
+export function resolveByline(
+  author: string | null,
+  byline: string | undefined,
+): string | undefined {
+  const remaining = author && byline ? trimByline(byline, author) : byline;
+  if (author && remaining) {
+    return `${author}. ${remaining}`;
+  } else {
+    return author ?? remaining ?? undefined;
+  }
 }
 
 /** update img src's with srcset information */
@@ -431,10 +458,7 @@ export async function alter(
   return {
     altered: serial.serializeToString(content),
     title: title ?? "unknown title",
-    byline:
-      author && byline && author !== byline
-        ? `${author}. ${byline}`
-        : (author ?? byline ?? undefined),
+    byline: resolveByline(author, byline),
     cover,
     seen,
     images,
