@@ -328,8 +328,64 @@ interface Summary {
   byline: string | undefined;
 }
 
+const inlineTags = new Set([
+  "A",
+  "ABBR",
+  "B",
+  "CITE",
+  "CODE",
+  "EM",
+  "I",
+  "MARK",
+  "S",
+  "SMALL",
+  "SPAN",
+  "STRONG",
+  "SUB",
+  "SUP",
+  "U",
+]);
+
+/** whether an element sits among text rather than making up its whole block */
+function inProse(elem: Element): boolean {
+  let inline = elem;
+  while (inline.parentElement && inlineTags.has(inline.parentElement.tagName)) {
+    inline = inline.parentElement;
+  }
+  const block = inline.parentElement;
+  return (
+    !!block &&
+    (block.textContent ?? "").replace(inline.textContent ?? "", "").trim()
+      .length > 0
+  );
+}
+
+/**
+ * unwrap links so defuddle can't strip or pad the text inside them
+ *
+ * Fragment links are kept for defuddle's footnote handling, and standalone
+ * sponsored links are left for it to remove as ads.
+ */
+function unwrapLinks(doc: Document, filterLinks: boolean): void {
+  for (const anchor of doc.querySelectorAll("a")) {
+    const sponsored = anchor.matches(`[rel="sponsored" i]`);
+    if (
+      (filterLinks || sponsored) &&
+      (!sponsored || inProse(anchor)) &&
+      !(anchor.getAttribute("href") ?? "").startsWith("#")
+    ) {
+      anchor.replaceWith(...anchor.childNodes);
+    }
+  }
+}
+
 /** extract the main content of a document as a detached element */
-function summarizeDoc(doc: Document, url: string): Summary {
+function summarizeDoc(
+  doc: Document,
+  url: string,
+  filterLinks: boolean,
+): Summary {
+  unwrapLinks(doc, filterLinks);
   const { content, title, author } = new Defuddle(doc, { url }).parse();
   const parser = new DOMParser();
   return {
@@ -359,7 +415,7 @@ export async function alter(
   const author = authors.length ? authors.join(", ") : null;
 
   const { content, title, byline } = summarize
-    ? summarizeDoc(doc, url)
+    ? summarizeDoc(doc, url, opts.filterLinks)
     : { content: doc.body, title: undefined, byline: undefined };
   const { seen, svgs, pngs } = await new Walker(match, opts).walk(content);
   const images: [string, Uint8Array, ImageMime][] = [];
