@@ -1,0 +1,25 @@
+name: automerge
+
+# Split out of build.yml: a workflow reused as a gate can only narrow its caller's token, so
+# the write scopes below would break any release or deploy that calls it.
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+
+jobs:
+  merge:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.actor.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # nothing is checked out here, so gh has no remote to infer the repo from
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - run: gh pr merge --squash --match-head-commit "$HEAD_SHA" "$BRANCH"
+        env:
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
