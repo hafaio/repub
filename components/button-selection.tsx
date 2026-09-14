@@ -64,7 +64,7 @@ export default function ButtonSelection<T extends string>({
   const control = (
     <ToggleButtonGroup
       orientation="horizontal"
-      value={value ?? ""}
+      value={value ?? null}
       disabled={groupDisabled}
       exclusive
       onChange={change}
