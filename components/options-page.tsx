@@ -820,7 +820,7 @@ function MarginSelector({
       selections={[
         { val: "50", icon: <MarginsSmall />, label: "Small" },
         { val: "125", icon: <FaAlignJustify />, label: "Medium" },
-        { val: "200", icon: <MarginsLarge />, label: "Large" },
+        { val: "225", icon: <MarginsLarge />, label: "Large" },
       ]}
       title="Page Margins"
       caption="The margins around the edge of the document"
@@ -921,9 +921,9 @@ function LineHeightSelector({
           label: "100%",
         },
         {
-          val: "150",
+          val: "120",
           icon: <FaBars />,
-          label: "150%",
+          label: "120%",
         },
         {
           val: "200",
@@ -1029,7 +1029,44 @@ function FontNameSelector({
       }}
       selections={[
         {
+          val: "",
+          label: "Ebook default",
+          icon: (
+            <Typography
+              variant="caption"
+              sx={{ textTransform: "none", fontStyle: "italic" }}
+            >
+              Default
+            </Typography>
+          ),
+        },
+        {
+          val: "reMarkable Serif Small",
+          label: "reMarkable Serif",
+          icon: (
+            <Typography
+              variant="caption"
+              sx={{ fontFamily: "'Noto Serif'", textTransform: "none" }}
+            >
+              reMarkable Serif
+            </Typography>
+          ),
+        },
+        {
+          val: "reMarkable Sans",
+          label: "reMarkable Sans",
+          icon: (
+            <Typography
+              variant="caption"
+              sx={{ fontFamily: "'Noto Sans'", textTransform: "none" }}
+            >
+              reMarkable Sans
+            </Typography>
+          ),
+        },
+        {
           val: "EB Garamond",
+          label: "EB Garamond",
           icon: (
             <Typography
               variant="caption"
@@ -1039,53 +1076,9 @@ function FontNameSelector({
             </Typography>
           ),
         },
-        {
-          val: "Noto Sans",
-          icon: (
-            <Typography
-              variant="caption"
-              sx={{ fontFamily: "'Noto Sans'", textTransform: "none" }}
-            >
-              Noto Sans
-            </Typography>
-          ),
-        },
-        {
-          val: "Noto Serif",
-          icon: (
-            <Typography
-              variant="caption"
-              sx={{ fontFamily: "'Noto Serif'", textTransform: "none" }}
-            >
-              Noto Serif
-            </Typography>
-          ),
-        },
-        {
-          val: "Noto Mono",
-          icon: (
-            <Typography
-              variant="caption"
-              sx={{ fontFamily: "'Noto Sans Mono'", textTransform: "none" }}
-            >
-              Noto Mono
-            </Typography>
-          ),
-        },
-        {
-          val: "Noto Sans UI",
-          icon: (
-            <Typography
-              variant="caption"
-              sx={{ fontFamily: "'Noto Sans'", textTransform: "none" }}
-            >
-              Noto Sans UI
-            </Typography>
-          ),
-        },
       ]}
       title="Font Name"
-      caption="The font to use"
+      caption="The font the tablet uses to render the text"
       disabled={disabled}
     />
   );

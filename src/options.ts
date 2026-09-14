@@ -116,7 +116,7 @@ export const defaultOptions: Options = {
   // Upload //
   // ------ //
   coverPageNumber: -1,
-  fontName: "EB Garamond",
+  fontName: "reMarkable Serif Small",
   margins: 125,
   textScale: 1,
   lineHeight: 100,

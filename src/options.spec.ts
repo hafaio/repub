@@ -49,3 +49,7 @@ test("basic", async () => {
     outputStyle: "upload",
   });
 });
+
+test("default font name", () => {
+  expect(defaultOptions.fontName).toBe("reMarkable Serif Small");
+});
